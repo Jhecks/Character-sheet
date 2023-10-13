@@ -1,5 +1,6 @@
 import sys
 import os
+import ftfy
 
 import tkinter
 from tkinter import filedialog
@@ -22,7 +23,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         QtWidgets.QMainWindow.__init__(self)
         self.actualTheme = None
         self.setupUi(self)
-        self.setDarkTheme()
+        # self.setDarkTheme()
 
         self.actionLight_theme_2.triggered.connect(self.setLightTheme)
         self.actionDark_theme_2.triggered.connect(self.setDarkTheme)
@@ -44,7 +45,9 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         tkinter.Tk().withdraw()
         file_path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
         xmlParser.xml_parser(file_path)
-        print(file_path)
+        # print(file_path)
+        # bad_data = "\u0420\u00a0\u0421\u0453\u0421\u0403\u0421\u2039\u0420\u00b5"
+        # print("""hair": """ + ftfy.fix_text(bad_data))
 
 
 def main():
