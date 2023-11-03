@@ -1,11 +1,10 @@
 import json
-
 import dataFrame
 
 
 def xml_parser(path):
     try:
-        with (open(path, 'r') as input_file):
+        with (open(path, 'r', encoding='utf-8') as input_file):
             data = json.load(input_file)
             data_frame = dataFrame.CharacterSheetData()
             data_frame.create_from_json(data)
