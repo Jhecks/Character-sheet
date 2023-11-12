@@ -8,11 +8,13 @@ def xml_parser(path):
             data = json.load(input_file)
             data_frame = dataFrame.CharacterSheetData()
             data_frame.create_from_json(data)
-            print(data_frame)
+            # print(data_frame)
+
+            print(json.dumps(data, indent=4))
 
             return data_frame
 
-            # print(json.dumps(data, indent=4))
+
 
             # test = dataFrame.Skills()
             # test.create_from_json(data)
