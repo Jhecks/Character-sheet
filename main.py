@@ -5,6 +5,11 @@ import tkinter
 from tkinter import filedialog
 from PyQt5 import QtWidgets, QtCore
 from enum import Enum
+
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QKeySequence
+from PyQt5.QtWidgets import QShortcut
+
 import qtTranslateLayer as qtl
 
 import CharacterSheet
@@ -13,14 +18,24 @@ import dataFrame
 
 import qdarktheme
 
+from FeatEdit import Ui_FeatEdit
+from GearEdit import Ui_GearEdit
+from SpellEdit import Ui_SpellEdit
+from SpellLikeEdit import Ui_SpellLikeEdit
+from TraitEdit import Ui_TraitEdit
+
 
 class Themes(Enum):
     dark = 0
     light = 1
 
 
+# class SpellsTranslater(Enum):
+#     zero = 0
+#     first = 1
+
+
 def str_to_int(string):
-    # print(string)
     if string == '' or string == '0':
         return 0
     elif string[0] == '-':
@@ -36,11 +51,24 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.actualTheme = None
         self.setupUi(self)
         # self.setLightTheme()
-        # self.setDarkTheme()
+        self.setDarkTheme()
+
+        self.file_path = ''
 
         self.actionLight_theme_2.triggered.connect(self.setLightTheme)
         self.actionDark_theme_2.triggered.connect(self.setDarkTheme)
-        self.menuFile.triggered.connect(self.selectFile)
+
+        self.actionSelect_file.triggered.connect(self.selectFile)
+        self.openShortCut = QShortcut(QKeySequence('Ctrl+O'), self)
+        self.openShortCut.activated.connect(self.selectFile)
+
+        self.actionSave.triggered.connect(self.saveFile)
+        self.save = QShortcut(QKeySequence('Ctrl+S'), self)
+        self.save.activated.connect(self.saveFile)
+
+        self.actionSave_As.triggered.connect(self.saveFileAs)
+        self.saveAs = QShortcut(QKeySequence('Ctrl+Shift+S'), self)
+        self.saveAs.activated.connect(self.saveFileAs)
 
         # General data update
         self.name.textEdited.connect(lambda: self.general_changed('name'))
@@ -363,112 +391,731 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.notes.textChanged.connect(self.notes_changed)
 
         self.gearCount = 0
-        self.addGear.clicked.connect(lambda: self.add_gear())
+        self.gearIndex = 0
+        self.gearList = []
+        self.addGear.clicked.connect(lambda: self.add_gear(button_clicked=True))
 
         self.featCount = 0
-        self.addFeat.clicked.connect(lambda: self.add_feat())
+        self.featIndex = 0
+        self.featList = []
+        self.addFeat.clicked.connect(lambda: self.add_feat(button_clicked=True))
 
         self.abilityCount = 0
-        self.addAbility.clicked.connect(lambda: self.add_ability())
+        self.abilityIndex = 0
+        self.abilityList = []
+        self.addAbility.clicked.connect(lambda: self.add_ability(button_clicked=True))
 
         self.traitCount = 0
-        self.addTrait.clicked.connect(lambda: self.add_trait())
+        self.traitIndex = 0
+        self.traitList = []
+        self.addTrait.clicked.connect(lambda: self.add_trait(button_clicked=True))
 
         self.acCount = 0
         self.acList = []
-        self.acList.append(self.ACItem(self.ac_checkBox, self.ac_item_name, self.ac_item_bonus, self.ac_item_type,
-                                       self.ac_item_check_penalty, self.ac_item_spell_failure, self.ac_item_weight,
-                                       self.ac_item_properties, self.item_name, self.item_bonus, self.item_type,
-                                       self.item_check_penalty, self.item_spell_failure, self.item_weight,
-                                       self.item_properties))
-        self.addAC.clicked.connect(lambda: self.add_ac())
+        self.addAC.clicked.connect(lambda: self.add_ac(button=True))
         self.deleteAC.clicked.connect(lambda: self.delete_ac())
 
-        self.attacksList = []
-        self.attacksList.append(self.Attack(self.attack_checkbox, self.attack_weapon, self.attack_bonus,
-                                            self.attack_damage, self.attack_critical, self.attack_type,
-                                            self.attack_notes, self.attack_weapon_label, self.attack_bonus_label,
-                                            self.attack_damage_label, self.attack_critical_label,
-                                            self.attack_type_label, self.attack_notes_label))
-
-        self.attacksCount = 1
-        self.addAttack.clicked.connect(lambda: self.add_attack())
+        self.meleeAttacksList = []
+        self.rangedAttacksList = []
+        self.attacksCount = 0
+        self.addMeleeAttack.clicked.connect(lambda: self.add_attack(attackType='melee', button=True))
+        self.addRangedAttack.clicked.connect(lambda: self.add_attack(attackType='ranged', button=True))
         self.deleteAttack.clicked.connect(lambda: self.delete_attack())
 
-        self.buttons = []
+        self.spellLikeCount = 0
+        self.spellLikeIndex = 0
+        self.spellLikeList = []
+        self.addSpellLike.clicked.connect(
+            lambda: self.add_spell_like(button_clicked=True))
 
-    def add_gear(self, gear=None):
+        self.zeroCount = 0
+        self.zeroIndex = 0
+        self.zeroList = []
+        self.addZero.clicked.connect(
+            lambda: self.add_spell(button_clicked=True, spell_level='zero', grid_layout=self.gridLayout_15))
 
-        gridLayout = self.gridLayout_13
-        self.gearCount += 1
-        new_position = ((self.gearCount - 1) // 7 + 1, (self.gearCount - 1) % 7 + 2)
-        name = f'button №{self.gearCount}'
-        button = QtWidgets.QPushButton(self.groupBox_11)
-        button.setObjectName(f'button{self.gearCount}')
-        if gear:
-            button.setText(gear.name)
+        self.firstCount = 0
+        self.firstIndex = 0
+        self.firstList = []
+        self.addFirst.clicked.connect(
+            lambda: self.add_spell(button_clicked=True, spell_level='first', grid_layout=self.gridLayout_16))
+
+        self.secondCount = 0
+        self.secondIndex = 0
+        self.secondList = []
+        self.addSecond.clicked.connect(
+            lambda: self.add_spell(button_clicked=True, spell_level='second', grid_layout=self.gridLayout_17))
+
+        self.thirdCount = 0
+        self.thirdIndex = 0
+        self.thirdList = []
+        self.addThird.clicked.connect(
+            lambda: self.add_spell(button_clicked=True, spell_level='third', grid_layout=self.gridLayout_18))
+
+        self.fourthCount = 0
+        self.fourthIndex = 0
+        self.fourthList = []
+        self.addFourth.clicked.connect(
+            lambda: self.add_spell(button_clicked=True, spell_level='fourth', grid_layout=self.gridLayout_19))
+
+        self.fifthCount = 0
+        self.fifthIndex = 0
+        self.fifthList = []
+        self.addFifth.clicked.connect(
+            lambda: self.add_spell(button_clicked=True, spell_level='fifth', grid_layout=self.gridLayout_20))
+
+        self.sixthCount = 0
+        self.sixthIndex = 0
+        self.sixthList = []
+        self.addSixth.clicked.connect(
+            lambda: self.add_spell(button_clicked=True, spell_level='sixth', grid_layout=self.gridLayout_21))
+
+        self.seventhCount = 0
+        self.seventhIndex = 0
+        self.seventhList = []
+        self.addSeventh.clicked.connect(
+            lambda: self.add_spell(button_clicked=True, spell_level='seventh', grid_layout=self.gridLayout_22))
+
+        self.eighthCount = 0
+        self.eighthIndex = 0
+        self.eighthList = []
+        self.addEighth.clicked.connect(
+            lambda: self.add_spell(button_clicked=True, spell_level='eighth', grid_layout=self.gridLayout_23))
+
+        self.ninthCount = 0
+        self.ninthIndex = 0
+        self.ninthList = []
+        self.addNinth.clicked.connect(
+            lambda: self.add_spell(button_clicked=True, spell_level='ninth', grid_layout=self.gridLayout_24))
+
+    def add_spell_like(self, spell=None, button_clicked=False):
+        gridLayout = self.gridLayout_10
+        self.spellLikeCount += 1
+        self.spellLikeIndex += 1
+        new_position = (((self.spellLikeCount - 1) // 8) + 1, ((self.spellLikeCount - 1) % 8) + 1)
+        name = 'button № {}'.format(self.spellLikeIndex)
+        button = QtWidgets.QPushButton(self.groupBox_14)
+        button.setObjectName(name)
+        if spell:
+            if spell.prepared:
+                button.setText(f'{spell.name} ({spell.cast}/{spell.prepared})')
+            else:
+                button.setText(f'{spell.name}')
+            if spell.marked:
+                button.setStyleSheet("QPushButton"
+                                     "{"
+                                     "background-color : grey;"
+                                     "}")
         else:
             button.setText('Click me')
         gridLayout.addWidget(button, new_position[0], new_position[1])
-        button.clicked.connect(lambda: self.clicked_gear_button(name))
-        self.buttons.append(button)
+        button.clicked.connect(self.clicked_spell_like_button)
+        self.spellLikeList.append(button)
+        if button_clicked:
+            self.data_frame.spells.add_spell_like()
+            button.click()
 
-    def clicked_gear_button(self, counter):
-        print(f'clicked gear {counter}')
+    def clicked_spell_like_button(self):
+        object_name = self.sender().objectName()
+        index = 0
+        for i in range(len(self.spellLikeList)):
+            if self.spellLikeList[i].objectName() == object_name:
+                index = i
+        self.window = QtWidgets.QMainWindow()
+        self.ui = Ui_SpellLikeEdit()
+        self.ui.setupUi(self.window)
+        self.window.setWindowModality(Qt.ApplicationModal)
+        self.window.setWindowTitle('Edit Spell')
 
-    def add_feat(self, feat=None):
+        self.ui.name.setText(self.data_frame.spells.spellLikes[index].name)
+        self.ui.level.setValue(self.data_frame.spells.spellLikes[index].level)
+        self.ui.school.setText(self.data_frame.spells.spellLikes[index].school)
+        self.ui.subschool.setText(self.data_frame.spells.spellLikes[index].subschool)
+        self.ui.perDay.setValue(self.data_frame.spells.spellLikes[index].prepared)
+        self.ui.used.setValue(self.data_frame.spells.spellLikes[index].cast)
+        self.ui.notes.setPlainText(self.data_frame.spells.spellLikes[index].notes)
+        self.ui.description.setPlainText(self.data_frame.spells.spellLikes[index].description)
+
+        self.ui.name.textEdited.connect(lambda: self.spell_like_name_updated(index))
+        self.ui.level.valueChanged.connect(lambda: self.spell_like_level_updated(index))
+        self.ui.school.textEdited.connect(lambda: self.spell_like_school_updated(index))
+        self.ui.subschool.textEdited.connect(lambda: self.spell_like_subschool_updated(index))
+        self.ui.perDay.valueChanged.connect(lambda: self.spell_like_prepared_updated(index))
+        self.ui.used.valueChanged.connect(lambda: self.spell_like_cast_updated(index))
+        self.ui.notes.textChanged.connect(lambda: self.spell_like_notes_updated(index))
+        self.ui.description.textChanged.connect(lambda: self.spell_like_description_updated(index))
+
+        self.ui.closeButton.clicked.connect(lambda: self.window.close())
+        self.ui.perDayButton.clicked.connect(lambda: self.increase_per_day(index))
+        self.ui.usedButton.clicked.connect(lambda: self.increase_used(index))
+        self.ui.clearButton.clicked.connect(lambda: self.clear_data(index))
+        self.ui.markButton.clicked.connect(lambda: self.marked_spell_like(index))
+        self.ui.atWillButton.clicked.connect(lambda: self.at_will(index))
+        self.ui.deleteButton.clicked.connect(lambda: self.spell_like_delete(index))
+
+        self.window.show()
+
+    def increase_per_day(self, index):
+        self.data_frame.spells.spellLikes[index].prepared += 1
+        self.ui.perDay.setValue(self.data_frame.spells.spellLikes[index].prepared)
+
+    def increase_used(self, index):
+        self.data_frame.spells.spellLikes[index].cast += 1
+        self.ui.used.setValue(self.data_frame.spells.spellLikes[index].cast)
+
+    def clear_data(self, index):
+        self.data_frame.spells.spellLikes[index].prepared = 0
+        self.data_frame.spells.spellLikes[index].used = 0
+        self.ui.perDay.setValue(self.data_frame.spells.spellLikes[index].prepared)
+        self.ui.used.setValue(self.data_frame.spells.spellLikes[index].used)
+        self.data_frame.spells.spellLikes[index].atWill = False
+
+    def marked_spell_like(self, index):
+        if self.data_frame.spells.spellLikes[index].marked:
+            self.spellLikeList[index].setStyleSheet("")
+            self.data_frame.spells.spellLikes[index].marked = False
+        else:
+            self.spellLikeList[index].setStyleSheet("QPushButton"
+                                                    "{"
+                                                    "background-color : grey;"
+                                                    "}")
+            self.data_frame.spells.spellLikes[index].marked = True
+
+    def at_will(self, index):
+        if self.data_frame.spells.spellLikes[index].atWill:
+            self.ui.perDay.setValue(0)
+            self.data_frame.spells.spellLikes[index].atWill = False
+        else:
+            self.ui.perDay.setValue(99)
+            self.data_frame.spells.spellLikes[index].atWill = True
+
+    def spell_like_delete(self, index, reset=False):
+        grid_layout = self.gridLayout_10
+        self.data_frame.spells.delete_spell_like([index])
+        if not reset:
+            self.window.close()
+        grid_layout.removeWidget(self.spellLikeList[index])
+        self.spellLikeList[index].deleteLater()
+        del self.spellLikeList[index]
+        self.reset_spell_like_position()
+        self.spellLikeCount -= 1
+
+    def reset_spell_like_position(self):
+        grid_layout = self.gridLayout_10
+        index = 0
+        for button in self.spellLikeList:
+            index += 1
+            new_position = (((index - 1) // 8) + 1, ((index - 1) % 8) + 1)
+            grid_layout.removeWidget(button)
+            grid_layout.addWidget(button, new_position[0], new_position[1])
+
+    def spell_like_name_updated(self, index):
+        self.data_frame.spells.spellLikes[index].name = self.sender().text()
+        if self.data_frame.spells.spellLikes[index].prepared:
+            self.spellLikeList[index].setText(
+                '{} ({}/{})'.format(self.data_frame.spells.spellLikes[index].name,
+                                    self.data_frame.spells.spellLikes[index].cast,
+                                    self.data_frame.spells.spellLikes[index].prepared))
+        else:
+            self.spellLikeList[index].setText(
+                self.data_frame.spells.spellLikes[index].name)
+
+    def spell_like_level_updated(self, index):
+        self.data_frame.spells.spellLikes[index].level = self.sender().value()
+
+    def spell_like_school_updated(self, index):
+        self.data_frame.spells.spellLikes[index].school = self.sender().text()
+
+    def spell_like_subschool_updated(self, index):
+        self.data_frame.spells.spellLikes[index].subschool = self.sender().text()
+
+    def spell_like_prepared_updated(self, index):
+        self.data_frame.spells.spellLikes[index].prepared = self.sender().value()
+
+    def spell_like_cast_updated(self, index):
+        self.data_frame.spells.spellLikes[index].cast = self.sender().value()
+
+    def spell_like_notes_updated(self, index):
+        self.data_frame.spells.spellLikes[index].notes = self.sender().toPlainText()
+
+    def spell_like_description_updated(self, index):
+        self.data_frame.spells.spellLikes[index].description = self.sender().toPlainText()
+
+    def add_spell(self, spell=None, button_clicked=False, spell_level='', grid_layout=''):
+        gridLayout = grid_layout
+        setattr(self, spell_level + 'Count', getattr(self, spell_level + 'Count') + 1)
+        setattr(self, spell_level + 'Index', getattr(self, spell_level + 'Index') + 1)
+        new_position = (
+            ((getattr(self, spell_level + 'Count') - 1) // 8) + 1, ((getattr(self, spell_level + 'Count') - 1) % 8) + 1)
+        name = 'button № {}'.format(getattr(self, spell_level + 'Index'))
+        button = QtWidgets.QPushButton(self.groupBox_14)
+        button.setObjectName(name)
+        if spell:
+            if spell.prepared:
+                button.setText(f'{spell.name} ({spell.cast}/{spell.prepared})')
+            else:
+                button.setText(f'{spell.name}')
+            if spell.marked:
+                button.setStyleSheet("QPushButton"
+                                     "{"
+                                     "background-color : grey;"
+                                     "}")
+        else:
+            button.setText('Click me')
+        gridLayout.addWidget(button, new_position[0], new_position[1])
+        button.clicked.connect(lambda: self.clicked_spell_button(spell_level, grid_layout))
+        getattr(self, spell_level + 'List').append(button)
+        if button_clicked:
+            getattr(self.data_frame.spells, spell_level + 'Level').add_spell()
+            button.click()
+
+    def clicked_spell_button(self, spell_level, grid_layout):
+        object_name = self.sender().objectName()
+        index = 0
+        for i in range(len(getattr(self, spell_level + 'List'))):
+            if getattr(self, spell_level + 'List')[i].objectName() == object_name:
+                index = i
+        self.window = QtWidgets.QMainWindow()
+        self.ui = Ui_SpellEdit()
+        self.ui.setupUi(self.window)
+        self.window.setWindowModality(Qt.ApplicationModal)
+        self.window.setWindowTitle('Edit Spell')
+
+        self.ui.name.setText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name)
+        self.ui.level.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].level)
+        self.ui.school.setText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school)
+        self.ui.subschool.setText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].subschool)
+        self.ui.prepared.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared)
+        self.ui.cast.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast)
+        self.ui.notes.setPlainText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].notes)
+        self.ui.description.setPlainText(
+            getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].description)
+
+        self.ui.name.textEdited.connect(lambda: self.spell_name_updated(index, spell_level))
+        self.ui.level.valueChanged.connect(lambda: self.spell_level_updated(index, spell_level))
+        self.ui.school.textEdited.connect(lambda: self.spell_school_updated(index, spell_level))
+        self.ui.subschool.textEdited.connect(lambda: self.spell_subschool_updated(index, spell_level))
+        self.ui.prepared.valueChanged.connect(lambda: self.spell_prepared_updated(index, spell_level))
+        self.ui.cast.valueChanged.connect(lambda: self.spell_cast_updated(index, spell_level))
+        self.ui.notes.textChanged.connect(lambda: self.spell_notes_updated(index, spell_level))
+        self.ui.description.textChanged.connect(lambda: self.spell_description_updated(index, spell_level))
+
+        self.ui.closeButton.clicked.connect(lambda: self.window.close())
+        self.ui.preparedButton.clicked.connect(lambda: self.spell_increase_prepared(index, spell_level))
+        self.ui.castButton.clicked.connect(lambda: self.spell_increase_cast(index, spell_level))
+        self.ui.clearButton.clicked.connect(lambda: self.spell_clear_data(index, spell_level))
+        self.ui.markButton.clicked.connect(lambda: self.spell_mark(index, spell_level))
+        self.ui.deleteButton.clicked.connect(lambda: self.spell_delete(index, spell_level, grid_layout))
+
+        self.window.show()
+
+    def increase_prepared(self, index, spell_level):
+        getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared += 1
+        self.ui.perDay.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared)
+
+    def increase_cast(self, index):
+        self.data_frame.spells.spellLikes[index].used += 1
+        self.ui.perDay.setValue(self.data_frame.spells.spellLikes[index].used)
+
+    def clear_spell_counter_data(self, index):
+        self.data_frame.spells.spellLikes[index].prepared = 0
+        self.data_frame.spells.spellLikes[index].used = 0
+        self.ui.perDay.setValue(self.data_frame.spells.spellLikes[index].prepared)
+        self.ui.perDay.setValue(self.data_frame.spells.spellLikes[index].used)
+
+    def marked_spell(self, index):
+        if self.data_frame.spells.spellLikes[index].marked:
+            self.spellLikeList[index].setStyleSheet("")
+            self.data_frame.spells.spellLikes[index].marked = False
+        else:
+            self.spellLikeList[index].setStyleSheet("QPushButton"
+                                                    "{"
+                                                    "background-color : grey;"
+                                                    "}")
+            self.data_frame.spells.spellLikes[index].marked = True
+
+    def spell_name_updated(self, index, spell_level):
+        getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name = self.sender().text()
+        if getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared:
+            getattr(self, spell_level + 'List')[index].setText(
+                '{} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
+                                    getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast,
+                                    getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared))
+        else:
+            getattr(self, spell_level + 'List')[index].setText(
+                getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name)
+
+    def spell_level_updated(self, index, spell_level):
+        getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].level = self.sender().value()
+
+    def spell_school_updated(self, index, spell_level):
+        getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school = self.sender().text()
+
+    def spell_subschool_updated(self, index, spell_level):
+        getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].subschool = self.sender().text()
+
+    def spell_prepared_updated(self, index, spell_level):
+        getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared = self.sender().value()
+
+    def spell_cast_updated(self, index, spell_level):
+        getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast = self.sender().value()
+
+    def spell_notes_updated(self, index, spell_level):
+        getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].notes = self.sender().toPlainText()
+
+    def spell_description_updated(self, index, spell_level):
+        getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].description = self.sender().toPlainText()
+
+    def spell_increase_prepared(self, index, spell_level):
+        getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared += 1
+        self.ui.prepared.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared)
+
+    def spell_increase_cast(self, index, spell_level):
+        getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast += 1
+        self.ui.cast.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast)
+
+    def spell_clear_data(self, index, spell_level):
+        getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared = 0
+        getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast = 0
+        self.ui.prepared.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared)
+        self.ui.cast.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast)
+
+    def spell_mark(self, index, spell_level):
+        if getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].marked:
+            getattr(self, spell_level + 'List')[index].setStyleSheet("")
+            getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].marked = False
+        else:
+            getattr(self, spell_level + 'List')[index].setStyleSheet("QPushButton"
+                                                                     "{"
+                                                                     "background-color : grey;"
+                                                                     "}")
+            getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].marked = True
+
+    def spell_delete(self, index, spell_level, grid_layout, reset=False):
+        getattr(self.data_frame.spells, spell_level + 'Level').delete_spells([index])
+        if not reset:
+            self.window.close()
+        grid_layout.removeWidget(getattr(self, spell_level + 'List')[index])
+        getattr(self, spell_level + 'List')[index].deleteLater()
+        del getattr(self, spell_level + 'List')[index]
+        self.reset_spell_position(spell_level, grid_layout)
+        setattr(self, spell_level + 'Count', getattr(self, spell_level + 'Count') - 1)
+
+    def reset_spell_position(self, spell_level, grid_layout):
+        index = 0
+        for button in getattr(self, spell_level + 'List'):
+            index += 1
+            new_position = (((index - 1) // 8) + 1, ((index - 1) % 8) + 1)
+            grid_layout.removeWidget(button)
+            grid_layout.addWidget(button, new_position[0], new_position[1])
+
+    def add_gear(self, gear=None, button_clicked=False):
+        gridLayout = self.gridLayout_13
+        self.gearCount += 1
+        self.gearIndex += 1
+        new_position = ((self.gearCount - 1) // 7 + 1, (self.gearCount - 1) % 7 + 2)
+        name = f'button №{self.gearIndex}'
+        button = QtWidgets.QPushButton(self.groupBox_11)
+        button.setObjectName(name)
+        if gear:
+            button.setText(f'{gear.item} ({gear.quantity})')
+        else:
+            button.setText('Click me')
+        gridLayout.addWidget(button, new_position[0], new_position[1])
+        button.clicked.connect(self.clicked_gear_button)
+        self.gearList.append(button)
+        if button_clicked:
+            self.data_frame.gears.add_gear()
+
+    def clicked_gear_button(self):
+        object_name = self.sender().objectName()
+        index = 0
+        for i in range(len(self.gearList)):
+            if self.gearList[i].objectName() == object_name:
+                index = i
+        self.window = QtWidgets.QMainWindow()
+        self.ui = Ui_GearEdit()
+        self.ui.setupUi(self.window)
+        self.window.setWindowModality(Qt.ApplicationModal)
+        self.window.setWindowTitle('Edit Gear')
+
+        self.ui.type.setText(self.data_frame.gears.list[index].type)
+        self.ui.item.setText(self.data_frame.gears.list[index].item)
+        self.ui.location.setText(self.data_frame.gears.list[index].location)
+        self.ui.quantity.setText(self.data_frame.gears.list[index].quantity)
+        self.ui.weight.setText(self.data_frame.gears.list[index].weight)
+        self.ui.notes.setPlainText(self.data_frame.gears.list[index].notes)
+
+        self.ui.type.textEdited.connect(lambda: self.gear_type_updated(index))
+        self.ui.item.textEdited.connect(lambda: self.gear_item_updated(index))
+        self.ui.location.textEdited.connect(lambda: self.gear_location_updated(index))
+        self.ui.quantity.textEdited.connect(lambda: self.gear_quantity_updated(index))
+        self.ui.weight.textEdited.connect(lambda: self.gear_weight_updated(index))
+        self.ui.notes.textChanged.connect(lambda: self.gear_notes_updated(index))
+        self.ui.closeButton.clicked.connect(lambda: self.window.close())
+        self.ui.deleteButton.clicked.connect(lambda: self.gear_delete(index))
+
+        self.window.show()
+
+    def gear_type_updated(self, index):
+        self.data_frame.gears.list[index].type = self.sender().text()
+
+    def gear_item_updated(self, index):
+        self.data_frame.gears.list[index].item = self.sender().text()
+        self.gearList[index].setText(f'{self.data_frame.gears.list[index].item} '
+                                     f'({self.data_frame.gears.list[index].quantity})')
+
+    def gear_location_updated(self, index):
+        self.data_frame.gears.list[index].location = self.sender().text()
+
+    def gear_quantity_updated(self, index):
+        self.data_frame.gears.list[index].quantity = self.sender().text()
+        self.gearList[index].setText(f'{self.data_frame.gears.list[index].item} '
+                                     f'({self.data_frame.gears.list[index].quantity})')
+
+    def gear_weight_updated(self, index):
+        self.data_frame.gears.list[index].weight = self.sender().text()
+
+    def gear_notes_updated(self, index):
+        self.data_frame.gears.list[index].notes = self.sender().toPlainText()
+
+    def gear_delete(self, index=0, reset=False):
+        grid_layout = self.gridLayout_13
+        if not reset:
+            self.window.close()
+        self.data_frame.gears.delete_gear([index])
+        grid_layout.removeWidget(self.gearList[index])
+        self.gearList[index].deleteLater()
+        del self.gearList[index]
+        self.reset_gear_position()
+        self.gearCount -= 1
+
+    def reset_gear_position(self):
+        gridLayout = self.gridLayout_13
+        index = 0
+        for button in self.gearList:
+            index += 1
+            new_position = (((index - 1) // 7) + 1, ((index - 1) % 7) + 2)
+            gridLayout.removeWidget(button)
+            gridLayout.addWidget(button, new_position[0], new_position[1])
+
+    def add_feat(self, feat=None, button_clicked=False):
         gridLayout = self.gridLayout_3
         self.featCount += 1
+        self.featIndex += 1
         new_position = (((self.featCount - 1) // 7) + 1, ((self.featCount - 1) % 7) + 2)
-        name = f'button №{self.featCount}'
+        name = f'button №{self.featIndex}'
         button = QtWidgets.QPushButton(self.widget_25)
-        button.setObjectName('test')
+        button.setObjectName(name)
         if feat:
             button.setText(feat.name)
         else:
             button.setText('Click me')
         gridLayout.addWidget(button, new_position[0], new_position[1])
-        button.clicked.connect(lambda: self.clicked_feat_button(name))
-        # print(self.buttons[-1].setText('newText'))
+        button.clicked.connect(self.clicked_feat_button)
+        self.featList.append(button)
+        if button_clicked:
+            self.data_frame.feats.add_feat()
 
-    def clicked_feat_button(self, counter):
-        print(f'clicked feat {counter}')
+    def clicked_feat_button(self):
+        object_name = self.sender().objectName()
+        index = 0
+        for i in range(len(self.featList)):
+            if self.featList[i].objectName() == object_name:
+                index = i
+        self.window = QtWidgets.QMainWindow()
+        self.ui = Ui_FeatEdit()
+        self.ui.setupUi(self.window)
+        self.window.setWindowModality(Qt.ApplicationModal)
+        self.window.setWindowTitle('Edit Feat')
 
-    def add_ability(self, ability=None):
+        self.ui.name.setText(self.data_frame.feats.list[index].name)
+        self.ui.type.setText(self.data_frame.feats.list[index].type)
+        self.ui.notes.setPlainText(self.data_frame.feats.list[index].notes)
+
+        self.ui.name.textEdited.connect(lambda: self.feat_name_updated(index))
+        self.ui.type.textEdited.connect(lambda: self.feat_type_updated(index))
+        self.ui.notes.textChanged.connect(lambda: self.feat_notes_updated(index))
+        self.ui.closeButton.clicked.connect(lambda: self.window.close())
+        self.ui.deleteButton.clicked.connect(lambda: self.feat_delete(index))
+
+        self.window.show()
+
+    def feat_name_updated(self, index):
+        self.data_frame.feats.list[index].name = self.sender().text()
+        self.featList[index].setText(self.data_frame.feats.list[index].name)
+
+    def feat_type_updated(self, index):
+        self.data_frame.feats.list[index].type = self.sender().text()
+
+    def feat_notes_updated(self, index):
+        self.data_frame.feats.list[index].notes = self.sender().toPlainText()
+
+    def feat_delete(self, index, reset=False):
+        grid_layot = self.gridLayout_3
+        self.data_frame.feats.delete_feat([index])
+        if not reset:
+            self.window.close()
+        grid_layot.removeWidget(self.featList[index])
+        self.featList[index].deleteLater()
+        del self.featList[index]
+        self.reset_feats_positions()
+        self.featCount -= 1
+
+    def reset_feats_positions(self):
+        gridLayout = self.gridLayout_3
+        index = 0
+        for button in self.featList:
+            index += 1
+            new_position = (((index - 1) // 7) + 1, ((index - 1) % 7) + 2)
+            gridLayout.removeWidget(button)
+            gridLayout.addWidget(button, new_position[0], new_position[1])
+
+    def add_ability(self, ability=None, button_clicked=False):
         gridLayout = self.gridLayout_11
         self.abilityCount += 1
+        self.abilityIndex += 1
         new_position = ((self.abilityCount - 1) // 7 + 1, (self.abilityCount - 1) % 7 + 2)
-        name = f'button №{self.abilityCount}'
+        name = f'button №{self.abilityIndex}'
         button = QtWidgets.QPushButton(self.widget)
-        button.setObjectName('test')
+        button.setObjectName(name)
         if ability:
             button.setText(ability.name)
         else:
             button.setText('Click me')
         gridLayout.addWidget(button, new_position[0], new_position[1])
-        button.clicked.connect(lambda: self.clicked_ability_button(name))
+        button.clicked.connect(self.clicked_ability_button)
+        self.abilityList.append(button)
+        if button_clicked:
+            self.data_frame.specialAbilities.add_special_ability()
 
-    def clicked_ability_button(self, counter):
-        print(f'clicked ability {counter}')
+    def clicked_ability_button(self):
+        object_name = self.sender().objectName()
+        index = 0
+        for i in range(len(self.abilityList)):
+            if self.abilityList[i].objectName() == object_name:
+                index = i
+        self.window = QtWidgets.QMainWindow()
+        self.ui = Ui_FeatEdit()
+        self.ui.setupUi(self.window)
+        self.window.setWindowModality(Qt.ApplicationModal)
+        self.window.setWindowTitle('Edit Special Ability')
 
-    def add_trait(self, trait=None):
+        self.ui.name.setText(self.data_frame.specialAbilities.list[index].name)
+        self.ui.type.setText(self.data_frame.specialAbilities.list[index].type)
+        self.ui.notes.setPlainText(self.data_frame.specialAbilities.list[index].notes)
+
+        self.ui.name.textEdited.connect(lambda: self.ability_name_updated(index))
+        self.ui.type.textEdited.connect(lambda: self.ability_type_updated(index))
+        self.ui.notes.textChanged.connect(lambda: self.ability_notes_updated(index))
+        self.ui.closeButton.clicked.connect(lambda: self.window.close())
+        self.ui.deleteButton.clicked.connect(lambda: self.ability_delete(index))
+
+        self.window.show()
+
+    def ability_name_updated(self, index):
+        self.data_frame.specialAbilities.list[index].name = self.sender().text()
+        self.abilityList[index].setText(self.data_frame.specialAbilities.list[index].name)
+
+    def ability_type_updated(self, index):
+        self.data_frame.specialAbilities.list[index].type = self.sender().text()
+
+    def ability_notes_updated(self, index):
+        self.data_frame.specialAbilities.list[index].notes = self.sender().toPlainText()
+
+    def ability_delete(self, index, reset=False):
+        grid_layot = self.gridLayout_11
+        self.data_frame.specialAbilities.delete_special_ability([index])
+        if not reset:
+            self.window.close()
+        grid_layot.removeWidget(self.abilityList[index])
+        self.abilityList[index].deleteLater()
+        del self.abilityList[index]
+        self.reset_abilities_positions()
+        self.abilityCount -= 1
+
+    def reset_abilities_positions(self):
+        gridLayout = self.gridLayout_11
+        index = 0
+        for button in self.abilityList:
+            index += 1
+            new_position = (((index - 1) // 7) + 1, ((index - 1) % 7) + 2)
+            gridLayout.removeWidget(button)
+            gridLayout.addWidget(button, new_position[0], new_position[1])
+
+    def add_trait(self, trait=None, button_clicked=False):
         gridLayout = self.gridLayout_26
         self.traitCount += 1
+        self.traitIndex += 1
         new_position = ((self.traitCount - 1) // 7 + 1, (self.traitCount - 1) % 7 + 2)
-        name = f'button №{self.traitCount}'
+        name = f'button №{self.traitIndex}'
         button = QtWidgets.QPushButton(self.widget_2)
-        button.setObjectName('test')
+        button.setObjectName(name)
         if trait:
             button.setText(trait.name)
         else:
             button.setText('Click me')
         gridLayout.addWidget(button, new_position[0], new_position[1])
-        button.clicked.connect(lambda: self.clicked_trait_button(name))
+        button.clicked.connect(self.clicked_trait_button)
+        self.traitList.append(button)
+        if button_clicked:
+            self.data_frame.traits.add_trait()
 
-    def clicked_trait_button(self, counter):
-        print(f'clicked trait {counter}')
+    def clicked_trait_button(self):
+        object_name = self.sender().objectName()
+        index = 0
+        for i in range(len(self.traitList)):
+            if self.traitList[i].objectName() == object_name:
+                index = i
+        self.window = QtWidgets.QMainWindow()
+        self.ui = Ui_TraitEdit()
+        self.ui.setupUi(self.window)
+        self.window.setWindowModality(Qt.ApplicationModal)
+        self.window.setWindowTitle('Edit Trait')
 
-    def add_ac(self):
+        self.ui.type.setText(self.data_frame.traits.list[index].type)
+        self.ui.name.setText(self.data_frame.traits.list[index].name)
+        self.ui.notes.setPlainText(self.data_frame.traits.list[index].notes)
+
+        self.ui.type.textEdited.connect(lambda: self.trait_type_updated(index))
+        self.ui.name.textEdited.connect(lambda: self.trait_name_updated(index))
+        self.ui.notes.textChanged.connect(lambda: self.trait_notes_updated(index))
+        self.ui.closeButton.clicked.connect(lambda: self.window.close())
+        self.ui.deleteButton.clicked.connect(lambda: self.trait_delete(index))
+
+        self.window.show()
+
+    def trait_name_updated(self, index):
+        self.data_frame.traits.list[index].name = self.sender().text()
+        self.traitList[index].setText(self.data_frame.traits.list[index].name)
+
+    def trait_type_updated(self, index):
+        self.data_frame.traits.list[index].type = self.sender().text()
+
+    def trait_notes_updated(self, index):
+        self.data_frame.traits.list[index].notes = self.sender().toPlainText()
+
+    def trait_delete(self, index, reset=False):
+        grid_layot = self.gridLayout_26
+        self.data_frame.traits.delete_traits([index])
+        if not reset:
+            self.window.close()
+        grid_layot.removeWidget(self.traitList[index])
+        self.traitList[index].deleteLater()
+        del self.traitList[index]
+        self.reset_traits_positions()
+        self.traitCount -= 1
+
+    def reset_traits_positions(self):
+        gridLayout = self.gridLayout_26
+        index = 0
+        for button in self.traitList:
+            index += 1
+            new_position = (((index - 1) // 7) + 1, ((index - 1) % 7) + 2)
+            gridLayout.removeWidget(button)
+            gridLayout.addWidget(button, new_position[0], new_position[1])
+
+    def add_ac(self, item=None, button=False):
         gridLayout = self.gridLayout_14
         self.acCount += 1
         new_position = self.acCount * 2
@@ -490,6 +1137,15 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         item_weight_edit.setObjectName(f'item_weight_edit{self.acCount}')
         item_properties_edit = QtWidgets.QLineEdit(self.groupBox_12)
         item_properties_edit.setObjectName(f'item_properties_edit{self.acCount}')
+
+        if item:
+            item_name_edit.setText(item.name)
+            item_bonus_edit.setText(item.bonus)
+            item_type_edit.setText(item.type)
+            item_check_penalty_edit.setText(item.armorCheckPenalty)
+            item_spell_failure_edit.setText(item.spellFailure)
+            item_weight_edit.setText(item.weight)
+            item_properties_edit.setText(item.properties)
 
         item_name = QtWidgets.QLabel(self.groupBox_12)
         item_name.setObjectName(f'item_name{self.acCount}')
@@ -525,6 +1181,9 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
                                        item_properties_edit, item_name, item_bonus, item_type, item_check_penalty,
                                        item_spell_failure, item_weight, item_properties))
 
+        if button:
+            self.data_frame.defense.ac.items.add_item()
+
         gridLayout.addWidget(checkBox, new_position, 0)
 
         gridLayout.addWidget(item_name_edit, new_position, 1)
@@ -543,69 +1202,183 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         gridLayout.addWidget(item_weight, new_position + 1, 6)
         gridLayout.addWidget(item_properties, new_position + 1, 7)
 
+        item_name_edit.textEdited.connect(self.ac_name_update)
+        item_bonus_edit.textEdited.connect(self.ac_bonus_update)
+        item_type_edit.textEdited.connect(self.ac_type_update)
+        item_check_penalty_edit.textEdited.connect(self.ac_check_penalty_update)
+        item_spell_failure_edit.textEdited.connect(self.ac_spell_penalty_update)
+        item_weight_edit.textEdited.connect(self.ac_weight_update)
+        item_properties_edit.textEdited.connect(self.ac_properties_update)
+
     def delete_ac(self):
         gridLayout = self.gridLayout_14
         deleted = []
+        data_frame_deleted = []
+        index = 0
         for ac in self.acList:
             if ac.checkbox.checkState():
+                data_frame_deleted.append(index)
                 for attribute in ac.attributes:
                     gridLayout.removeWidget(getattr(ac, attribute))
                     getattr(ac, attribute).deleteLater()
                 deleted.append(ac)
+            index += 1
         for item in deleted:
             self.acList.remove(item)
-        print(len(self.acList))
+        self.data_frame.defense.ac.items.delete_items(data_frame_deleted)
+        self.data_frame.update_data()
+        self.update_window()
 
-    def add_attack(self):
+    def ac_name_update(self):
+        object_name = self.sender().objectName()
+        index = 0
+        for i in range(len(self.acList)):
+            if self.acList[i].name.objectName() == object_name:
+                index = i
+        self.data_frame.defense.ac.items.list[index].name = self.acList[index].name.text()
+
+    def ac_bonus_update(self):
+        object_name = self.sender().objectName()
+        index = 0
+        for i in range(len(self.acList)):
+            if self.acList[i].bonus.objectName() == object_name:
+                index = i
+        self.data_frame.defense.ac.items.list[index].bonus = self.acList[index].bonus.text()
+        self.data_frame.update_data()
+        self.update_window()
+
+    def ac_type_update(self):
+        object_name = self.sender().objectName()
+        index = 0
+        for i in range(len(self.acList)):
+            if self.acList[i].type.objectName() == object_name:
+                index = i
+        self.data_frame.defense.ac.items.list[index].type = self.acList[index].type.text()
+
+    def ac_check_penalty_update(self):
+        object_name = self.sender().objectName()
+        index = 0
+        for i in range(len(self.acList)):
+            if self.acList[i].check_penalty.objectName() == object_name:
+                index = i
+        self.data_frame.defense.ac.items.list[index].armorCheckPenalty = self.acList[index].check_penalty.text()
+        self.data_frame.update_data()
+        self.update_window()
+
+    def ac_spell_penalty_update(self):
+        object_name = self.sender().objectName()
+        index = 0
+        for i in range(len(self.acList)):
+            if self.acList[i].spell_failure.objectName() == object_name:
+                index = i
+        self.data_frame.defense.ac.items.list[index].spellFailure = self.acList[index].spell_failure.text()
+        self.data_frame.update_data()
+        self.update_window()
+
+    def ac_weight_update(self):
+        object_name = self.sender().objectName()
+        index = 0
+        for i in range(len(self.acList)):
+            if self.acList[i].weight.objectName() == object_name:
+                index = i
+        self.data_frame.defense.ac.items.list[index].weight = self.acList[index].weight.text()
+        self.data_frame.update_data()
+        self.update_window()
+
+    def ac_properties_update(self):
+        object_name = self.sender().objectName()
+        index = 0
+        for i in range(len(self.acList)):
+            if self.acList[i].properties.objectName() == object_name:
+                index = i
+        self.data_frame.defense.ac.items.list[index].properties = self.acList[index].properties.text()
+
+    def add_attack(self, attack_data=None, attackType='', button=False):
         gridLayout = self.gridLayout_12
         self.attacksCount += 1
         new_position = self.attacksCount * 2
 
         checkBox = QtWidgets.QCheckBox(self.groupBox_10)
         checkBox.setObjectName('test')
-        checkBox.setText('Attack')
 
         attack_weapon_edit = QtWidgets.QLineEdit(self.groupBox_10)
-        attack_weapon_edit.setObjectName(f'attack_weapon_edit{self.acCount}')
+        attack_weapon_edit.setObjectName(f'attack_weapon_edit{self.attacksCount}')
         attack_bonus_edit = QtWidgets.QLineEdit(self.groupBox_10)
-        attack_bonus_edit.setObjectName(f'attack_bonus_edit{self.acCount}')
+        attack_bonus_edit.setObjectName(f'attack_bonus_edit{self.attacksCount}')
         attack_damage_edit = QtWidgets.QLineEdit(self.groupBox_10)
-        attack_damage_edit.setObjectName(f'attack_damage_edit{self.acCount}')
+        attack_damage_edit.setObjectName(f'attack_damage_edit{self.attacksCount}')
         attack_critical_edit = QtWidgets.QLineEdit(self.groupBox_10)
-        attack_critical_edit.setObjectName(f'attack_critical_edit{self.acCount}')
+        attack_critical_edit.setObjectName(f'attack_critical_edit{self.attacksCount}')
         attack_type_edit = QtWidgets.QLineEdit(self.groupBox_10)
-        attack_type_edit.setObjectName(f'attack_type_edit{self.acCount}')
+        attack_type_edit.setObjectName(f'attack_type_edit{self.attacksCount}')
         attack_notes_edit = QtWidgets.QLineEdit(self.groupBox_10)
-        attack_notes_edit.setObjectName(f'attack_notes_edit{self.acCount}')
+        attack_notes_edit.setObjectName(f'attack_notes_edit{self.attacksCount}')
+
+        if attack_data:
+            attack_weapon_edit.setText(attack_data.weapon)
+            attack_bonus_edit.setText(attack_data.attackBonus)
+            attack_damage_edit.setText(attack_data.damage)
+            attack_critical_edit.setText(attack_data.critical)
+            attack_type_edit.setText(attack_data.type)
+            if attackType == 'melee':
+                attack_notes_edit.setText(attack_data.notes)
+            else:
+                attack_notes_edit.setText(attack_data.ammunition)
 
         attack_weapon = QtWidgets.QLabel(self.groupBox_10)
-        attack_weapon.setObjectName(f'attack_weapon{self.acCount}')
+        attack_weapon.setObjectName(f'attack_weapon{self.attacksCount}')
         attack_weapon.setAlignment(QtCore.Qt.AlignCenter)
         attack_weapon.setText('Weapon')
         attack_bonus = QtWidgets.QLabel(self.groupBox_10)
-        attack_bonus.setObjectName(f'attack_bonus{self.acCount}')
+        attack_bonus.setObjectName(f'attack_bonus{self.attacksCount}')
         attack_bonus.setAlignment(QtCore.Qt.AlignCenter)
         attack_bonus.setText('Attack Bonus')
         attack_damage = QtWidgets.QLabel(self.groupBox_10)
-        attack_damage.setObjectName(f'attack_damage{self.acCount}')
+        attack_damage.setObjectName(f'attack_damage{self.attacksCount}')
         attack_damage.setAlignment(QtCore.Qt.AlignCenter)
         attack_damage.setText('Damage')
         attack_critical = QtWidgets.QLabel(self.groupBox_10)
-        attack_critical.setObjectName(f'attack_critical{self.acCount}')
+        attack_critical.setObjectName(f'attack_critical{self.attacksCount}')
         attack_critical.setAlignment(QtCore.Qt.AlignCenter)
         attack_critical.setText('Critical')
         attack_type = QtWidgets.QLabel(self.groupBox_10)
-        attack_type.setObjectName(f'attack_type{self.acCount}')
+        attack_type.setObjectName(f'attack_type{self.attacksCount}')
         attack_type.setAlignment(QtCore.Qt.AlignCenter)
         attack_type.setText('Type')
-        attack_notes = QtWidgets.QLabel(self.groupBox_10)
-        attack_notes.setObjectName(f'attack_notes{self.acCount}')
-        attack_notes.setAlignment(QtCore.Qt.AlignCenter)
-        attack_notes.setText('Notes/Ammunition')
 
-        self.attacksList.append(self.Attack(checkBox, attack_weapon_edit, attack_bonus_edit, attack_damage_edit,
-                                            attack_critical_edit, attack_type_edit, attack_notes_edit, attack_weapon,
-                                            attack_bonus, attack_damage, attack_critical, attack_type, attack_notes))
+        if attackType == 'melee':
+            checkBox.setText('Melee attack')
+
+            attack_notes = QtWidgets.QLabel(self.groupBox_10)
+            attack_notes.setObjectName(f'attack_notes{self.attacksCount}')
+            attack_notes.setAlignment(QtCore.Qt.AlignCenter)
+            attack_notes.setText('Notes')
+
+            self.meleeAttacksList.append(
+                self.Attack(checkBox, attack_weapon_edit, attack_bonus_edit, attack_damage_edit,
+                            attack_critical_edit, attack_type_edit, attack_notes_edit, attack_weapon,
+                            attack_bonus, attack_damage, attack_critical, attack_type, attack_notes))
+
+        else:
+            checkBox.setText('Ranged attack')
+
+            attack_notes = QtWidgets.QLabel(self.groupBox_10)
+            attack_notes.setObjectName(f'attack_notes{self.attacksCount}')
+            attack_notes.setAlignment(QtCore.Qt.AlignCenter)
+            attack_notes.setText('Ammunition')
+
+            self.rangedAttacksList.append(
+                self.Attack(checkBox, attack_weapon_edit, attack_bonus_edit, attack_damage_edit,
+                            attack_critical_edit, attack_type_edit, attack_notes_edit,
+                            attack_weapon,
+                            attack_bonus, attack_damage, attack_critical, attack_type,
+                            attack_notes))
+
+        if button:
+            if attackType == 'melee':
+                self.data_frame.attacks.add_melee_attack()
+            else:
+                self.data_frame.attacks.add_ranged_attack()
 
         gridLayout.addWidget(checkBox, new_position, 0)
 
@@ -623,22 +1396,145 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         gridLayout.addWidget(attack_type, new_position + 1, 5)
         gridLayout.addWidget(attack_notes, new_position + 1, 6)
 
+        attack_weapon_edit.textEdited.connect(lambda: self.attack_weapon_update(
+            f'attack_weapon_edit{self.attacksCount}', True))
+        attack_bonus_edit.textEdited.connect(lambda: self.attack_bonus_update(
+            f'attack_bonus_edit{self.attacksCount}', True))
+        attack_damage_edit.textEdited.connect(lambda: self.attack_damage_update(
+            f'attack_damage_edit{self.attacksCount}', True))
+        attack_critical_edit.textEdited.connect(lambda: self.attack_critical_update(
+            f'attack_critical_edit{self.attacksCount}', True))
+        attack_type_edit.textEdited.connect(lambda: self.attack_type_update(
+            f'attack_type_edit{self.attacksCount}', True))
+        attack_notes_edit.textEdited.connect(lambda: self.attack_notes_update(
+            f'attack_notes_edit{self.attacksCount}', True))
+
     def delete_attack(self):
         gridLayout = self.gridLayout_12
         deleted = []
-        for attack in self.attacksList:
+        data_frame_deleted = []
+        index = 0
+        for attack in self.meleeAttacksList:
             if attack.checkbox.checkState():
+                data_frame_deleted.append(index)
                 for attribute in attack.attributes:
                     gridLayout.removeWidget(getattr(attack, attribute))
                     getattr(attack, attribute).deleteLater()
                 deleted.append(attack)
+            index += 1
         for item in deleted:
-            self.attacksList.remove(item)
-        print(len(self.attacksList))
+            self.meleeAttacksList.remove(item)
+        self.data_frame.attacks.delete_melee_attacks(data_frame_deleted)
+        deleted = []
+        data_frame_deleted = []
+        index = 0
+        for attack in self.rangedAttacksList:
+            if attack.checkbox.checkState():
+                data_frame_deleted.append(index)
+                for attribute in attack.attributes:
+                    gridLayout.removeWidget(getattr(attack, attribute))
+                    getattr(attack, attribute).deleteLater()
+                deleted.append(attack)
+            index += 1
+        for item in deleted:
+            self.rangedAttacksList.remove(item)
+        self.data_frame.attacks.delete_ranged_attacks(data_frame_deleted)
+
+    def attack_weapon_update(self, object_name='', melee=False):
+        object_name = self.sender().objectName()
+        if melee:
+            index = 0
+            for i in range(len(self.meleeAttacksList)):
+                if self.meleeAttacksList[i].weapon.objectName() == object_name:
+                    index = i
+            self.data_frame.attacks.melee[index].weapon = self.meleeAttacksList[index].weapon.text()
+        else:
+            index = 0
+            for i in range(len(self.rangedAttacksList)):
+                if self.rangedAttacksList[i].weapon.objectName() == object_name:
+                    index = i
+            self.data_frame.attacks.ranged[index].weapon = self.rangedAttacksList[index].weapon.text()
+
+    def attack_bonus_update(self, object_name='', melee=False):
+        object_name = self.sender().objectName()
+        if melee:
+            index = 0
+            for i in range(len(self.meleeAttacksList)):
+                if self.meleeAttacksList[i].bonus.objectName() == object_name:
+                    index = i
+            self.data_frame.attacks.melee[index].bonus = self.meleeAttacksList[index].bonus.text()
+        else:
+            index = 0
+            for i in range(len(self.rangedAttacksList)):
+                if self.rangedAttacksList[i].bonus.objectName() == object_name:
+                    index = i
+            self.data_frame.attacks.ranged[index].bonus = self.rangedAttacksList[index].bonus.text()
+
+    def attack_damage_update(self, object_name='', melee=False):
+        object_name = self.sender().objectName()
+        if melee:
+            index = 0
+            for i in range(len(self.meleeAttacksList)):
+                if self.meleeAttacksList[i].damage.objectName() == object_name:
+                    index = i
+            self.data_frame.attacks.melee[index].damage = self.meleeAttacksList[index].damage.text()
+        else:
+            index = 0
+            for i in range(len(self.rangedAttacksList)):
+                if self.rangedAttacksList[i].damage.objectName() == object_name:
+                    index = i
+            self.data_frame.attacks.ranged[index].damage = self.rangedAttacksList[index].damage.text()
+
+    def attack_critical_update(self, object_name='', melee=False):
+        object_name = self.sender().objectName()
+        if melee:
+            index = 0
+            for i in range(len(self.meleeAttacksList)):
+                if self.meleeAttacksList[i].critical.objectName() == object_name:
+                    index = i
+            self.data_frame.attacks.melee[index].critical = self.meleeAttacksList[index].critical.text()
+        else:
+            index = 0
+            for i in range(len(self.rangedAttacksList)):
+                if self.rangedAttacksList[i].critical.objectName() == object_name:
+                    index = i
+            self.data_frame.attacks.ranged[index].critical = self.rangedAttacksList[index].critical.text()
+
+    def attack_type_update(self, object_name='', melee=False):
+        object_name = self.sender().objectName()
+        if melee:
+            index = 0
+            for i in range(len(self.meleeAttacksList)):
+                if self.meleeAttacksList[i].type.objectName() == object_name:
+                    index = i
+            self.data_frame.attacks.melee[index].type = self.meleeAttacksList[index].type.text()
+        else:
+            index = 0
+            for i in range(len(self.rangedAttacksList)):
+                if self.rangedAttacksList[i].type.objectName() == object_name:
+                    index = i
+            self.data_frame.attacks.ranged[index].type = self.rangedAttacksList[index].type.text()
+
+    def attack_notes_update(self, object_name='', melee=False):
+        object_name = self.sender().objectName()
+        if melee:
+            index = 0
+            for i in range(len(self.meleeAttacksList)):
+                if self.meleeAttacksList[i].notes.objectName() == object_name:
+                    index = i
+            self.data_frame.attacks.melee[index].notes = self.meleeAttacksList[index].notes.text()
+        else:
+            index = 0
+            for i in range(len(self.rangedAttacksList)):
+                if self.rangedAttacksList[i].notes.objectName() == object_name:
+                    index = i
+            self.data_frame.attacks.ranged[index].ammunition = self.rangedAttacksList[index].notes.text()
 
     # General change
     def general_changed(self, general_item):
         setattr(self.data_frame.general, general_item, getattr(self, general_item).text())
+        if general_item == 'name':
+            self.setWindowTitle(self.data_frame.general.name)
 
     # Abilities change function
     def abilities_changed(self, ability):
@@ -825,26 +1721,150 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.actionLight_theme_2.setChecked(True)
         self.actualTheme = Themes.light
 
+    def reset_buttons(self):
+        for i in range(len(self.gearList) - 1, -1, -1):
+            self.gear_delete(i, reset=True)
+        self.gearCount = 0
+        self.gearIndex = 0
+
+        for i in range(len(self.featList) - 1, -1, -1):
+            self.feat_delete(i, reset=True)
+        self.featCount = 0
+        self.featIndex = 0
+
+        for i in range(len(self.abilityList) - 1, -1, -1):
+            self.ability_delete(i, reset=True)
+        self.abilityCount = 0
+        self.abilityIndex = 0
+
+        for i in range(len(self.traitList) - 1, -1, -1):
+            self.trait_delete(i, reset=True)
+        self.traitCount = 0
+        self.traitIndex = 0
+
+        for checkBox in self.acList:
+            checkBox.checkbox.setChecked(True)
+        for i in range(len(self.acList) - 1, -1, -1):
+            self.delete_ac()
+        self.acCount = 0
+
+        for attack in self.meleeAttacksList:
+            attack.checkbox.setChecked(True)
+        for attack in self.rangedAttacksList:
+            attack.checkbox.setChecked(True)
+        self.delete_attack()
+        self.attacksCount = 0
+
+        for i in range(len(self.spellLikeList) - 1, -1, -1):
+            self.spell_like_delete(i, reset=True)
+        self.spellLikeCount = 0
+        self.spellLikeIndex = 0
+
+        for i in range(len(self.zeroList) - 1, -1, -1):
+            self.spell_delete(i, 'zero', reset=True, grid_layout=self.gridLayout_15)
+        self.zeroCount = 0
+        self.zeroIndex = 0
+
+        for i in range(len(self.firstList) - 1, -1, -1):
+            self.spell_delete(i, 'first', reset=True, grid_layout=self.gridLayout_16)
+        self.firstCount = 0
+        self.firstIndex = 0
+
+        for i in range(len(self.secondList) - 1, -1, -1):
+            self.spell_delete(i, 'second', reset=True, grid_layout=self.gridLayout_17)
+        self.secondCount = 0
+        self.secondIndex = 0
+
+        for i in range(len(self.thirdList) - 1, -1, -1):
+            self.spell_delete(i, 'third', reset=True, grid_layout=self.gridLayout_18)
+        self.thirdCount = 0
+        self.thirdIndex = 0
+
+        for i in range(len(self.fourthList) - 1, -1, -1):
+            self.spell_delete(i, 'fourth', reset=True, grid_layout=self.gridLayout_19)
+        self.fourthCount = 0
+        self.fourthIndex = 0
+
+        for i in range(len(self.fifthList) - 1, -1, -1):
+            self.spell_delete(i, 'fifth', reset=True, grid_layout=self.gridLayout_20)
+        self.fifthCount = 0
+        self.fifthIndex = 0
+
+        for i in range(len(self.sixthList) - 1, -1, -1):
+            self.spell_delete(i, 'sixth', reset=True, grid_layout=self.gridLayout_21)
+        self.sixthCount = 0
+        self.sixthIndex = 0
+
+        for i in range(len(self.seventhList) - 1, -1, -1):
+            self.spell_delete(i, 'seventh', reset=True, grid_layout=self.gridLayout_22)
+        self.seventhCount = 0
+        self.seventhIndex = 0
+
+        for i in range(len(self.eighthList) - 1, -1, -1):
+            self.spell_delete(i, 'eighth', reset=True, grid_layout=self.gridLayout_23)
+        self.eighthCount = 0
+        self.eighthIndex = 0
+
+        for i in range(len(self.ninthList) - 1, -1, -1):
+            self.spell_delete(i, 'ninth', reset=True, grid_layout=self.gridLayout_24)
+        self.ninthCount = 0
+        self.ninthIndex = 0
+
     def selectFile(self):
         tkinter.Tk().withdraw()
-        file_path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
-        self.data_frame = xmlParser.xml_parser(file_path)
-
+        self.file_path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
+        if self.file_path == '':
+            return
+        self.reset_buttons()
+        self.data_frame = xmlParser.xml_to_character_sheet(self.file_path)
         self.setWindowTitle(self.data_frame.general.name)
 
         self.update_window()
 
-        for gear in self.data_frame.gears.gears:
+        for gear in self.data_frame.gears.list:
             self.add_gear(gear)
 
-        for feat in self.data_frame.feats.feats:
+        for feat in self.data_frame.feats.list:
             self.add_feat(feat)
 
-        for trait in self.data_frame.traits.traits:
+        for trait in self.data_frame.traits.list:
             self.add_trait(trait)
 
-        for specialAbility in self.data_frame.specialAbilities.specialAbilities:
+        for specialAbility in self.data_frame.specialAbilities.list:
             self.add_ability(specialAbility)
+
+        for attack in self.data_frame.attacks.melee:
+            self.add_attack(attack, 'melee')
+
+        for attack in self.data_frame.attacks.ranged:
+            self.add_attack(attack, 'ranged')
+
+        for item in self.data_frame.defense.ac.items.list:
+            self.add_ac(item)
+
+        for spellLike in self.data_frame.spells.spellLikes:
+            self.add_spell_like(spellLike)
+
+        spellLevels = {'zero': 'gridLayout_15', 'first': 'gridLayout_16', 'second': 'gridLayout_17',
+                       'third': 'gridLayout_18', 'fourth': 'gridLayout_19', 'fifth': 'gridLayout_20',
+                       'sixth': 'gridLayout_21', 'seventh': 'gridLayout_22', 'eighth': 'gridLayout_23',
+                       'ninth': 'gridLayout_24'}
+
+        for spellLevel, gridLayout in spellLevels.items():
+            for spell in getattr(self.data_frame.spells, spellLevel + 'Level').slotted:
+                self.add_spell(spell, False, spellLevel, getattr(self, gridLayout))
+
+    def saveFile(self):
+        if self.file_path:
+            return
+        xmlParser.character_sheet_to_xml(self.file_path, self.data_frame.create_json())
+
+    def saveFileAs(self):
+        tkinter.Tk().withdraw()
+        self.file_path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
+        if self.file_path == '':
+            return
+        xmlParser.character_sheet_to_xml(self.file_path, self.data_frame.create_json())
 
     def update_window(self):
         # Write data to general block in gui
@@ -914,6 +1934,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
                                           if self.data_frame.abilities.tempConModifier != ""
                                           else self.data_frame.abilities.conModifier)
         self.fort_magicModifier.setText(self.data_frame.defense.fort.magicModifier)
+        self.fort_miscModifier.setText(self.data_frame.defense.fort.miscModifier)
         self.fort_tempModifier.setText(self.data_frame.defense.fort.tempModifier)
         self.fort_otherModifiers.setText(self.data_frame.defense.fort.otherModifiers)
 
@@ -923,6 +1944,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
                                             if self.data_frame.abilities.tempDexModifier != ""
                                             else self.data_frame.abilities.dexModifier)
         self.reflex_magicModifier.setText(self.data_frame.defense.reflex.magicModifier)
+        self.reflex_miscModifier.setText(self.data_frame.defense.reflex.miscModifier)
         self.reflex_tempModifier.setText(self.data_frame.defense.reflex.tempModifier)
         self.reflex_otherModifiers.setText(self.data_frame.defense.reflex.otherModifiers)
 
@@ -932,6 +1954,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
                                           if self.data_frame.abilities.tempWisModifier != ""
                                           else self.data_frame.abilities.wisModifier)
         self.will_magicModifier.setText(self.data_frame.defense.will.magicModifier)
+        self.will_miscModifier.setText(self.data_frame.defense.will.miscModifier)
         self.will_tempModifier.setText(self.data_frame.defense.will.tempModifier)
         self.will_otherModifiers.setText(self.data_frame.defense.will.otherModifiers)
 
@@ -943,8 +1966,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
                                      if self.data_frame.abilities.tempDexModifier != ""
                                      else self.data_frame.abilities.dexModifier)
         self.cmd_sizeModifier.setText(self.data_frame.defense.cmd.sizeModifier)
-        self.cmd_miscModifiers.setText(self.data_frame.defense.cmd.miscModifier)
-        self.cmd_tempModifiers.setText(self.data_frame.defense.cmd.tempModifier)
+        self.cmd_miscModifiers.setText(self.data_frame.defense.cmd.miscModifiers)
+        self.cmd_tempModifiers.setText(self.data_frame.defense.cmd.tempModifiers)
 
         self.resistances.setText(self.data_frame.defense.resistances)
         self.immunities.setText(self.data_frame.defense.immunities)
@@ -982,6 +2005,11 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.cp.setText(self.data_frame.money.cp)
         self.gems.setText(self.data_frame.money.gems)
         self.other.setText(self.data_frame.money.other)
+
+        self.ac_item_total.setText(self.data_frame.defense.ac.itemsTotals.bonus)
+        self.ac_item_check_penalty.setText(self.data_frame.defense.ac.itemsTotals.armorCheckPenalty)
+        self.ac_item_spell_penalty.setText(self.data_frame.defense.ac.itemsTotals.spellFailure)
+        self.ac_item_weight.setText(self.data_frame.defense.ac.itemsTotals.weight)
 
         # spells data
         for data_frame_path, gui_path in qtl.spells_data.items():

@@ -2,7 +2,7 @@ import json
 import dataFrame
 
 
-def xml_parser(path):
+def xml_to_character_sheet(path):
     try:
         with (open(path, 'r', encoding='utf-8') as input_file):
             data = json.load(input_file)
@@ -13,23 +13,15 @@ def xml_parser(path):
             print(json.dumps(data, indent=4))
 
             return data_frame
+    except Exception as inst:
+        print(type(inst))
+        print(inst.args)
+        print(inst)
 
-
-
-            # test = dataFrame.Skills()
-            # test.create_from_json(data)
-            # print(test)
-            #
-            # test = dataFrame.Abilities()
-            # test.create_from_json(data)
-            # print(test)
-            #
-            # test = dataFrame.General()
-            # test.create_from_json(data)
-            # print(test)
-
-
-
+def character_sheet_to_xml(path, data_frame):
+    try:
+        with open(path, 'w') as output_file:
+            json.dump(data_frame, output_file)
     except Exception as inst:
         print(type(inst))
         print(inst.args)

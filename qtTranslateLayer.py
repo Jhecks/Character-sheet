@@ -366,8 +366,8 @@ inverse_will_defense_data = {
 inverse_cmd_defense_data = {
     'cmd_total': 'total',
     'cmd_sizeModifier': 'sizeModifier',
-    'cmd_miscModifiers': 'miscModifier',
-    'cmd_tempModifiers': 'tempModifier'
+    'cmd_miscModifiers': 'miscModifiers',
+    'cmd_tempModifiers': 'tempModifiers'
 }
 inverse_defense_data = {
     'resistances': 'resistances',

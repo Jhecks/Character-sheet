@@ -1,3 +1,5 @@
+import json
+
 from main import *
 
 
@@ -29,6 +31,7 @@ class CharacterSheetData:
         self.traits = self.Traits()
         self.feats = self.Feats()
         self.specialAbilities = self.SpecialAbilities()
+        self.attacks = self.Attacks()
         self.notes = ""
 
     def create_from_json(self, json_data):
@@ -43,6 +46,7 @@ class CharacterSheetData:
         self.traits.create_from_json(json_data)
         self.feats.create_from_json(json_data)
         self.specialAbilities.create_from_json(json_data)
+        self.attacks.create_from_json(json_data)
         self.notes = json_data.get("notes")
 
     def update_data(self):
@@ -51,6 +55,140 @@ class CharacterSheetData:
         self.skills.update_skills(self.abilities)
         self.defense.update_defence(self.abilities, self.offense)
         self.offense.update_offense_data(self.abilities)
+
+    def create_json(self):
+        output_json = {}
+        for general_data in self.general.attributes:
+            output_json[general_data] = getattr(self.general, general_data)
+
+        output_json['skills'] = {}
+        for skill_data in self.skills.attributes:
+            output_json['skills'][skill_data] = {}
+            for data in getattr(self.skills, skill_data).attributes:
+                output_json['skills'][skill_data][data] = getattr(getattr(self.skills, skill_data), data)
+
+        output_json['spells'] = []
+        for n_level_spell in self.spells.attributes:
+            spell_data = {}
+            for n_level_data in getattr(self.spells, n_level_spell).attributes:
+                spell_data[n_level_data] = getattr(getattr(self.spells, n_level_spell), n_level_data)
+            spell_data['slotted'] = []
+            for slotted_data in getattr(self.spells, n_level_spell).slotted:
+                slotted_data_data = {}
+                for slotted_data_spell in slotted_data.attributes:
+                    slotted_data_data[slotted_data_spell] = getattr(slotted_data, slotted_data_spell)
+                spell_data['slotted'].append(slotted_data_data)
+            output_json['spells'].append(spell_data)
+        output_json['spellsSpeciality'] = self.spells.spellsSpeciality
+        output_json['spellsConditionalModifiers'] = self.spells.spellsConditionalModifiers
+
+        output_json['abilities'] = {}
+        for ability in self.abilities.attributes:
+            output_json['abilities'][ability] = getattr(self.abilities, ability)
+
+        output_json['ac'] = {}
+        for ac in self.defense.ac.attributes:
+            output_json['ac'][ac] = getattr(self.defense.ac, ac)
+        output_json['ac']['items'] = []
+        for ac_item in self.defense.ac.items.list:
+            item_data = {}
+            for ac_item_data in ac_item.attributes:
+                item_data[ac_item_data] = getattr(ac_item, ac_item_data)
+            output_json['ac']['items'].append(item_data)
+        output_json['ac']['itemTotals'] = {}
+        for item_total in self.defense.ac.itemsTotals.attributes:
+            output_json['ac']['itemTotals'][item_total] = getattr(self.defense.ac.itemsTotals, item_total)
+
+        output_json['damageReduction'] = self.defense.damageReduction
+        output_json['hp'] = {}
+        for hp_data in self.defense.hp.attributes:
+            output_json['hp'][hp_data] = getattr(self.defense.hp, hp_data)
+        output_json['spellResistance'] = self.defense.spellResistance
+
+        output_json['cmd'] = {}
+        for cmd_data in self.defense.cmd.attributes:
+            output_json['cmd'][cmd_data] = getattr(self.defense.cmd, cmd_data)
+        output_json['immunities'] = self.defense.immunities
+        output_json['resistances'] = self.defense.resistances
+
+        output_json['saves'] = {}
+        for save in self.defense.save_attributes:
+            output_json['saves'][save] = {}
+            for save_data in getattr(self.defense, save).attributes:
+                output_json['saves'][save][save_data] = getattr(getattr(self.defense, save), save_data)
+
+        output_json['bab'] = self.offense.bab
+        output_json['cmb'] = {}
+        for cmb_data in self.offense.cmb.attributes:
+            output_json['cmb'][cmb_data] = getattr(self.offense.cmb, cmb_data)
+        output_json['conditionalOffenseModifiers'] = self.offense.conditionalOffenseModifiers
+        output_json['initiative'] = {}
+        output_json['initiative']['total'] = self.offense.initiative.total
+        output_json['initiative']['miscModifier'] = self.offense.initiative.miscModifier
+
+        output_json['melee'] = []
+        for melee in self.attacks.melee:
+            melee_attack = {}
+            for melee_data in melee.attributes:
+                melee_attack[melee_data] = getattr(melee, melee_data)
+            output_json['melee'].append(melee_attack)
+
+        output_json['ranged'] = []
+        for ranged in self.attacks.ranged:
+            ranged_attack = {}
+            for ranged_data in ranged.attributes:
+                ranged_attack[ranged_data] = getattr(ranged, ranged_data)
+            output_json['ranged'].append(ranged_attack)
+
+        output_json['speed'] = {}
+        for speed_data in self.offense.speed.attributes:
+            output_json['speed'][speed_data] = getattr(self.offense.speed, speed_data)
+
+        output_json['feats'] = []
+        for feat in self.feats.list:
+            feat_data = {}
+            for feat_data_data in feat.attributes:
+                feat_data[feat_data_data] = getattr(feat, feat_data_data)
+            output_json['feats'].append(feat_data)
+        output_json['languages'] = self.skills.languages
+        output_json['xp'] = {}
+        output_json['xp']['total'] = self.skills.xp.total
+        output_json['xp']['toNextLevel'] = self.skills.xp.toNextLevel
+
+        output_json['specialAbilities'] = []
+        for specialAbility in self.specialAbilities.list:
+            specialAbility_data = {}
+            for specialAbilities_data_data in specialAbility.attributes:
+                specialAbility_data[specialAbilities_data_data] = getattr(specialAbility, specialAbilities_data_data)
+            output_json['specialAbilities'].append(specialAbility_data)
+
+        output_json['traits'] = []
+        for trait in self.traits.list:
+            trait_data = {}
+            for trait_data_data in trait.attributes:
+                trait_data[trait_data_data] = getattr(trait, trait_data_data)
+            output_json['traits'].append(trait_data)
+
+        output_json['money'] = {}
+        for money in self.money.attributes:
+            output_json['money'][money] = getattr(self.money, money)
+
+        output_json['gear'] = []
+        for gear in self.gears.list:
+            gear_data = {}
+            for gear_data_data in gear.attributes:
+                gear_data[gear_data_data] = getattr(gear, gear_data_data)
+            output_json['gear'].append(gear_data)
+
+        output_json['spellLikes'] = []
+        for spellLike in self.spells.spellLikes:
+            spellLike_data = {}
+            for spellLike_data_data in spellLike.attributes:
+                spellLike_data[spellLike_data_data] = getattr(spellLike, spellLike_data_data)
+            output_json['spellLikes'].append(spellLike_data)
+
+        output_json['notes'] = self.notes
+        print(json.dumps(output_json, indent=4))
 
     def __str__(self):
         string = str.format("{}\n{}\n{}", self.general, self.abilities, self.skills)
@@ -82,7 +220,7 @@ class CharacterSheetData:
         def create_from_json(self, json_data):
             for attribute in self.attributes:
                 if json_data.get(attribute):
-                    setattr(self, attribute, json_data.get(attribute))
+                    setattr(self, attribute, json_data.get(attribute, ''))
 
         def __str__(self):
             string = str.format("\tGeneral\n\nCharacter Name: {}\tAlignment: {}\tPlayer Name:\n"
@@ -131,12 +269,13 @@ class CharacterSheetData:
 
         def create_from_json(self, json_data):
             json_ability_data = json_data.get("abilities")
-            for attribute in self.attributes:
-                if json_ability_data.get(attribute):
-                    setattr(self, attribute, json_ability_data.get(attribute))
-                    modifier = str(attribute) + "Modifier"
-                    setattr(self, modifier, self.get_ability_modifier(json_ability_data.get(attribute)))
-            self.count_score()
+            if json_ability_data:
+                for attribute in self.attributes:
+                    if json_ability_data.get(attribute):
+                        setattr(self, attribute, json_ability_data.get(attribute))
+                        modifier = str(attribute) + "Modifier"
+                        setattr(self, modifier, self.get_ability_modifier(json_ability_data.get(attribute)))
+                self.count_score()
 
         def count_score(self):
             attributes = ["str", "int", "wis", "dex", "con", "cha"]
@@ -181,15 +320,16 @@ class CharacterSheetData:
             self.resistances = ""
             self.immunities = ""
             self.cmd = self.CMD(offense)
+            self.save_attributes = ['fort', 'reflex', 'will']
 
         def create_from_json(self, json_data):
             self.ac.create_from_json(json_data.get("ac", ""))
             self.hp.create_from_json(json_data.get("hp", ""))
             self.damageReduction = json_data.get("damageReduction", "")
             self.spellResistance = json_data.get("spellResistance", "")
-            self.fort.create_from_json(json_data.get("saves").get("fort"))
-            self.reflex.create_from_json(json_data.get("saves").get("reflex"))
-            self.will.create_from_json(json_data.get("saves").get("will"))
+            self.fort.create_from_json(json_data.get("saves", '').get("fort", '') if json_data.get("saves", '') else '')
+            self.reflex.create_from_json(json_data.get("saves").get("reflex") if json_data.get("saves", '') else '')
+            self.will.create_from_json(json_data.get("saves").get("will") if json_data.get("saves", '') else '')
             self.resistances = json_data.get("resistances", "")
             self.immunities = json_data.get("immunities", "")
             self.cmd.create_from_json(json_data.get("cmd"))
@@ -213,7 +353,8 @@ class CharacterSheetData:
                 self.touch = ""
                 self.flatFooted = ""
                 self.otherModifiers = ""
-                self.items = []
+                self.items = self.Items()
+                self.itemsTotals = self.ItemTotals()
                 self.attributes = [
                     "total", "armorBonus", "shieldBonus", "sizeModifier",
                     "naturalArmor", "deflectionModifier", "miscModifier",
@@ -221,18 +362,19 @@ class CharacterSheetData:
                 ]
 
             def create_from_json(self, json_ac_data):
-                for attribute in self.attributes:
-                    if json_ac_data.get(attribute):
-                        setattr(self, attribute, json_ac_data.get(attribute))
-                if json_ac_data.get("items"):
-                    for item in json_ac_data.get("items"):
-                        item_input = self.Item()
-                        self.items.append(self.Item.create_from_json(item_input, item))
+                if json_ac_data:
+                    if json_ac_data:
+                        for attribute in self.attributes:
+                            if json_ac_data.get(attribute):
+                                setattr(self, attribute, json_ac_data.get(attribute))
+                        if json_ac_data.get("items"):
+                            self.items.create_from_json(json_ac_data.get("items"))
+                        self.itemsTotals.create_from_json(json_ac_data.get('itemTotals'))
 
             def update_ac_data(self, abilities):
                 attributes = ["armorBonus", "shieldBonus", "sizeModifier",
                               "naturalArmor", "deflectionModifier", "miscModifier"]
-                total_score = 0
+                total_score = 10
                 for attribute in attributes:
                     if str.isnumeric(getattr(self, attribute)):
                         total_score += int(getattr(self, attribute))
@@ -242,22 +384,73 @@ class CharacterSheetData:
                 total_score += str_to_int(abilityModifierData)
                 self.total = str(total_score)
 
-            class Item:
-                def __init__(self):
-                    self.name = ""
-                    self.bonus = ""
-                    self.type = ""
-                    self.armorCheckPenalty = ""
-                    self.spellFailure = ""
-                    self.weight = ""
-                    self.properties = ""
-                    self.attributes = ["name", "bonus", "type", "armorCheckPenalty",
-                                       "spellFailure", "weight", "properties"]
+                total_bonus = 0
+                total_check_penalty = 0
+                total_spell_failure = 0
+                total_weight = 0
+                for item in self.items.list:
+                    if item.bonus.isnumeric():
+                        total_bonus += int(item.bonus)
+                    if item.armorCheckPenalty.isnumeric():
+                        total_check_penalty += int(item.armorCheckPenalty)
+                    if item.spellFailure.isnumeric():
+                        total_spell_failure += int(item.spellFailure)
+                    if item.weight.isnumeric():
+                        total_weight += int(item.weight)
+                self.itemsTotals.bonus = str(total_bonus)
+                self.itemsTotals.armorCheckPenalty = str(total_check_penalty)
+                self.itemsTotals.spellFailure = str(total_spell_failure)
+                self.itemsTotals.weight = str(total_weight)
 
-                def create_from_json(self, json_items_data):
-                    for attribute in self.attributes:
-                        if json_items_data.get(attribute):
-                            setattr(self, attribute, json_items_data.get(attribute))
+            class ItemTotals:
+                def __init__(self):
+                    self.bonus = ''
+                    self.armorCheckPenalty = ''
+                    self.spellFailure = ''
+                    self.weight = ''
+                    self.attributes = ['bonus', 'armorCheckPenalty', 'spellFailure', 'weight']
+
+                def create_from_json(self, json_data):
+                    if json_data:
+                        attributes = ['bonus', 'armorCheckPenalty', 'spellFailure', 'weight']
+                        for attribute in attributes:
+                            setattr(self, attribute, json_data.get(attribute, ""))
+
+            class Items:
+                def __init__(self):
+                    self.list = []
+
+                def create_from_json(self, json_data):
+                    if json_data:
+                        for item_data in json_data:
+                            item = self.Item()
+                            item.create_from_json(item_data)
+                            self.list.append(item)
+
+                def add_item(self):
+                    self.list.append(self.Item())
+
+                def delete_items(self, delete_list):
+                    for index in sorted(delete_list, reverse=True):
+                        del self.list[index]
+
+                class Item:
+                    def __init__(self):
+                        self.name = ""
+                        self.bonus = ""
+                        self.type = ""
+                        self.armorCheckPenalty = ""
+                        self.spellFailure = ""
+                        self.weight = ""
+                        self.properties = ""
+                        self.attributes = ["name", "bonus", "type", "armorCheckPenalty",
+                                           "spellFailure", "weight", "properties"]
+
+                    def create_from_json(self, json_items_data):
+                        if json_items_data:
+                            for attribute in self.attributes:
+                                if json_items_data.get(attribute):
+                                    setattr(self, attribute, json_items_data.get(attribute))
 
         class Save:
             def __init__(self, modifier, abilities):
@@ -277,9 +470,10 @@ class CharacterSheetData:
                 ]
 
             def create_from_json(self, json_items_data):
-                for attribute in self.attributes:
-                    if json_items_data.get(attribute):
-                        setattr(self, attribute, json_items_data.get(attribute))
+                if json_items_data:
+                    for attribute in self.attributes:
+                        if json_items_data.get(attribute):
+                            setattr(self, attribute, json_items_data.get(attribute))
 
             def update_save_data(self, abilities):
                 attributes = ["base", "magicModifier", "miscModifier",
@@ -298,19 +492,20 @@ class CharacterSheetData:
             def __init__(self, offense):
                 self.total = ""
                 self.sizeModifier = ""
-                self.miscModifier = ""
-                self.tempModifier = ""
+                self.miscModifiers = ""
+                self.tempModifiers = ""
                 self.attributes = [
-                    "total", "sizeModifier", "miscModifier", "tempModifier"
+                    "total", "sizeModifier", "miscModifiers", "tempModifiers"
                 ]
 
             def create_from_json(self, json_items_data):
-                for attribute in self.attributes:
-                    if json_items_data.get(attribute):
-                        setattr(self, attribute, json_items_data.get(attribute))
+                if json_items_data:
+                    for attribute in self.attributes:
+                        if json_items_data.get(attribute):
+                            setattr(self, attribute, json_items_data.get(attribute))
 
             def update_cmd_data(self, abilities, offence):
-                attributes = ["sizeModifier", "miscModifier", "tempModifier"]
+                attributes = ["sizeModifier", "miscModifiers", "tempModifiers"]
                 total_score = 0
                 for attribute in attributes:
                     if str.isnumeric(getattr(self, attribute)):
@@ -338,9 +533,10 @@ class CharacterSheetData:
                 ]
 
             def create_from_json(self, json_items_data):
-                for attribute in self.attributes:
-                    if json_items_data.get(attribute):
-                        setattr(self, attribute, json_items_data.get(attribute))
+                if json_items_data:
+                    for attribute in self.attributes:
+                        if json_items_data.get(attribute):
+                            setattr(self, attribute, json_items_data.get(attribute))
 
     class Spells:
         def __init__(self):
@@ -357,19 +553,31 @@ class CharacterSheetData:
             self.spellLikes = []
             self.spellsConditionalModifiers = ""
             self.spellsSpeciality = ""
+            self.attributes = ['zeroLevel', 'firstLevel', 'secondLevel', 'thirdLevel', 'fourthLevel',
+                               'fifthLevel', 'sixthLevel', 'seventhLevel', 'eighthLevel', 'ninthLevel']
 
         def create_from_json(self, json_data):
             spells_data = json_data.get('spells')
-            attributes = ['zeroLevel', 'firstLevel', 'secondLevel', 'thirdLevel', 'fourthLevel',
-                          'fifthLevel', 'sixthLevel', 'seventhLevel', 'eighthLevel', 'ninthLevel']
-            for nLevel, attribute in zip(spells_data, attributes):
-                getattr(self, attribute).create_from_json(nLevel)
-            spellLike_data = json_data.get('spellLikes')
-            for n_spellLike_data in spellLike_data:
-                spellLike = self.SpellLikes()
-                self.spellLikes.append(spellLike.create_from_json(n_spellLike_data))
-            self.spellsConditionalModifiers = json_data.get('spellsConditionalModifiers', '')
-            self.spellsSpeciality = json_data.get('spellsSpeciality', '')
+            if spells_data:
+                attributes = ['zeroLevel', 'firstLevel', 'secondLevel', 'thirdLevel', 'fourthLevel',
+                              'fifthLevel', 'sixthLevel', 'seventhLevel', 'eighthLevel', 'ninthLevel']
+                for nLevel, attribute in zip(spells_data, attributes):
+                    getattr(self, attribute).create_from_json(nLevel)
+                spellLike_data = json_data.get('spellLikes')
+                if spellLike_data:
+                    for n_spellLike_data in spellLike_data:
+                        spellLike = self.SpellLikes()
+                        spellLike.create_from_json(n_spellLike_data)
+                        self.spellLikes.append(spellLike)
+                    self.spellsConditionalModifiers = json_data.get('spellsConditionalModifiers', '')
+                    self.spellsSpeciality = json_data.get('spellsSpeciality', '')
+
+        def add_spell_like(self):
+            self.spellLikes.append(self.SpellLikes())
+
+        def delete_spell_like(self, delete_list):
+            for index in sorted(delete_list, reverse=True):
+                del self.spellLikes[index]
 
         class SpellLikes:
             def __init__(self):
@@ -382,11 +590,24 @@ class CharacterSheetData:
                 self.notes = ""
                 self.atWill = False
                 self.marked = False
+                self.description = ''
+                self.attributes = ['name', 'school', 'subschool', 'notes', 'marked',
+                                   'prepared', 'cast', 'level', 'atWill', 'marked']
 
             def create_from_json(self, json_spellLike_data):
-                attributes = ['prepared', 'cast', 'name', 'level', 'school', 'subschool', 'notes', 'atWill', 'marked']
-                for attribute in attributes:
-                    setattr(self, attribute, json_spellLike_data.get(attribute))
+                if json_spellLike_data:
+                    attributes_str = ['name', 'school', 'subschool', 'notes', 'marked']
+                    attributes_int = ['prepared', 'cast', 'level']
+                    attributes_bool = ['atWill', 'marked']
+                    for attribute in attributes_str:
+                        data = json_spellLike_data.get(attribute, '')
+                        setattr(self, attribute, data)
+                    for attribute in attributes_int:
+                        data = json_spellLike_data.get(attribute, 0)
+                        setattr(self, attribute, data)
+                    for attribute in attributes_bool:
+                        data = json_spellLike_data.get(attribute, False)
+                        setattr(self, attribute, data)
 
         class NLevelSpells:
             def __init__(self):
@@ -395,15 +616,26 @@ class CharacterSheetData:
                 self.totalPerDay = ""
                 self.bonusSpells = ""
                 self.slotted = []
+                self.attributes = ['totalKnown', 'dc', 'totalPerDay', 'bonusSpells']
 
             def create_from_json(self, json_nLevel_data):
-                attributes = ['totalKnown', 'dc', 'totalPerDay', 'bonusSpells']
-                for attribute in attributes:
-                    setattr(self, attribute, json_nLevel_data.get(attribute, ''))
-                json_slotted = json_nLevel_data.get('slotted')
-                for json_slotted_data in json_slotted:
-                    spell = self.Spell()
-                    self.slotted.append(spell.create_from_json(json_slotted_data))
+                if json_nLevel_data:
+                    attributes = ['totalKnown', 'dc', 'totalPerDay', 'bonusSpells']
+                    for attribute in attributes:
+                        setattr(self, attribute, json_nLevel_data.get(attribute, ''))
+                    json_slotted = json_nLevel_data.get('slotted')
+                    if json_slotted:
+                        for json_slotted_data in json_slotted:
+                            spell = self.Spell()
+                            spell.create_from_json(json_slotted_data)
+                            self.slotted.append(spell)
+
+            def add_spell(self):
+                self.slotted.append(self.Spell())
+
+            def delete_spells(self, delete_list):
+                for index in sorted(delete_list, reverse=True):
+                    del self.slotted[index]
 
             class Spell:
                 def __init__(self):
@@ -414,11 +646,20 @@ class CharacterSheetData:
                     self.school = ""
                     self.subschool = ""
                     self.notes = ""
+                    self.description = ""
+                    self.marked = False
+                    self.attributes = ['level', 'prepared', 'cast', 'name', 'school', 'subschool', 'notes', 'marked']
 
                 def create_from_json(self, json_slotted_data):
-                    attributes = ['level', 'prepared', 'cast', 'name', 'school', 'subschool', 'notes']
-                    for attribute in attributes:
-                        setattr(self, attribute, json_slotted_data.get(attribute))
+                    attributes_str = ['name', 'school', 'subschool', 'notes']
+                    attributes_int = ['level', 'prepared', 'cast']
+                    if json_slotted_data:
+                        for attribute in attributes_str:
+                            data = json_slotted_data.get(attribute)
+                            setattr(self, attribute, data)
+                        for attribute in attributes_int:
+                            data = json_slotted_data.get(attribute)
+                            setattr(self, attribute, data)
 
     class Skills:
         def __init__(self, abilities):
@@ -477,15 +718,16 @@ class CharacterSheetData:
 
         def create_from_json(self, json_data):
             json_skills_data = json_data.get("skills")
-            for attribute in self.attributes:
-                if json_skills_data.get(attribute):
-                    skill = getattr(self, attribute)
-                    skill.create_from_json(json_skills_data.get(attribute))
-                    setattr(self, attribute, skill)
-            self.conditionalModifiers = json_skills_data.get("conditionalModifiers", "")
-            self.languages = json_data.get("languages", "")
-            self.xp.create_from_json(json_data)
-            self.count_ranks()
+            if json_skills_data:
+                for attribute in self.attributes:
+                    if json_skills_data.get(attribute):
+                        skill = getattr(self, attribute)
+                        skill.create_from_json(json_skills_data.get(attribute))
+                        setattr(self, attribute, skill)
+                self.conditionalModifiers = json_skills_data.get("conditionalModifiers", "")
+                self.languages = json_data.get("languages", "")
+                self.xp.create_from_json(json_data)
+                self.count_ranks()
 
         def count_ranks(self):
             self.totalRanks = 0
@@ -514,8 +756,8 @@ class CharacterSheetData:
                 self.toNextLevel = ""
 
             def create_from_json(self, json_data):
-                data = json_data.get("xp", None)
-                if data is not None:
+                data = json_data.get("xp")
+                if data:
                     self.total = data.get("total", "")
                     self.toNextLevel = data.get("toNextLevel", "")
 
@@ -528,16 +770,18 @@ class CharacterSheetData:
                 self.racial = ""
                 self.trait = ""
                 self.name = ""
+                self.attributes = ['classSkill', 'ranks', 'misc', 'total', 'racial', 'trait', 'name']
                 self.abilityModifier = modifier
                 self.abilityModifierData = getattr(abilities, qtl.temp_ability_modifier.get(self.abilityModifier)) \
                     if getattr(abilities, qtl.temp_ability_modifier.get(self.abilityModifier)) != '' \
                     else getattr(abilities, qtl.ability_modifier.get(self.abilityModifier))
 
             def create_from_json(self, json_data):
-                attributes = ["ranks", "misc", "total", "racial", "trait", "name"]
-                self.classSkill = json_data.get("classSkill", False)
-                for attribute in attributes:
-                    setattr(self, attribute, json_data.get(attribute, ""))
+                if json_data:
+                    attributes = ["ranks", "misc", "total", "racial", "trait", "name"]
+                    self.classSkill = json_data.get("classSkill", False)
+                    for attribute in attributes:
+                        setattr(self, attribute, json_data.get(attribute, ""))
 
             def update_skill_data(self, abilities):
                 attributes = ["ranks", "misc", "racial", "trait"]
@@ -587,8 +831,8 @@ class CharacterSheetData:
                 self.miscModifier = ""
 
             def create_from_json(self, json_data):
-                data = json_data.get("initiative", None)
-                if data is not None:
+                data = json_data.get("initiative")
+                if data:
                     self.total = data.get("total", "")
                     self.miscModifier = data.get("miscModifier", "")
 
@@ -613,11 +857,12 @@ class CharacterSheetData:
                 self.climb = ""
                 self.burrow = ""
                 self.tempModifiers = ""
+                self.attributes = ['base', 'withArmor', 'fly', 'swim', 'climb', 'burrow', 'tempModifiers']
 
             def create_from_json(self, json_data):
                 attributes = ["base", "withArmor", "fly", "swim", "climb", "burrow", "tempModifiers"]
-                data = json_data.get("speed", None)
-                if data is not None:
+                data = json_data.get("speed")
+                if data:
                     for attribute in attributes:
                         setattr(self, attribute, data.get(attribute, ""))
 
@@ -627,11 +872,12 @@ class CharacterSheetData:
                 self.sizeModifier = ""
                 self.total = ""
                 self.tempModifiers = ""
+                self.attributes = ['miscModifiers', 'sizeModifier', 'total', 'tempModifiers']
 
             def create_from_json(self, json_data):
                 attributes = ["miscModifiers", "sizeModifier", "total", "tempModifiers"]
-                data = json_data.get("cmb", None)
-                if data is not None:
+                data = json_data.get("cmb")
+                if data:
                     for attribute in attributes:
                         setattr(self, attribute, data.get(attribute, ""))
 
@@ -646,6 +892,7 @@ class CharacterSheetData:
                     else getattr(abilities, qtl.ability_modifier.get('str'))
                 total_score += str_to_int(self.abilityModifierData)
                 self.total = str(total_score)
+
     class Money:
         def __init__(self):
             self.pp = ""
@@ -654,71 +901,78 @@ class CharacterSheetData:
             self.cp = ""
             self.gems = ""
             self.other = ""
+            self.attributes = ['pp', 'gp', 'sp', 'cp', 'gems', 'other']
 
         def create_from_json(self, json_data):
             attributes = ["pp", "gp", "sp", "cp", "gems", "other"]
-            data = json_data.get("money", None)
-            if data is not None:
+            data = json_data.get("money")
+            if data:
                 for attribute in attributes:
                     setattr(self, attribute, data.get(attribute, ""))
 
     class Gears:
         def __init__(self):
-            self.gears = []
+            self.list = []
 
         def create_from_json(self, json_data):
             data = json_data.get('gear')
-            for item in data:
-                gear = self.Gear()
-                gear.create_from_json(item)
-                self.gears.append(gear)
+            if data:
+                for item in data:
+                    gear = self.Gear()
+                    gear.create_from_json(item)
+                    self.list.append(gear)
 
-        def add_gear(self, type, name, location, quantity, weight, notes):
-            gear = self.Gear(type, name, location, quantity, weight, notes)
-            self.gears.append(gear)
+        def add_gear(self, type='', item='', location='', quantity='', weight='', notes=''):
+            gear = self.Gear(type, item, location, quantity, weight, notes)
+            self.list.append(gear)
 
         def delete_gear(self, delete_list):
-            for index in delete_list:
-                del self.gears[index]
+            for index in sorted(delete_list, reverse=True):
+                del self.list[index]
 
         class Gear:
-            def __init__(self, type='', name='', location='', quantity='', weight='', notes=''):
+            def __init__(self, type='', item='', location='', quantity='', weight='', notes=''):
                 self.type = type
-                self.name = name
+                self.item = item
                 self.location = location
                 self.quantity = quantity
                 self.weight = weight
                 self.notes = notes
+                self.attributes = ['type', 'item', 'location', 'quantity', 'weight', 'notes']
 
             def create_from_json(self, json_data):
-                attributes = ["type", "name", "location", "quantity", "weight", "notes"]
-                for attribute in attributes:
-                    setattr(self, attribute, json_data.get(attribute, ""))
+                if json_data:
+                    attributes = ["type", "location", "quantity", "weight", "notes"]
+                    for attribute in attributes:
+                        setattr(self, attribute, json_data.get(attribute, ""))
+                    self.item = json_data.get('name', "")
 
     class Traits:
         def __init__(self):
-            self.traits = []
+            self.list = []
 
         def create_from_json(self, json_data):
             data = json_data.get('traits')
-            for item in data:
-                trait = self.Trait()
-                trait.create_from_json(item)
-                self.traits.append(trait)
+            if data:
+                for item in data:
+                    trait = self.Trait()
+                    trait.create_from_json(item)
+                    self.list.append(trait)
 
-        def add_trait(self, type, name, notes):
+        def add_trait(self, type='', name='', notes=''):
             trait = self.Trait(type, name, notes)
-            self.traits.append(trait)
+            self.list.append(trait)
 
         def delete_traits(self, delete_list):
-            for index in delete_list:
-                del self.traits[index]
+            for index in sorted(delete_list, reverse=True):
+                del self.list[index]
 
         class Trait:
             def __init__(self, type='', name='', notes=''):
                 self.type = type
                 self.name = name
                 self.notes = notes
+                self.attributes = ['type', 'name', 'notes']
 
             def create_from_json(self, json_data):
                 attributes = ['type', 'name', 'notes']
@@ -727,28 +981,30 @@ class CharacterSheetData:
 
     class SpecialAbilities:
         def __init__(self):
-            self.specialAbilities = []
+            self.list = []
 
         def create_from_json(self, json_data):
             data = json_data.get('specialAbilities')
-            for item in data:
-                specialAbility = self.SpecialAbility()
-                specialAbility.create_from_json(item)
-                self.specialAbilities.append(specialAbility)
+            if data:
+                for item in data:
+                    specialAbility = self.SpecialAbility()
+                    specialAbility.create_from_json(item)
+                    self.list.append(specialAbility)
 
-        def add_trait(self, type, name, notes):
+        def add_special_ability(self, type='', name='', notes=''):
             trait = self.SpecialAbility(type, name, notes)
-            self.specialAbilities.append(trait)
+            self.list.append(trait)
 
-        def delete_traits(self, delete_list):
-            for index in delete_list:
-                del self.specialAbilities[index]
+        def delete_special_ability(self, delete_list):
+            for index in sorted(delete_list, reverse=True):
+                del self.list[index]
 
         class SpecialAbility:
             def __init__(self, type='', name='', notes=''):
                 self.type = type
                 self.name = name
                 self.notes = notes
+                self.attributes = ['type', 'name', 'notes']
 
             def create_from_json(self, json_data):
                 attributes = ['type', 'name', 'notes']
@@ -757,30 +1013,95 @@ class CharacterSheetData:
 
     class Feats:
         def __init__(self):
-            self.feats = []
+            self.list = []
 
         def create_from_json(self, json_data):
             data = json_data.get('feats')
-            for item in data:
-                feat = self.Feat()
-                feat.create_from_json(item)
-                self.feats.append(feat)
+            if data:
+                for item in data:
+                    feat = self.Feat()
+                    feat.create_from_json(item)
+                    self.list.append(feat)
 
-        def add_trait(self, type, name, notes):
+        def add_feat(self, type='', name='', notes=''):
             trait = self.Feat(type, name, notes)
-            self.feats.append(trait)
+            self.list.append(trait)
 
-        def delete_traits(self, delete_list):
-            for index in delete_list:
-                del self.feats[index]
+        def delete_feat(self, delete_list):
+            for index in sorted(delete_list, reverse=True):
+                del self.list[index]
 
         class Feat:
             def __init__(self, type='', name='', notes=''):
                 self.type = type
                 self.name = name
                 self.notes = notes
+                self.attributes = ['type', 'name', 'notes']
 
             def create_from_json(self, json_data):
                 attributes = ['type', 'name', 'notes']
+                for attribute in attributes:
+                    setattr(self, attribute, json_data.get(attribute, ""))
+
+    class Attacks:
+        def __init__(self):
+            self.melee = []
+            self.ranged = []
+
+        def create_from_json(self, json_data):
+            meleeAttackData = json_data.get('melee')
+            if meleeAttackData:
+                for attack in meleeAttackData:
+                    meleeAttack = self.MeleeAttack()
+                    meleeAttack.create_from_json(attack)
+                    self.melee.append(meleeAttack)
+            rangedAttackData = json_data.get('ranged')
+            if rangedAttackData:
+                for attack in rangedAttackData:
+                    rangedAttack = self.RangedAttack()
+                    rangedAttack.create_from_json(attack)
+                    self.ranged.append(rangedAttack)
+
+        def add_melee_attack(self, weapon='', attackBonus='', damage='', critical='', type='', notes=''):
+            self.melee.append(self.MeleeAttack(weapon, attackBonus, damage, critical, type, notes))
+
+        def add_ranged_attack(self, weapon='', attackBonus='', damage='', critical='', type='', ammunition=''):
+            self.ranged.append(self.MeleeAttack(weapon, attackBonus, damage, critical, type, ammunition))
+
+        def delete_melee_attacks(self, delete_list):
+            for index in sorted(delete_list, reverse=True):
+                del self.melee[index]
+
+        def delete_ranged_attacks(self, delete_list):
+            for index in sorted(delete_list, reverse=True):
+                del self.ranged[index]
+
+        class MeleeAttack:
+            def __init__(self, weapon='', attackBonus='', damage='', critical='', type='', notes=''):
+                self.weapon = weapon
+                self.attackBonus = attackBonus
+                self.damage = damage
+                self.critical = critical
+                self.type = type
+                self.notes = notes
+                self.attributes = ['weapon', 'attackBonus', 'damage', 'critical', 'type', 'notes']
+
+            def create_from_json(self, json_data):
+                attributes = ['weapon', 'attackBonus', 'damage', 'critical', 'type', 'notes']
+                for attribute in attributes:
+                    setattr(self, attribute, json_data.get(attribute, ""))
+
+        class RangedAttack:
+            def __init__(self, weapon='', attackBonus='', damage='', critical='', type='', ammunition=''):
+                self.weapon = weapon
+                self.attackBonus = attackBonus
+                self.damage = damage
+                self.critical = critical
+                self.type = type
+                self.ammunition = ammunition
+                self.attributes = ['weapon', 'attackBonus', 'damage', 'critical', 'type', 'ammunition']
+
+            def create_from_json(self, json_data):
+                attributes = ['weapon', 'attackBonus', 'damage', 'critical', 'type', 'ammunition']
                 for attribute in attributes:
                     setattr(self, attribute, json_data.get(attribute, ""))
