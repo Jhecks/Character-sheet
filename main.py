@@ -29,12 +29,6 @@ class Themes(Enum):
     dark = 0
     light = 1
 
-
-# class SpellsTranslater(Enum):
-#     zero = 0
-#     first = 1
-
-
 def str_to_int(string):
     if string == '' or string == '0':
         return 0
@@ -51,7 +45,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.actualTheme = None
         self.setupUi(self)
         # self.setLightTheme()
-        self.setDarkTheme()
+        # self.setDarkTheme()
 
         self.file_path = ''
 
@@ -2034,7 +2028,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         total_text.setText(skill_data.total)
         ability_text.setText(ability_modifier)
         ranks_text.setText(skill_data.ranks)
-        class_skill_text.setText("3" if skill_data.classSkill else "0")
+        class_skill_text.setText("3" if skill_data.classSkill and str.isnumeric(skill_data.ranks) and int(skill_data.ranks) > 0 else "0")
         racial_text.setText(skill_data.racial)
         trait_text.setText(skill_data.trait)
         misc_text.setText(skill_data.misc)

@@ -789,7 +789,7 @@ class CharacterSheetData:
                 for attribute in attributes:
                     if str.isnumeric(getattr(self, attribute)):
                         total_score += int(getattr(self, attribute))
-                if self.classSkill:
+                if self.classSkill and str.isnumeric(self.ranks) and int(self.ranks) > 0:
                     total_score += 3
                 self.abilityModifierData = getattr(abilities, qtl.temp_ability_modifier.get(self.abilityModifier)) \
                     if getattr(abilities, qtl.temp_ability_modifier.get(self.abilityModifier)) != '' \
@@ -822,7 +822,7 @@ class CharacterSheetData:
             self.ranged = json_data.get("ranged", [])
 
         def update_offense_data(self, abilities):
-            self.cmb.update_cmb_data(abilities)
+            self.cmb.update_cmb_data(abilities, self.bab)
             self.initiative.update_initiative_data(abilities)
 
         class Initiative:
@@ -881,9 +881,11 @@ class CharacterSheetData:
                     for attribute in attributes:
                         setattr(self, attribute, data.get(attribute, ""))
 
-            def update_cmb_data(self, abilities):
+            def update_cmb_data(self, abilities, bab):
                 attributes = ["miscModifiers", "sizeModifier", "tempModifiers"]
                 total_score = 0
+                if str.isnumeric(bab):
+                    total_score += int(bab)
                 for attribute in attributes:
                     if str.isnumeric(getattr(self, attribute)):
                         total_score += int(getattr(self, attribute))
