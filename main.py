@@ -42,6 +42,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.actualTheme = None
         self.setupUi(self)
         self.setDarkTheme()
+        self.setWindowTitle('Pathfinder Character Sheet')
 
         self.file_path = ''
 
@@ -482,15 +483,15 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         gridLayout = self.gridLayout_10
         self.spellLikeCount += 1
         self.spellLikeIndex += 1
-        new_position = (((self.spellLikeCount - 1) // 8) + 1, ((self.spellLikeCount - 1) % 8) + 1)
+        new_position = (((self.spellLikeCount - 1) // 7) + 1, ((self.spellLikeCount - 1) % 7) + 1)
         name = 'button № {}'.format(self.spellLikeIndex)
         button = QtWidgets.QPushButton(self.groupBox_14)
         button.setObjectName(name)
         if spell:
             if spell.prepared:
-                button.setText(f'{spell.name} ({spell.cast}/{spell.prepared})')
+                button.setText(f"{spell.name} | {spell.school} ({spell.cast}/{spell.prepared})")
             else:
-                button.setText(f'{spell.name}')
+                button.setText(f"{spell.name} | {spell.school}")
             if spell.marked:
                 button.setStyleSheet("QPushButton"
                                      "{"
@@ -595,7 +596,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         index = 0
         for button in self.spellLikeList:
             index += 1
-            new_position = (((index - 1) // 8) + 1, ((index - 1) % 8) + 1)
+            new_position = (((index - 1) // 7) + 1, ((index - 1) % 7) + 1)
             grid_layout.removeWidget(button)
             grid_layout.addWidget(button, new_position[0], new_position[1])
 
@@ -603,27 +604,59 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.data_frame.spells.spellLikes[index].name = self.sender().text()
         if self.data_frame.spells.spellLikes[index].prepared:
             self.spellLikeList[index].setText(
-                '{} ({}/{})'.format(self.data_frame.spells.spellLikes[index].name,
-                                    self.data_frame.spells.spellLikes[index].cast,
-                                    self.data_frame.spells.spellLikes[index].prepared))
+                '{} | {} ({}/{})'.format(self.data_frame.spells.spellLikes[index].name,
+                                         self.data_frame.spells.spellLikes[index].school,
+                                         self.data_frame.spells.spellLikes[index].cast,
+                                         self.data_frame.spells.spellLikes[index].prepared))
         else:
             self.spellLikeList[index].setText(
-                self.data_frame.spells.spellLikes[index].name)
+                '{} | {}'.format(self.data_frame.spells.spellLikes[index].name,
+                                 self.data_frame.spells.spellLikes[index].school))
 
     def spell_like_level_updated(self, index):
         self.data_frame.spells.spellLikes[index].level = self.sender().value()
 
     def spell_like_school_updated(self, index):
         self.data_frame.spells.spellLikes[index].school = self.sender().text()
+        if self.data_frame.spells.spellLikes[index].prepared:
+            self.spellLikeList[index].setText(
+                '{} | {} ({}/{})'.format(self.data_frame.spells.spellLikes[index].name,
+                                         self.data_frame.spells.spellLikes[index].school,
+                                         self.data_frame.spells.spellLikes[index].cast,
+                                         self.data_frame.spells.spellLikes[index].prepared))
+        else:
+            self.spellLikeList[index].setText(
+                '{} | {}'.format(self.data_frame.spells.spellLikes[index].name,
+                                 self.data_frame.spells.spellLikes[index].school))
 
     def spell_like_subschool_updated(self, index):
         self.data_frame.spells.spellLikes[index].subschool = self.sender().text()
 
     def spell_like_prepared_updated(self, index):
         self.data_frame.spells.spellLikes[index].prepared = self.sender().value()
+        if self.data_frame.spells.spellLikes[index].prepared:
+            self.spellLikeList[index].setText(
+                '{} | {} ({}/{})'.format(self.data_frame.spells.spellLikes[index].name,
+                                         self.data_frame.spells.spellLikes[index].school,
+                                         self.data_frame.spells.spellLikes[index].cast,
+                                         self.data_frame.spells.spellLikes[index].prepared))
+        else:
+            self.spellLikeList[index].setText(
+                '{} | {}'.format(self.data_frame.spells.spellLikes[index].name,
+                                 self.data_frame.spells.spellLikes[index].school))
 
     def spell_like_cast_updated(self, index):
         self.data_frame.spells.spellLikes[index].cast = self.sender().value()
+        if self.data_frame.spells.spellLikes[index].prepared:
+            self.spellLikeList[index].setText(
+                '{} | {} ({}/{})'.format(self.data_frame.spells.spellLikes[index].name,
+                                         self.data_frame.spells.spellLikes[index].school,
+                                         self.data_frame.spells.spellLikes[index].cast,
+                                         self.data_frame.spells.spellLikes[index].prepared))
+        else:
+            self.spellLikeList[index].setText(
+                '{} | {}'.format(self.data_frame.spells.spellLikes[index].name,
+                                 self.data_frame.spells.spellLikes[index].school))
 
     def spell_like_notes_updated(self, index):
         self.data_frame.spells.spellLikes[index].notes = self.sender().toPlainText()
@@ -636,15 +669,16 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         setattr(self, spell_level + 'Count', getattr(self, spell_level + 'Count') + 1)
         setattr(self, spell_level + 'Index', getattr(self, spell_level + 'Index') + 1)
         new_position = (
-            ((getattr(self, spell_level + 'Count') - 1) // 8) + 1, ((getattr(self, spell_level + 'Count') - 1) % 8) + 1)
+            ((getattr(self, spell_level + 'Count') - 1) // 7) + 1, ((getattr(self, spell_level + 'Count') - 1) % 7) + 1)
         name = 'button № {}'.format(getattr(self, spell_level + 'Index'))
         button = QtWidgets.QPushButton(self.groupBox_14)
         button.setObjectName(name)
         if spell:
             if spell.prepared:
-                button.setText(f'{spell.name} ({spell.cast}/{spell.prepared})')
+                button.setText(f'{spell.name} | {spell.school} ({spell.cast}/{spell.prepared})')
             else:
-                button.setText(f'{spell.name}')
+                if spell.name or spell.school:
+                    button.setText(f'{spell.name} | {spell.school}')
             if spell.marked:
                 button.setStyleSheet("QPushButton"
                                      "{"
@@ -672,6 +706,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.window.setWindowTitle('Edit Spell')
 
         self.ui.name.setText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name)
+        getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].level = qtl.spell_levels[spell_level]
         self.ui.level.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].level)
         self.ui.school.setText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school)
         self.ui.subschool.setText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].subschool)
@@ -702,16 +737,46 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
     def increase_prepared(self, index, spell_level):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared += 1
         self.ui.perDay.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared)
+        if self.data_frame.spells.spellLikes[index].prepared:
+            self.spellLikeList[index].setText(
+                '{} | {} ({}/{})'.format(self.data_frame.spells.spellLikes[index].name,
+                                         self.data_frame.spells.spellLikes[index].school,
+                                         self.data_frame.spells.spellLikes[index].cast,
+                                         self.data_frame.spells.spellLikes[index].prepared))
+        else:
+            self.spellLikeList[index].setText(
+                '{} | {}'.format(self.data_frame.spells.spellLikes[index].name),
+                self.data_frame.spells.spellLikes[index].school)
 
     def increase_cast(self, index):
         self.data_frame.spells.spellLikes[index].used += 1
         self.ui.perDay.setValue(self.data_frame.spells.spellLikes[index].used)
+        if self.data_frame.spells.spellLikes[index].prepared:
+            self.spellLikeList[index].setText(
+                '{} | {} ({}/{})'.format(self.data_frame.spells.spellLikes[index].name,
+                                         self.data_frame.spells.spellLikes[index].school,
+                                         self.data_frame.spells.spellLikes[index].cast,
+                                         self.data_frame.spells.spellLikes[index].prepared))
+        else:
+            self.spellLikeList[index].setText(
+                '{} | {}'.format(self.data_frame.spells.spellLikes[index].name),
+                self.data_frame.spells.spellLikes[index].school)
 
     def clear_spell_counter_data(self, index):
         self.data_frame.spells.spellLikes[index].prepared = 0
         self.data_frame.spells.spellLikes[index].used = 0
         self.ui.perDay.setValue(self.data_frame.spells.spellLikes[index].prepared)
         self.ui.perDay.setValue(self.data_frame.spells.spellLikes[index].used)
+        if self.data_frame.spells.spellLikes[index].prepared:
+            self.spellLikeList[index].setText(
+                '{} | {} ({}/{})'.format(self.data_frame.spells.spellLikes[index].name,
+                                         self.data_frame.spells.spellLikes[index].school,
+                                         self.data_frame.spells.spellLikes[index].cast,
+                                         self.data_frame.spells.spellLikes[index].prepared))
+        else:
+            self.spellLikeList[index].setText(
+                '{} | {}'.format(self.data_frame.spells.spellLikes[index].name),
+                self.data_frame.spells.spellLikes[index].school)
 
     def marked_spell(self, index):
         if self.data_frame.spells.spellLikes[index].marked:
@@ -728,27 +793,62 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name = self.sender().text()
         if getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared:
             getattr(self, spell_level + 'List')[index].setText(
-                '{} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
-                                    getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast,
-                                    getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared))
+                '{} | {} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
+                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school,
+                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast,
+                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[
+                                             index].prepared))
         else:
             getattr(self, spell_level + 'List')[index].setText(
-                getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name)
+                '{} | {}'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
+                                 getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school))
 
     def spell_level_updated(self, index, spell_level):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].level = self.sender().value()
 
     def spell_school_updated(self, index, spell_level):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school = self.sender().text()
+        if getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared:
+            getattr(self, spell_level + 'List')[index].setText(
+                '{} | {} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
+                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school,
+                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast,
+                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[
+                                             index].prepared))
+        else:
+            getattr(self, spell_level + 'List')[index].setText(
+                '{} | {}'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
+                                 getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school))
 
     def spell_subschool_updated(self, index, spell_level):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].subschool = self.sender().text()
 
     def spell_prepared_updated(self, index, spell_level):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared = self.sender().value()
+        if getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared:
+            getattr(self, spell_level + 'List')[index].setText(
+                '{} | {} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
+                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school,
+                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast,
+                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[
+                                             index].prepared))
+        else:
+            getattr(self, spell_level + 'List')[index].setText(
+                getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name)
 
     def spell_cast_updated(self, index, spell_level):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast = self.sender().value()
+        if getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared:
+            getattr(self, spell_level + 'List')[index].setText(
+                '{} | {} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
+                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school,
+                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast,
+                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[
+                                             index].prepared))
+        else:
+            getattr(self, spell_level + 'List')[index].setText(
+                '{} | {}'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
+                                 getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school))
 
     def spell_notes_updated(self, index, spell_level):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].notes = self.sender().toPlainText()
@@ -759,16 +859,49 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
     def spell_increase_prepared(self, index, spell_level):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared += 1
         self.ui.prepared.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared)
+        if getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared:
+            getattr(self, spell_level + 'List')[index].setText(
+                '{} | {} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
+                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school,
+                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast,
+                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[
+                                             index].prepared))
+        else:
+            getattr(self, spell_level + 'List')[index].setText(
+                '{} | {}'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
+                                 getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school))
 
     def spell_increase_cast(self, index, spell_level):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast += 1
         self.ui.cast.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast)
+        if getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared:
+            getattr(self, spell_level + 'List')[index].setText(
+                '{} | {} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
+                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school,
+                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast,
+                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[
+                                             index].prepared))
+        else:
+            getattr(self, spell_level + 'List')[index].setText(
+                '{} | {}'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
+                                 getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school))
 
     def spell_clear_data(self, index, spell_level):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared = 0
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast = 0
         self.ui.prepared.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared)
         self.ui.cast.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast)
+        if getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared:
+            getattr(self, spell_level + 'List')[index].setText(
+                '{} | {} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
+                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school,
+                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast,
+                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[
+                                             index].prepared))
+        else:
+            getattr(self, spell_level + 'List')[index].setText(
+                '{} | {}'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
+                                 getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school))
 
     def spell_mark(self, index, spell_level):
         if getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].marked:
@@ -795,7 +928,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         index = 0
         for button in getattr(self, spell_level + 'List'):
             index += 1
-            new_position = (((index - 1) // 8) + 1, ((index - 1) % 8) + 1)
+            new_position = (((index - 1) // 7) + 1, ((index - 1) % 7) + 1)
             grid_layout.removeWidget(button)
             grid_layout.addWidget(button, new_position[0], new_position[1])
 
@@ -803,12 +936,12 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         gridLayout = self.gridLayout_13
         self.gearCount += 1
         self.gearIndex += 1
-        new_position = ((self.gearCount - 1) // 7 + 1, (self.gearCount - 1) % 7 + 2)
+        new_position = ((self.gearCount - 1) // 5 + 1, (self.gearCount - 1) % 5 + 2)
         name = f'button №{self.gearIndex}'
         button = QtWidgets.QPushButton(self.groupBox_11)
         button.setObjectName(name)
         if gear:
-            button.setText(f'{gear.item} ({gear.quantity})')
+            button.setText(f'{gear.type} | {gear.item} ({gear.quantity}) {gear.location}')
         else:
             button.setText('Click me')
         gridLayout.addWidget(button, new_position[0], new_position[1])
@@ -816,6 +949,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.gearList.append(button)
         if button_clicked:
             self.data_frame.gears.add_gear()
+            button.click()
 
     def clicked_gear_button(self):
         object_name = self.sender().objectName()
@@ -849,19 +983,31 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
 
     def gear_type_updated(self, index):
         self.data_frame.gears.list[index].type = self.sender().text()
+        self.gearList[index].setText(f'{self.data_frame.gears.list[index].type} | '
+                                     f'{self.data_frame.gears.list[index].item} '
+                                     f'({self.data_frame.gears.list[index].quantity}) '
+                                     f'{self.data_frame.gears.list[index].location}')
 
     def gear_item_updated(self, index):
         self.data_frame.gears.list[index].item = self.sender().text()
-        self.gearList[index].setText(f'{self.data_frame.gears.list[index].item} '
-                                     f'({self.data_frame.gears.list[index].quantity})')
+        self.gearList[index].setText(f'{self.data_frame.gears.list[index].type} | '
+                                     f'{self.data_frame.gears.list[index].item} '
+                                     f'({self.data_frame.gears.list[index].quantity}) '
+                                     f'{self.data_frame.gears.list[index].location}')
 
     def gear_location_updated(self, index):
         self.data_frame.gears.list[index].location = self.sender().text()
+        self.gearList[index].setText(f'{self.data_frame.gears.list[index].type} | '
+                                     f'{self.data_frame.gears.list[index].item} '
+                                     f'({self.data_frame.gears.list[index].quantity}) '
+                                     f'{self.data_frame.gears.list[index].location}')
 
     def gear_quantity_updated(self, index):
         self.data_frame.gears.list[index].quantity = self.sender().text()
-        self.gearList[index].setText(f'{self.data_frame.gears.list[index].item} '
-                                     f'({self.data_frame.gears.list[index].quantity})')
+        self.gearList[index].setText(f'{self.data_frame.gears.list[index].type} | '
+                                     f'{self.data_frame.gears.list[index].item} '
+                                     f'({self.data_frame.gears.list[index].quantity}) '
+                                     f'{self.data_frame.gears.list[index].location}')
 
     def gear_weight_updated(self, index):
         self.data_frame.gears.list[index].weight = self.sender().text()
@@ -885,7 +1031,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         index = 0
         for button in self.gearList:
             index += 1
-            new_position = (((index - 1) // 7) + 1, ((index - 1) % 7) + 2)
+            new_position = (((index - 1) // 5) + 1, ((index - 1) % 5) + 2)
             gridLayout.removeWidget(button)
             gridLayout.addWidget(button, new_position[0], new_position[1])
 
@@ -893,12 +1039,13 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         gridLayout = self.gridLayout_3
         self.featCount += 1
         self.featIndex += 1
-        new_position = (((self.featCount - 1) // 7) + 1, ((self.featCount - 1) % 7) + 2)
+        new_position = (((self.featCount - 1) // 5) + 1, ((self.featCount - 1) % 5) + 2)
         name = f'button №{self.featIndex}'
         button = QtWidgets.QPushButton(self.widget_25)
         button.setObjectName(name)
         if feat:
-            button.setText(feat.name)
+            if feat.name or feat.type:
+                button.setText(f"{feat.type} | {feat.name}")
         else:
             button.setText('Click me')
         gridLayout.addWidget(button, new_position[0], new_position[1])
@@ -906,6 +1053,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.featList.append(button)
         if button_clicked:
             self.data_frame.feats.add_feat()
+            button.click()
 
     def clicked_feat_button(self):
         object_name = self.sender().objectName()
@@ -933,10 +1081,13 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
 
     def feat_name_updated(self, index):
         self.data_frame.feats.list[index].name = self.sender().text()
-        self.featList[index].setText(self.data_frame.feats.list[index].name)
+        self.featList[index].setText(f'{self.data_frame.feats.list[index].type} | '
+                                     f'{self.data_frame.feats.list[index].name}')
 
     def feat_type_updated(self, index):
         self.data_frame.feats.list[index].type = self.sender().text()
+        self.featList[index].setText(f'{self.data_frame.feats.list[index].type} | '
+                                     f'{self.data_frame.feats.list[index].name}')
 
     def feat_notes_updated(self, index):
         self.data_frame.feats.list[index].notes = self.sender().toPlainText()
@@ -957,7 +1108,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         index = 0
         for button in self.featList:
             index += 1
-            new_position = (((index - 1) // 7) + 1, ((index - 1) % 7) + 2)
+            new_position = (((index - 1) // 5) + 1, ((index - 1) % 5) + 2)
             gridLayout.removeWidget(button)
             gridLayout.addWidget(button, new_position[0], new_position[1])
 
@@ -965,12 +1116,13 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         gridLayout = self.gridLayout_11
         self.abilityCount += 1
         self.abilityIndex += 1
-        new_position = ((self.abilityCount - 1) // 7 + 1, (self.abilityCount - 1) % 7 + 2)
+        new_position = ((self.abilityCount - 1) // 5 + 1, (self.abilityCount - 1) % 5 + 2)
         name = f'button №{self.abilityIndex}'
         button = QtWidgets.QPushButton(self.widget)
         button.setObjectName(name)
         if ability:
-            button.setText(ability.name)
+            if ability.name or ability.type:
+                button.setText(f"{ability.name} ({ability.type})")
         else:
             button.setText('Click me')
         gridLayout.addWidget(button, new_position[0], new_position[1])
@@ -978,6 +1130,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.abilityList.append(button)
         if button_clicked:
             self.data_frame.specialAbilities.add_special_ability()
+            button.click()
 
     def clicked_ability_button(self):
         object_name = self.sender().objectName()
@@ -1005,10 +1158,13 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
 
     def ability_name_updated(self, index):
         self.data_frame.specialAbilities.list[index].name = self.sender().text()
-        self.abilityList[index].setText(self.data_frame.specialAbilities.list[index].name)
+        self.abilityList[index].setText(f'{self.data_frame.specialAbilities.list[index].name} '
+                                        f'({self.data_frame.specialAbilities.list[index].type})')
 
     def ability_type_updated(self, index):
         self.data_frame.specialAbilities.list[index].type = self.sender().text()
+        self.abilityList[index].setText(f'{self.data_frame.specialAbilities.list[index].name} '
+                                        f'({self.data_frame.specialAbilities.list[index].type})')
 
     def ability_notes_updated(self, index):
         self.data_frame.specialAbilities.list[index].notes = self.sender().toPlainText()
@@ -1029,7 +1185,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         index = 0
         for button in self.abilityList:
             index += 1
-            new_position = (((index - 1) // 7) + 1, ((index - 1) % 7) + 2)
+            new_position = (((index - 1) // 5) + 1, ((index - 1) % 5) + 2)
             gridLayout.removeWidget(button)
             gridLayout.addWidget(button, new_position[0], new_position[1])
 
@@ -1037,12 +1193,12 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         gridLayout = self.gridLayout_26
         self.traitCount += 1
         self.traitIndex += 1
-        new_position = ((self.traitCount - 1) // 7 + 1, (self.traitCount - 1) % 7 + 2)
+        new_position = ((self.traitCount - 1) // 5 + 1, (self.traitCount - 1) % 5 + 2)
         name = f'button №{self.traitIndex}'
         button = QtWidgets.QPushButton(self.widget_2)
         button.setObjectName(name)
         if trait:
-            button.setText(trait.name)
+            button.setText(f"{trait.type} | {trait.name}")
         else:
             button.setText('Click me')
         gridLayout.addWidget(button, new_position[0], new_position[1])
@@ -1050,6 +1206,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.traitList.append(button)
         if button_clicked:
             self.data_frame.traits.add_trait()
+            button.click()
 
     def clicked_trait_button(self):
         object_name = self.sender().objectName()
@@ -1077,10 +1234,13 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
 
     def trait_name_updated(self, index):
         self.data_frame.traits.list[index].name = self.sender().text()
-        self.traitList[index].setText(self.data_frame.traits.list[index].name)
+        self.traitList[index].setText(f'{self.data_frame.traits.list[index].type} | '
+                                      f'{self.data_frame.traits.list[index].name}')
 
     def trait_type_updated(self, index):
         self.data_frame.traits.list[index].type = self.sender().text()
+        self.traitList[index].setText(f'{self.data_frame.traits.list[index].type} | '
+                                      f'{self.data_frame.traits.list[index].name}')
 
     def trait_notes_updated(self, index):
         self.data_frame.traits.list[index].notes = self.sender().toPlainText()
@@ -1101,7 +1261,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         index = 0
         for button in self.traitList:
             index += 1
-            new_position = (((index - 1) // 7) + 1, ((index - 1) % 7) + 2)
+            new_position = (((index - 1) // 5) + 1, ((index - 1) % 5) + 2)
             gridLayout.removeWidget(button)
             gridLayout.addWidget(button, new_position[0], new_position[1])
 
