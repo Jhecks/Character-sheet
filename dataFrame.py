@@ -189,6 +189,7 @@ class CharacterSheetData:
 
         output_json['notes'] = self.notes
         print(json.dumps(output_json, indent=4))
+        return output_json
 
     def __str__(self):
         string = str.format("{}\n{}\n{}", self.general, self.abilities, self.skills)

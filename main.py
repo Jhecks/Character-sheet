@@ -1,23 +1,19 @@
-import sys
-
 import operator
+import sys
 import tkinter
-from tkinter import filedialog
-from PyQt5 import QtWidgets, QtCore
 from enum import Enum
+from tkinter import filedialog
 
+import qdarktheme
+from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QShortcut
 
-import qtTranslateLayer as qtl
-
 import CharacterSheet
-import xmlParser
 import dataFrame
-
-import qdarktheme
-
+import qtTranslateLayer as qtl
+import xmlParser
 from FeatEdit import Ui_FeatEdit
 from GearEdit import Ui_GearEdit
 from SpellEdit import Ui_SpellEdit
@@ -28,6 +24,7 @@ from TraitEdit import Ui_TraitEdit
 class Themes(Enum):
     dark = 0
     light = 1
+
 
 def str_to_int(string):
     if string == '' or string == '0':
@@ -44,8 +41,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.data_frame = dataFrame.CharacterSheetData()
         self.actualTheme = None
         self.setupUi(self)
-        # self.setLightTheme()
-        # self.setDarkTheme()
+        self.setDarkTheme()
 
         self.file_path = ''
 
@@ -1849,13 +1845,13 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
                 self.add_spell(spell, False, spellLevel, getattr(self, gridLayout))
 
     def saveFile(self):
-        if self.file_path:
-            return
+        if not self.file_path:
+            self.saveFileAs()
         xmlParser.character_sheet_to_xml(self.file_path, self.data_frame.create_json())
 
     def saveFileAs(self):
         tkinter.Tk().withdraw()
-        self.file_path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
+        self.file_path = filedialog.asksaveasfilename(filetypes=[("JSON files", "*.json")], defaultextension='.json')
         if self.file_path == '':
             return
         xmlParser.character_sheet_to_xml(self.file_path, self.data_frame.create_json())
@@ -2028,7 +2024,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         total_text.setText(skill_data.total)
         ability_text.setText(ability_modifier)
         ranks_text.setText(skill_data.ranks)
-        class_skill_text.setText("3" if skill_data.classSkill and str.isnumeric(skill_data.ranks) and int(skill_data.ranks) > 0 else "0")
+        class_skill_text.setText(
+            "3" if skill_data.classSkill and str.isnumeric(skill_data.ranks) and int(skill_data.ranks) > 0 else "0")
         racial_text.setText(skill_data.racial)
         trait_text.setText(skill_data.trait)
         misc_text.setText(skill_data.misc)
