@@ -33,6 +33,8 @@ class CharacterSheetData:
         self.specialAbilities = self.SpecialAbilities()
         self.attacks = self.Attacks()
         self.notes = ""
+        self.attributes = ['general', 'abilities', 'spells', 'offense', 'defense', 'skills', 'money',
+                           'gears', 'traits', 'feats', 'specialAbilities', 'attacks', 'notes']
 
     def create_from_json(self, json_data):
         self.general.create_from_json(json_data)
@@ -188,12 +190,17 @@ class CharacterSheetData:
             output_json['spellLikes'].append(spellLike_data)
 
         output_json['notes'] = self.notes
-        print(json.dumps(output_json, indent=4))
         return output_json
 
     def __str__(self):
         string = str.format("{}\n{}\n{}", self.general, self.abilities, self.skills)
         return string
+
+    def __eq__(self, other):
+        for attribute in self.attributes:
+            if getattr(self, attribute) != getattr(other, attribute):
+                return False
+        return True
 
     class General:
         def __init__(self):
@@ -232,6 +239,12 @@ class CharacterSheetData:
                                 self.race, self.size, self.gender, self.age, self.height, self.weight, self.hair,
                                 self.eyes)
             return string
+
+        def __eq__(self, other):
+            for attribute in self.attributes:
+                if getattr(self, attribute) != getattr(other, attribute):
+                    return False
+            return True
 
     class Abilities:
         def __init__(self):
@@ -309,6 +322,12 @@ class CharacterSheetData:
                                 self.int, self.tempInt, self.wis, self.tempWis, self.cha, self.tempCha)
             return string
 
+        def __eq__(self, other):
+            for attribute in self.attributes:
+                if getattr(self, attribute) != getattr(other, attribute):
+                    return False
+            return True
+
     class Defense:
         def __init__(self, abilities, offense):
             self.ac = self.AC()
@@ -322,6 +341,8 @@ class CharacterSheetData:
             self.immunities = ""
             self.cmd = self.CMD(offense)
             self.save_attributes = ['fort', 'reflex', 'will']
+            self.attributes = ['ac', 'hp', 'damageReduction', 'spellResistance', 'fort',
+                               'reflex', 'will', 'resistances', 'immunities', 'cmd']
 
         def create_from_json(self, json_data):
             self.ac.create_from_json(json_data.get("ac", ""))
@@ -341,6 +362,12 @@ class CharacterSheetData:
             self.reflex.update_save_data(abilities)
             self.will.update_save_data(abilities)
             self.cmd.update_cmd_data(abilities, offense)
+
+        def __eq__(self, other):
+            for attribute in self.attributes:
+                if getattr(self, attribute) != getattr(other, attribute):
+                    return False
+            return True
 
         class AC:
             def __init__(self):
@@ -403,6 +430,12 @@ class CharacterSheetData:
                 self.itemsTotals.spellFailure = str(total_spell_failure)
                 self.itemsTotals.weight = str(total_weight)
 
+            def __eq__(self, other):
+                for attribute in self.attributes:
+                    if getattr(self, attribute) != getattr(other, attribute):
+                        return False
+                return True
+
             class ItemTotals:
                 def __init__(self):
                     self.bonus = ''
@@ -416,6 +449,12 @@ class CharacterSheetData:
                         attributes = ['bonus', 'armorCheckPenalty', 'spellFailure', 'weight']
                         for attribute in attributes:
                             setattr(self, attribute, json_data.get(attribute, ""))
+
+                def __eq__(self, other):
+                    for attribute in self.attributes:
+                        if getattr(self, attribute) != getattr(other, attribute):
+                            return False
+                    return True
 
             class Items:
                 def __init__(self):
@@ -435,6 +474,11 @@ class CharacterSheetData:
                     for index in sorted(delete_list, reverse=True):
                         del self.list[index]
 
+                def __eq__(self, other):
+                    if self.list.sort() == other.list.sort():
+                        return True
+                    return False
+
                 class Item:
                     def __init__(self):
                         self.name = ""
@@ -452,6 +496,12 @@ class CharacterSheetData:
                             for attribute in self.attributes:
                                 if json_items_data.get(attribute):
                                     setattr(self, attribute, json_items_data.get(attribute))
+
+                    def __eq__(self, other):
+                        for attribute in self.attributes:
+                            if getattr(self, attribute) != getattr(other, attribute):
+                                return False
+                        return True
 
         class Save:
             def __init__(self, modifier, abilities):
@@ -489,6 +539,12 @@ class CharacterSheetData:
                 total_score += str_to_int(self.abilityModifierData)
                 self.total = str(total_score)
 
+            def __eq__(self, other):
+                for attribute in self.attributes:
+                    if getattr(self, attribute) != getattr(other, attribute):
+                        return False
+                return True
+
         class CMD:
             def __init__(self, offense):
                 self.total = ""
@@ -524,6 +580,12 @@ class CharacterSheetData:
                     total_score += int(offence.bab)
                 self.total = str(total_score + 10)
 
+            def __eq__(self, other):
+                for attribute in self.attributes:
+                    if getattr(self, attribute) != getattr(other, attribute):
+                        return False
+                return True
+
         class HP:
             def __init__(self):
                 self.total = ""
@@ -538,6 +600,12 @@ class CharacterSheetData:
                     for attribute in self.attributes:
                         if json_items_data.get(attribute):
                             setattr(self, attribute, json_items_data.get(attribute))
+
+            def __eq__(self, other):
+                for attribute in self.attributes:
+                    if getattr(self, attribute) != getattr(other, attribute):
+                        return False
+                return True
 
     class Spells:
         def __init__(self):
@@ -580,6 +648,12 @@ class CharacterSheetData:
             for index in sorted(delete_list, reverse=True):
                 del self.spellLikes[index]
 
+        def __eq__(self, other):
+            for attribute in self.attributes:
+                if getattr(self, attribute) != getattr(other, attribute):
+                    return False
+            return True
+
         class SpellLikes:
             def __init__(self):
                 self.prepared = 0
@@ -610,6 +684,12 @@ class CharacterSheetData:
                         data = json_spellLike_data.get(attribute, False)
                         setattr(self, attribute, data)
 
+            def __eq__(self, other):
+                for attribute in self.attributes:
+                    if getattr(self, attribute) != getattr(other, attribute):
+                        return False
+                return True
+
         class NLevelSpells:
             def __init__(self):
                 self.totalKnown = ""
@@ -638,6 +718,12 @@ class CharacterSheetData:
                 for index in sorted(delete_list, reverse=True):
                     del self.slotted[index]
 
+            def __eq__(self, other):
+                for attribute in self.attributes:
+                    if getattr(self, attribute) != getattr(other, attribute):
+                        return False
+                return True
+
             class Spell:
                 def __init__(self):
                     self.level = 0
@@ -661,6 +747,12 @@ class CharacterSheetData:
                         for attribute in attributes_int:
                             data = json_slotted_data.get(attribute)
                             setattr(self, attribute, data)
+
+                def __eq__(self, other):
+                    for attribute in self.attributes:
+                        if getattr(self, attribute) != getattr(other, attribute):
+                            return False
+                    return True
 
     class Skills:
         def __init__(self, abilities):
@@ -751,16 +843,29 @@ class CharacterSheetData:
             string = string + "conditionalModifiers:\n" + self.conditionalModifiers + "\n"
             return string
 
+        def __eq__(self, other):
+            for attribute in self.attributes:
+                if getattr(self, attribute) != getattr(other, attribute):
+                    return False
+            return True
+
         class XP:
             def __init__(self):
                 self.total = ""
                 self.toNextLevel = ""
+                self.attributes = ['total', 'toNextLevel']
 
             def create_from_json(self, json_data):
                 data = json_data.get("xp")
                 if data:
                     self.total = data.get("total", "")
                     self.toNextLevel = data.get("toNextLevel", "")
+
+            def __eq__(self, other):
+                for attribute in self.attributes:
+                    if getattr(self, attribute) != getattr(other, attribute):
+                        return False
+                return True
 
         class SkillData:
             def __init__(self, modifier, abilities):
@@ -803,6 +908,12 @@ class CharacterSheetData:
                                     self.classSkill, self.ranks, self.misc, self.total, self.racial, self.trait)
                 return string
 
+            def __eq__(self, other):
+                for attribute in self.attributes:
+                    if getattr(self, attribute) != getattr(other, attribute):
+                        return False
+                return True
+
     class Offense:
         def __init__(self, abilities):
             self.initiative = self.Initiative()
@@ -812,6 +923,7 @@ class CharacterSheetData:
             self.cmb = self.CMB(abilities)
             self.melee = []
             self.ranged = []
+            self.attributes = ['initiative', 'bab', 'conditionalOffenseModifiers', 'speed', 'cmb']
 
         def create_from_json(self, json_data):
             self.initiative.create_from_json(json_data)
@@ -826,10 +938,19 @@ class CharacterSheetData:
             self.cmb.update_cmb_data(abilities, self.bab)
             self.initiative.update_initiative_data(abilities)
 
+        def __eq__(self, other):
+            for attribute in self.attributes:
+                if getattr(self, attribute) != getattr(other, attribute):
+                    return False
+            if self.melee.sort() != other.melee.sort() or self.ranged.sort() != other.ranged.sort():
+                return False
+            return True
+
         class Initiative:
             def __init__(self):
                 self.total = ""
                 self.miscModifier = ""
+                self.attributes = ['total', 'miscModifier']
 
             def create_from_json(self, json_data):
                 data = json_data.get("initiative")
@@ -849,6 +970,12 @@ class CharacterSheetData:
                 total_score += str_to_int(abilityModifierData)
                 self.total = str(total_score)
 
+            def __eq__(self, other):
+                for attribute in self.attributes:
+                    if getattr(self, attribute) != getattr(other, attribute):
+                        return False
+                return True
+
         class Speed:
             def __init__(self):
                 self.base = ""
@@ -866,6 +993,12 @@ class CharacterSheetData:
                 if data:
                     for attribute in attributes:
                         setattr(self, attribute, data.get(attribute, ""))
+
+            def __eq__(self, other):
+                for attribute in self.attributes:
+                    if getattr(self, attribute) != getattr(other, attribute):
+                        return False
+                return True
 
         class CMB:
             def __init__(self, abilities):
@@ -896,6 +1029,12 @@ class CharacterSheetData:
                 total_score += str_to_int(self.abilityModifierData)
                 self.total = str(total_score)
 
+            def __eq__(self, other):
+                for attribute in self.attributes:
+                    if getattr(self, attribute) != getattr(other, attribute):
+                        return False
+                return True
+
     class Money:
         def __init__(self):
             self.pp = ""
@@ -912,6 +1051,12 @@ class CharacterSheetData:
             if data:
                 for attribute in attributes:
                     setattr(self, attribute, data.get(attribute, ""))
+
+        def __eq__(self, other):
+            for attribute in self.attributes:
+                if getattr(self, attribute) != getattr(other, attribute):
+                    return False
+            return True
 
     class Gears:
         def __init__(self):
@@ -933,6 +1078,11 @@ class CharacterSheetData:
             for index in sorted(delete_list, reverse=True):
                 del self.list[index]
 
+        def __eq__(self, other):
+            if self.list.sort() == other.list.sort():
+                return True
+            return False
+
         class Gear:
             def __init__(self, type='', item='', location='', quantity='', weight='', notes=''):
                 self.type = type
@@ -949,6 +1099,12 @@ class CharacterSheetData:
                     for attribute in attributes:
                         setattr(self, attribute, json_data.get(attribute, ""))
                     self.item = json_data.get('name', "")
+
+            def __eq__(self, other):
+                for attribute in self.attributes:
+                    if getattr(self, attribute) != getattr(other, attribute):
+                        return False
+                return True
 
     class Traits:
         def __init__(self):
@@ -970,6 +1126,11 @@ class CharacterSheetData:
             for index in sorted(delete_list, reverse=True):
                 del self.list[index]
 
+        def __eq__(self, other):
+            if self.list.sort() == other.list.sort():
+                return True
+            return False
+
         class Trait:
             def __init__(self, type='', name='', notes=''):
                 self.type = type
@@ -981,6 +1142,12 @@ class CharacterSheetData:
                 attributes = ['type', 'name', 'notes']
                 for attribute in attributes:
                     setattr(self, attribute, json_data.get(attribute, ""))
+
+            def __eq__(self, other):
+                for attribute in self.attributes:
+                    if getattr(self, attribute) != getattr(other, attribute):
+                        return False
+                return True
 
     class SpecialAbilities:
         def __init__(self):
@@ -1002,6 +1169,11 @@ class CharacterSheetData:
             for index in sorted(delete_list, reverse=True):
                 del self.list[index]
 
+        def __eq__(self, other):
+            if self.list.sort() == other.list.sort():
+                return True
+            return False
+
         class SpecialAbility:
             def __init__(self, type='', name='', notes=''):
                 self.type = type
@@ -1013,6 +1185,12 @@ class CharacterSheetData:
                 attributes = ['type', 'name', 'notes']
                 for attribute in attributes:
                     setattr(self, attribute, json_data.get(attribute, ""))
+
+            def __eq__(self, other):
+                for attribute in self.attributes:
+                    if getattr(self, attribute) != getattr(other, attribute):
+                        return False
+                return True
 
     class Feats:
         def __init__(self):
@@ -1034,6 +1212,11 @@ class CharacterSheetData:
             for index in sorted(delete_list, reverse=True):
                 del self.list[index]
 
+        def __eq__(self, other):
+            if self.list.sort() == other.list.sort():
+                return True
+            return False
+
         class Feat:
             def __init__(self, type='', name='', notes=''):
                 self.type = type
@@ -1045,6 +1228,12 @@ class CharacterSheetData:
                 attributes = ['type', 'name', 'notes']
                 for attribute in attributes:
                     setattr(self, attribute, json_data.get(attribute, ""))
+
+            def __eq__(self, other):
+                for attribute in self.attributes:
+                    if getattr(self, attribute) != getattr(other, attribute):
+                        return False
+                return True
 
     class Attacks:
         def __init__(self):
@@ -1079,6 +1268,11 @@ class CharacterSheetData:
             for index in sorted(delete_list, reverse=True):
                 del self.ranged[index]
 
+        def __eq__(self, other):
+            if self.melee.sort() == other.melee.sort() and self.ranged.sort() == self.ranged.sort():
+                return True
+            return False
+
         class MeleeAttack:
             def __init__(self, weapon='', attackBonus='', damage='', critical='', type='', notes=''):
                 self.weapon = weapon
@@ -1094,6 +1288,13 @@ class CharacterSheetData:
                 for attribute in attributes:
                     setattr(self, attribute, json_data.get(attribute, ""))
 
+            def __eq__(self, other):
+                for attribute in self.attributes:
+                    if getattr(self, attribute) != getattr(other, attribute):
+                        return False
+                return True
+
+
         class RangedAttack:
             def __init__(self, weapon='', attackBonus='', damage='', critical='', type='', ammunition=''):
                 self.weapon = weapon
@@ -1108,3 +1309,9 @@ class CharacterSheetData:
                 attributes = ['weapon', 'attackBonus', 'damage', 'critical', 'type', 'ammunition']
                 for attribute in attributes:
                     setattr(self, attribute, json_data.get(attribute, ""))
+
+            def __eq__(self, other):
+                for attribute in self.attributes:
+                    if getattr(self, attribute) != getattr(other, attribute):
+                        return False
+                return True

@@ -5,7 +5,7 @@ from enum import Enum
 from tkinter import filedialog
 
 import qdarktheme
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QShortcut
@@ -39,9 +39,11 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)
         self.data_frame = dataFrame.CharacterSheetData()
+        self.empty_frame = dataFrame.CharacterSheetData()
         self.actualTheme = None
         self.setupUi(self)
         self.setDarkTheme()
+        self.setWindowIcon(QtGui.QIcon('icon.ico'))
         self.setWindowTitle('Pathfinder Character Sheet')
 
         self.file_path = ''
@@ -478,6 +480,10 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ninthList = []
         self.addNinth.clicked.connect(
             lambda: self.add_spell(button_clicked=True, spell_level='ninth', grid_layout=self.gridLayout_24))
+
+    def closeEvent(self, event):
+        if self.data_frame != self.empty_frame:
+            self.saveFile()
 
     def add_spell_like(self, spell=None, button_clicked=False):
         gridLayout = self.gridLayout_10
@@ -1961,6 +1967,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ninthIndex = 0
 
     def selectFile(self):
+        if self.data_frame != self.empty_frame:
+            self.saveFile()
         tkinter.Tk().withdraw()
         self.file_path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
         if self.file_path == '':

@@ -8,10 +8,6 @@ def xml_to_character_sheet(path):
             data = json.load(input_file)
             data_frame = dataFrame.CharacterSheetData()
             data_frame.create_from_json(data)
-            # print(data_frame)
-
-            print(json.dumps(data, indent=4))
-
             return data_frame
     except Exception as inst:
         print(type(inst))
