@@ -1,4 +1,5 @@
 import operator
+import os
 import sys
 import tkinter
 from enum import Enum
@@ -43,7 +44,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.actualTheme = None
         self.setupUi(self)
         self.setDarkTheme()
-        self.setWindowIcon(QtGui.QIcon('icon.ico'))
+        print(os.getcwd())
+        self.setWindowIcon(QtGui.QIcon(os.getcwd() + '\\_internal\\icon.ico'))
         self.setWindowTitle('Pathfinder Character Sheet')
 
         self.file_path = ''
