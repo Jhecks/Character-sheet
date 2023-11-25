@@ -475,7 +475,7 @@ class CharacterSheetData:
                         del self.list[index]
 
                 def __eq__(self, other):
-                    if self.list.sort() == other.list.sort():
+                    if self.list == other.list:
                         return True
                     return False
 
@@ -942,7 +942,7 @@ class CharacterSheetData:
             for attribute in self.attributes:
                 if getattr(self, attribute) != getattr(other, attribute):
                     return False
-            if self.melee.sort() != other.melee.sort() or self.ranged.sort() != other.ranged.sort():
+            if self.melee != other.melee or self.ranged != other.ranged:
                 return False
             return True
 
@@ -1079,7 +1079,7 @@ class CharacterSheetData:
                 del self.list[index]
 
         def __eq__(self, other):
-            if self.list.sort() == other.list.sort():
+            if self.list == other.list:
                 return True
             return False
 
@@ -1127,7 +1127,7 @@ class CharacterSheetData:
                 del self.list[index]
 
         def __eq__(self, other):
-            if self.list.sort() == other.list.sort():
+            if self.list == other.list:
                 return True
             return False
 
@@ -1170,7 +1170,7 @@ class CharacterSheetData:
                 del self.list[index]
 
         def __eq__(self, other):
-            if self.list.sort() == other.list.sort():
+            if self.list == other.list:
                 return True
             return False
 
@@ -1213,7 +1213,7 @@ class CharacterSheetData:
                 del self.list[index]
 
         def __eq__(self, other):
-            if self.list.sort() == other.list.sort():
+            if self.list == other.list:
                 return True
             return False
 
@@ -1269,7 +1269,7 @@ class CharacterSheetData:
                 del self.ranged[index]
 
         def __eq__(self, other):
-            if self.melee.sort() == other.melee.sort() and self.ranged.sort() == self.ranged.sort():
+            if self.melee == other.melee and self.ranged == self.ranged:
                 return True
             return False
 

@@ -14,6 +14,7 @@ def xml_to_character_sheet(path):
         print(inst.args)
         print(inst)
 
+
 def character_sheet_to_xml(path, data_frame):
     try:
         with open(path, 'w') as output_file:

@@ -1,3 +1,4 @@
+import copy
 import operator
 import os
 import sys
@@ -40,18 +41,18 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)
         self.data_frame = dataFrame.CharacterSheetData()
-        self.empty_frame = dataFrame.CharacterSheetData()
+        self.previous_frame = dataFrame.CharacterSheetData()
         self.actualTheme = None
         self.setupUi(self)
-        self.setDarkTheme()
-        print(os.getcwd())
-        self.setWindowIcon(QtGui.QIcon(os.getcwd() + '\\_internal\\icon.ico'))
+        self.set_dark_theme()
+        self.icon_path = os.getcwd() + '\\_internal\\icon.ico'
+        self.setWindowIcon(QtGui.QIcon(self.icon_path))
         self.setWindowTitle('Pathfinder Character Sheet')
 
         self.file_path = ''
 
-        self.actionLight_theme_2.triggered.connect(self.setLightTheme)
-        self.actionDark_theme_2.triggered.connect(self.setDarkTheme)
+        self.actionLight_theme_2.triggered.connect(self.set_light_theme)
+        self.actionDark_theme_2.triggered.connect(self.set_dark_theme)
 
         self.actionSelect_file.triggered.connect(self.selectFile)
         self.openShortCut = QShortcut(QKeySequence('Ctrl+O'), self)
@@ -371,8 +372,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
 
         self.conditionalModifiers.textEdited.connect(self.conditionalModifiers_changed)
         self.languages.textEdited.connect(self.languages_changed)
-        self.levelTotal.textEdited.connect(self.levelTotal_changed)
-        self.levelNext.textEdited.connect(self.levelNext_changed)
+        self.levelTotal.textEdited.connect(self.level_total_changed)
+        self.levelNext.textEdited.connect(self.level_next_changed)
 
         # Money change
         self.pp.textEdited.connect(lambda: self.money_changed('pp'))
@@ -484,7 +485,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
             lambda: self.add_spell(button_clicked=True, spell_level='ninth', grid_layout=self.gridLayout_24))
 
     def closeEvent(self, event):
-        if self.data_frame != self.empty_frame:
+        if self.data_frame != self.previous_frame:
             self.saveFile()
 
     def add_spell_like(self, spell=None, button_clicked=False):
@@ -524,6 +525,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ui = Ui_SpellLikeEdit()
         self.ui.setupUi(self.window)
         self.window.setWindowModality(Qt.ApplicationModal)
+        self.setWindowIcon(QtGui.QIcon(self.icon_path))
         self.window.setWindowTitle('Edit Spell')
 
         self.ui.name.setText(self.data_frame.spells.spellLikes[index].name)
@@ -672,7 +674,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
     def spell_like_description_updated(self, index):
         self.data_frame.spells.spellLikes[index].description = self.sender().toPlainText()
 
-    def add_spell(self, spell=None, button_clicked=False, spell_level='', grid_layout=''):
+    def add_spell(self, spell=None, button_clicked=False, spell_level='', grid_layout=None):
         gridLayout = grid_layout
         setattr(self, spell_level + 'Count', getattr(self, spell_level + 'Count') + 1)
         setattr(self, spell_level + 'Index', getattr(self, spell_level + 'Index') + 1)
@@ -711,6 +713,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ui = Ui_SpellEdit()
         self.ui.setupUi(self.window)
         self.window.setWindowModality(Qt.ApplicationModal)
+        self.setWindowIcon(QtGui.QIcon(self.icon_path))
         self.window.setWindowTitle('Edit Spell')
 
         self.ui.name.setText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name)
@@ -753,8 +756,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
                                          self.data_frame.spells.spellLikes[index].prepared))
         else:
             self.spellLikeList[index].setText(
-                '{} | {}'.format(self.data_frame.spells.spellLikes[index].name),
-                self.data_frame.spells.spellLikes[index].school)
+                '{} | {}'.format(self.data_frame.spells.spellLikes[index].name,
+                                 self.data_frame.spells.spellLikes[index].school))
 
     def increase_cast(self, index):
         self.data_frame.spells.spellLikes[index].used += 1
@@ -767,8 +770,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
                                          self.data_frame.spells.spellLikes[index].prepared))
         else:
             self.spellLikeList[index].setText(
-                '{} | {}'.format(self.data_frame.spells.spellLikes[index].name),
-                self.data_frame.spells.spellLikes[index].school)
+                '{} | {}'.format(self.data_frame.spells.spellLikes[index].name,
+                                 self.data_frame.spells.spellLikes[index].school))
 
     def clear_spell_counter_data(self, index):
         self.data_frame.spells.spellLikes[index].prepared = 0
@@ -783,8 +786,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
                                          self.data_frame.spells.spellLikes[index].prepared))
         else:
             self.spellLikeList[index].setText(
-                '{} | {}'.format(self.data_frame.spells.spellLikes[index].name),
-                self.data_frame.spells.spellLikes[index].school)
+                '{} | {}'.format(self.data_frame.spells.spellLikes[index].name,
+                                 self.data_frame.spells.spellLikes[index].school))
 
     def marked_spell(self, index):
         if self.data_frame.spells.spellLikes[index].marked:
@@ -969,6 +972,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ui = Ui_GearEdit()
         self.ui.setupUi(self.window)
         self.window.setWindowModality(Qt.ApplicationModal)
+        self.setWindowIcon(QtGui.QIcon(self.icon_path))
         self.window.setWindowTitle('Edit Gear')
 
         self.ui.type.setText(self.data_frame.gears.list[index].type)
@@ -1073,6 +1077,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ui = Ui_FeatEdit()
         self.ui.setupUi(self.window)
         self.window.setWindowModality(Qt.ApplicationModal)
+        self.setWindowIcon(QtGui.QIcon(self.icon_path))
         self.window.setWindowTitle('Edit Feat')
 
         self.ui.name.setText(self.data_frame.feats.list[index].name)
@@ -1150,6 +1155,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ui = Ui_FeatEdit()
         self.ui.setupUi(self.window)
         self.window.setWindowModality(Qt.ApplicationModal)
+        self.setWindowIcon(QtGui.QIcon(self.icon_path))
         self.window.setWindowTitle('Edit Special Ability')
 
         self.ui.name.setText(self.data_frame.specialAbilities.list[index].name)
@@ -1226,6 +1232,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ui = Ui_TraitEdit()
         self.ui.setupUi(self.window)
         self.window.setWindowModality(Qt.ApplicationModal)
+        self.setWindowIcon(QtGui.QIcon(self.icon_path))
         self.window.setWindowTitle('Edit Trait')
 
         self.ui.type.setText(self.data_frame.traits.list[index].type)
@@ -1854,10 +1861,10 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
     def languages_changed(self):
         self.data_frame.skills.languages = self.languages.text()
 
-    def levelTotal_changed(self):
+    def level_total_changed(self):
         self.data_frame.skills.xp.total = self.levelTotal.text()
 
-    def levelNext_changed(self):
+    def level_next_changed(self):
         self.data_frame.skills.xp.toNextLevel = self.levelNext.text()
 
     def money_changed(self, item):
@@ -1867,13 +1874,13 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.data_frame.notes = self.notes.toPlainText()
         self.data_frame.update_data()
 
-    def setDarkTheme(self):
+    def set_dark_theme(self):
         qdarktheme.setup_theme()
         self.actionDark_theme_2.setChecked(True)
         self.actionLight_theme_2.setChecked(False)
         self.actualTheme = Themes.dark
 
-    def setLightTheme(self):
+    def set_light_theme(self):
         qdarktheme.setup_theme('light')
         self.actionDark_theme_2.setChecked(False)
         self.actionLight_theme_2.setChecked(True)
@@ -1969,7 +1976,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ninthIndex = 0
 
     def selectFile(self):
-        if self.data_frame != self.empty_frame:
+        if self.data_frame != self.previous_frame:
             self.saveFile()
         tkinter.Tk().withdraw()
         self.file_path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
@@ -2013,6 +2020,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         for spellLevel, gridLayout in spellLevels.items():
             for spell in getattr(self.data_frame.spells, spellLevel + 'Level').slotted:
                 self.add_spell(spell, False, spellLevel, getattr(self, gridLayout))
+
+        self.previous_frame = copy.deepcopy(self.data_frame)
 
     def saveFile(self):
         if not self.file_path:
