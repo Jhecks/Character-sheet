@@ -1561,18 +1561,12 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         gridLayout.addWidget(attack_type, new_position + 1, 5)
         gridLayout.addWidget(attack_notes, new_position + 1, 6)
 
-        attack_weapon_edit.textEdited.connect(lambda: self.attack_weapon_update(
-            f'attack_weapon_edit{self.attacksCount}', True))
-        attack_bonus_edit.textEdited.connect(lambda: self.attack_bonus_update(
-            f'attack_bonus_edit{self.attacksCount}', True))
-        attack_damage_edit.textEdited.connect(lambda: self.attack_damage_update(
-            f'attack_damage_edit{self.attacksCount}', True))
-        attack_critical_edit.textEdited.connect(lambda: self.attack_critical_update(
-            f'attack_critical_edit{self.attacksCount}', True))
-        attack_type_edit.textEdited.connect(lambda: self.attack_type_update(
-            f'attack_type_edit{self.attacksCount}', True))
-        attack_notes_edit.textEdited.connect(lambda: self.attack_notes_update(
-            f'attack_notes_edit{self.attacksCount}', True))
+        attack_weapon_edit.textEdited.connect(lambda: self.attack_weapon_update(attackType == 'melee'))
+        attack_bonus_edit.textEdited.connect(lambda: self.attack_bonus_update(attackType == 'melee'))
+        attack_damage_edit.textEdited.connect(lambda: self.attack_damage_update(attackType == 'melee'))
+        attack_critical_edit.textEdited.connect(lambda: self.attack_critical_update(attackType == 'melee'))
+        attack_type_edit.textEdited.connect(lambda: self.attack_type_update(attackType == 'melee'))
+        attack_notes_edit.textEdited.connect(lambda: self.attack_notes_update(attackType == 'melee'))
 
     def delete_attack(self):
         gridLayout = self.gridLayout_12
@@ -1605,7 +1599,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
             self.rangedAttacksList.remove(item)
         self.data_frame.attacks.delete_ranged_attacks(data_frame_deleted)
 
-    def attack_weapon_update(self, object_name='', melee=False):
+    def attack_weapon_update(self, melee=False):
         object_name = self.sender().objectName()
         if melee:
             index = 0
@@ -1620,22 +1614,22 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
                     index = i
             self.data_frame.attacks.ranged[index].weapon = self.rangedAttacksList[index].weapon.text()
 
-    def attack_bonus_update(self, object_name='', melee=False):
+    def attack_bonus_update(self, melee=False):
         object_name = self.sender().objectName()
         if melee:
             index = 0
             for i in range(len(self.meleeAttacksList)):
                 if self.meleeAttacksList[i].bonus.objectName() == object_name:
                     index = i
-            self.data_frame.attacks.melee[index].bonus = self.meleeAttacksList[index].bonus.text()
+            self.data_frame.attacks.melee[index].attackBonus = self.meleeAttacksList[index].bonus.text()
         else:
             index = 0
             for i in range(len(self.rangedAttacksList)):
                 if self.rangedAttacksList[i].bonus.objectName() == object_name:
                     index = i
-            self.data_frame.attacks.ranged[index].bonus = self.rangedAttacksList[index].bonus.text()
+            self.data_frame.attacks.ranged[index].attackBonus = self.rangedAttacksList[index].bonus.text()
 
-    def attack_damage_update(self, object_name='', melee=False):
+    def attack_damage_update(self, melee=False):
         object_name = self.sender().objectName()
         if melee:
             index = 0
@@ -1650,7 +1644,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
                     index = i
             self.data_frame.attacks.ranged[index].damage = self.rangedAttacksList[index].damage.text()
 
-    def attack_critical_update(self, object_name='', melee=False):
+    def attack_critical_update(self, melee=False):
         object_name = self.sender().objectName()
         if melee:
             index = 0
@@ -1665,7 +1659,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
                     index = i
             self.data_frame.attacks.ranged[index].critical = self.rangedAttacksList[index].critical.text()
 
-    def attack_type_update(self, object_name='', melee=False):
+    def attack_type_update(self, melee=False):
         object_name = self.sender().objectName()
         if melee:
             index = 0
@@ -1680,7 +1674,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
                     index = i
             self.data_frame.attacks.ranged[index].type = self.rangedAttacksList[index].type.text()
 
-    def attack_notes_update(self, object_name='', melee=False):
+    def attack_notes_update(self, melee=False):
         object_name = self.sender().objectName()
         if melee:
             index = 0

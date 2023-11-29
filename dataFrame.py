@@ -1258,7 +1258,7 @@ class CharacterSheetData:
             self.melee.append(self.MeleeAttack(weapon, attackBonus, damage, critical, type, notes))
 
         def add_ranged_attack(self, weapon='', attackBonus='', damage='', critical='', type='', ammunition=''):
-            self.ranged.append(self.MeleeAttack(weapon, attackBonus, damage, critical, type, ammunition))
+            self.ranged.append(self.RangedAttack(weapon, attackBonus, damage, critical, type, ammunition))
 
         def delete_melee_attacks(self, delete_list):
             for index in sorted(delete_list, reverse=True):
@@ -1293,7 +1293,6 @@ class CharacterSheetData:
                     if getattr(self, attribute) != getattr(other, attribute):
                         return False
                 return True
-
 
         class RangedAttack:
             def __init__(self, weapon='', attackBonus='', damage='', critical='', type='', ammunition=''):
