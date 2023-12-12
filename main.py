@@ -2002,7 +2002,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         if self.file_path == '':
             return
         self.reset_buttons()
-        self.data_frame = xmlParser.xml_to_character_sheet(self.file_path)
+        self.data_frame = jsonParser.xml_to_character_sheet(self.file_path)
         self.setWindowTitle(self.data_frame.general.name)
 
         self.update_window()
@@ -2045,14 +2045,14 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
     def saveFile(self):
         if not self.file_path:
             self.saveFileAs()
-        xmlParser.character_sheet_to_xml(self.file_path, self.data_frame.create_json())
+        jsonParser.character_sheet_to_xml(self.file_path, self.data_frame.create_json())
 
     def saveFileAs(self):
         tkinter.Tk().withdraw()
         self.file_path = filedialog.asksaveasfilename(filetypes=[("JSON files", "*.json")], defaultextension='.json')
         if self.file_path == '':
             return
-        xmlParser.character_sheet_to_xml(self.file_path, self.data_frame.create_json())
+        jsonParser.character_sheet_to_xml(self.file_path, self.data_frame.create_json())
 
     def update_window(self):
         # Write data to general block in gui
