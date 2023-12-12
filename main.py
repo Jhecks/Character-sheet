@@ -525,7 +525,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ui = Ui_SpellLikeEdit()
         self.ui.setupUi(self.window)
         self.window.setWindowModality(Qt.ApplicationModal)
-        self.setWindowIcon(QtGui.QIcon(self.icon_path))
+        self.window.setWindowIcon(QtGui.QIcon(self.icon_path))
         self.window.setWindowTitle('Edit Spell')
 
         self.ui.name.setText(self.data_frame.spells.spellLikes[index].name)
@@ -713,7 +713,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ui = Ui_SpellEdit()
         self.ui.setupUi(self.window)
         self.window.setWindowModality(Qt.ApplicationModal)
-        self.setWindowIcon(QtGui.QIcon(self.icon_path))
+        self.window.setWindowIcon(QtGui.QIcon(self.icon_path))
         self.window.setWindowTitle('Edit Spell')
 
         self.ui.name.setText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name)
@@ -972,7 +972,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ui = Ui_GearEdit()
         self.ui.setupUi(self.window)
         self.window.setWindowModality(Qt.ApplicationModal)
-        self.setWindowIcon(QtGui.QIcon(self.icon_path))
+        self.window.setWindowIcon(QtGui.QIcon(self.icon_path))
         self.window.setWindowTitle('Edit Gear')
 
         self.ui.type.setText(self.data_frame.gears.list[index].type)
@@ -1077,7 +1077,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ui = Ui_FeatEdit()
         self.ui.setupUi(self.window)
         self.window.setWindowModality(Qt.ApplicationModal)
-        self.setWindowIcon(QtGui.QIcon(self.icon_path))
+        self.window.setWindowIcon(QtGui.QIcon(self.icon_path))
         self.window.setWindowTitle('Edit Feat')
 
         self.ui.name.setText(self.data_frame.feats.list[index].name)
@@ -1155,7 +1155,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ui = Ui_FeatEdit()
         self.ui.setupUi(self.window)
         self.window.setWindowModality(Qt.ApplicationModal)
-        self.setWindowIcon(QtGui.QIcon(self.icon_path))
+        self.window.setWindowIcon(QtGui.QIcon(self.icon_path))
         self.window.setWindowTitle('Edit Special Ability')
 
         self.ui.name.setText(self.data_frame.specialAbilities.list[index].name)
@@ -1232,7 +1232,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ui = Ui_TraitEdit()
         self.ui.setupUi(self.window)
         self.window.setWindowModality(Qt.ApplicationModal)
-        self.setWindowIcon(QtGui.QIcon(self.icon_path))
+        self.window.setWindowIcon(QtGui.QIcon(self.icon_path))
         self.window.setWindowTitle('Edit Trait')
 
         self.ui.type.setText(self.data_frame.traits.list[index].type)
