@@ -15,7 +15,8 @@ from PyQt5.QtWidgets import QShortcut
 import CharacterSheet
 import dataFrame
 import qtTranslateLayer as qtl
-import xmlParser
+import jsonParser
+from AbilityEdit import Ui_AbilityEdit
 from FeatEdit import Ui_FeatEdit
 from GearEdit import Ui_GearEdit
 from SpellEdit import Ui_SpellEdit
@@ -1168,7 +1169,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
             if self.abilityList[i].objectName() == object_name:
                 index = i
         self.window = QtWidgets.QMainWindow()
-        self.ui = Ui_FeatEdit()
+        self.ui = Ui_AbilityEdit()
         self.ui.setupUi(self.window)
         self.window.setWindowModality(Qt.ApplicationModal)
         self.window.setWindowIcon(QtGui.QIcon(self.icon_path))
