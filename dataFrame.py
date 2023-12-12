@@ -652,6 +652,12 @@ class CharacterSheetData:
             for attribute in self.attributes:
                 if getattr(self, attribute) != getattr(other, attribute):
                     return False
+            if self.spellLikes != other.spellLikes:
+                return False
+            if self.spellsConditionalModifiers != other.spellsConditionalModifiers:
+                return False
+            if self.spellsSpeciality != other.spellsSpeciality:
+                return False
             return True
 
         class SpellLikes:
@@ -722,6 +728,8 @@ class CharacterSheetData:
                 for attribute in self.attributes:
                     if getattr(self, attribute) != getattr(other, attribute):
                         return False
+                if self.slotted != other.slotted:
+                    return False
                 return True
 
             class Spell:

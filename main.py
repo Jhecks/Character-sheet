@@ -555,6 +555,10 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ui.deleteButton.clicked.connect(lambda: self.spell_like_delete(index))
 
         self.window.show()
+        position = self.pos()
+        position.setX(self.pos().x() + 120)
+        position.setY(self.pos().y() + 250)
+        self.window.move(position)
 
     def increase_per_day(self, index):
         self.data_frame.spells.spellLikes[index].prepared += 1
@@ -744,6 +748,10 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ui.deleteButton.clicked.connect(lambda: self.spell_delete(index, spell_level, grid_layout))
 
         self.window.show()
+        position = self.pos()
+        position.setX(self.pos().x() + 120)
+        position.setY(self.pos().y() + 250)
+        self.window.move(position)
 
     def increase_prepared(self, index, spell_level):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared += 1
@@ -992,6 +1000,10 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ui.deleteButton.clicked.connect(lambda: self.gear_delete(index))
 
         self.window.show()
+        position = self.pos()
+        position.setX(self.pos().x() + 180)
+        position.setY(self.pos().y() + 350)
+        self.window.move(position)
 
     def gear_type_updated(self, index):
         self.data_frame.gears.list[index].type = self.sender().text()
@@ -1091,6 +1103,10 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ui.deleteButton.clicked.connect(lambda: self.feat_delete(index))
 
         self.window.show()
+        position = self.pos()
+        position.setX(self.pos().x() + 280)
+        position.setY(self.pos().y() + 370)
+        self.window.move(position)
 
     def feat_name_updated(self, index):
         self.data_frame.feats.list[index].name = self.sender().text()
@@ -1169,6 +1185,10 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ui.deleteButton.clicked.connect(lambda: self.ability_delete(index))
 
         self.window.show()
+        position = self.pos()
+        position.setX(self.pos().x() + 280)
+        position.setY(self.pos().y() + 370)
+        self.window.move(position)
 
     def ability_name_updated(self, index):
         self.data_frame.specialAbilities.list[index].name = self.sender().text()
@@ -1246,6 +1266,10 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ui.deleteButton.clicked.connect(lambda: self.trait_delete(index))
 
         self.window.show()
+        position = self.pos()
+        position.setX(self.pos().x() + 280)
+        position.setY(self.pos().y() + 370)
+        self.window.move(position)
 
     def trait_name_updated(self, index):
         self.data_frame.traits.list[index].name = self.sender().text()
