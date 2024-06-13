@@ -22,6 +22,7 @@ from GearEdit import Ui_GearEdit
 from SpellEdit import Ui_SpellEdit
 from SpellLikeEdit import Ui_SpellLikeEdit
 from TraitEdit import Ui_TraitEdit
+from DescriptionsFromCSV import DataFromCSV
 
 
 class Themes(Enum):
@@ -485,6 +486,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.addNinth.clicked.connect(
             lambda: self.add_spell(button_clicked=True, spell_level='ninth', grid_layout=self.gridLayout_24))
 
+        self.spell_data = DataFromCSV()
+
     def closeEvent(self, event):
         if self.data_frame != self.previous_frame:
             self.saveFile()
@@ -527,25 +530,34 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ui.setupUi(self.window)
         self.window.setWindowModality(Qt.ApplicationModal)
         self.window.setWindowIcon(QtGui.QIcon(self.icon_path))
-        self.window.setWindowTitle('Edit Spell')
+        self.window.setWindowTitle('Edit Spell-Like')
 
-        self.ui.name.setText(self.data_frame.spells.spellLikes[index].name)
+        self.ui.name.setEditable(True)
+        self.ui.name.addItems(self.spell_data.spell_names)
+        self.ui.name.setCurrentText(self.data_frame.spells.spellLikes[index].name)
+
         self.ui.level.setValue(self.data_frame.spells.spellLikes[index].level)
-        self.ui.school.setText(self.data_frame.spells.spellLikes[index].school)
-        self.ui.subschool.setText(self.data_frame.spells.spellLikes[index].subschool)
+
+        self.ui.school.setEditable(True)
+        self.ui.school.addItems(self.spell_data.spell_schools)
+        self.ui.school.setCurrentText(self.data_frame.spells.spellLikes[index].school)
+        self.ui.subschool.setEditable(True)
+        self.ui.subschool.addItems(self.spell_data.spell_subschools)
+        self.ui.subschool.setCurrentText(self.data_frame.spells.spellLikes[index].subschool)
+
         self.ui.perDay.setValue(self.data_frame.spells.spellLikes[index].prepared)
         self.ui.used.setValue(self.data_frame.spells.spellLikes[index].cast)
         self.ui.notes.setPlainText(self.data_frame.spells.spellLikes[index].notes)
-        self.ui.description.setPlainText(self.data_frame.spells.spellLikes[index].description)
+        self.ui.description.setHtml(self.data_frame.spells.spellLikes[index].description)
 
-        self.ui.name.textEdited.connect(lambda: self.spell_like_name_updated(index))
+        self.ui.name.currentTextChanged.connect(lambda: self.spell_like_name_updated(index, self.ui.name.currentText()))
         self.ui.level.valueChanged.connect(lambda: self.spell_like_level_updated(index))
-        self.ui.school.textEdited.connect(lambda: self.spell_like_school_updated(index))
-        self.ui.subschool.textEdited.connect(lambda: self.spell_like_subschool_updated(index))
+        self.ui.school.currentTextChanged.connect(lambda: self.spell_like_school_updated(index, self.ui.name.currentText()))
+        self.ui.subschool.currentTextChanged.connect(lambda: self.spell_like_subschool_updated(index, self.ui.name.currentText()))
         self.ui.perDay.valueChanged.connect(lambda: self.spell_like_prepared_updated(index))
         self.ui.used.valueChanged.connect(lambda: self.spell_like_cast_updated(index))
         self.ui.notes.textChanged.connect(lambda: self.spell_like_notes_updated(index))
-        self.ui.description.textChanged.connect(lambda: self.spell_like_description_updated(index))
+        # self.ui.description.textChanged.connect(lambda: self.spell_like_description_updated(index))
 
         self.ui.closeButton.clicked.connect(lambda: self.window.close())
         self.ui.perDayButton.clicked.connect(lambda: self.increase_per_day(index))
@@ -615,8 +627,13 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
             grid_layout.removeWidget(button)
             grid_layout.addWidget(button, new_position[0], new_position[1])
 
-    def spell_like_name_updated(self, index):
-        self.data_frame.spells.spellLikes[index].name = self.sender().text()
+    def spell_like_name_updated(self, index, text):
+        data = self.spell_data.check_spell_availability(text)
+        self.data_frame.spells.spellLikes[index].name = text
+        if data:
+            self.ui.school.setCurrentText(data['school'])
+            self.ui.subschool.setCurrentText(data['subschool'])
+            self.ui.description.setHtml(data['description'])
         if self.data_frame.spells.spellLikes[index].prepared:
             self.spellLikeList[index].setText(
                 '{} | {} ({}/{})'.format(self.data_frame.spells.spellLikes[index].name,
@@ -631,8 +648,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
     def spell_like_level_updated(self, index):
         self.data_frame.spells.spellLikes[index].level = self.sender().value()
 
-    def spell_like_school_updated(self, index):
-        self.data_frame.spells.spellLikes[index].school = self.sender().text()
+    def spell_like_school_updated(self, index, text):
+        self.data_frame.spells.spellLikes[index].school = text
         if self.data_frame.spells.spellLikes[index].prepared:
             self.spellLikeList[index].setText(
                 '{} | {} ({}/{})'.format(self.data_frame.spells.spellLikes[index].name,
@@ -644,8 +661,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
                 '{} | {}'.format(self.data_frame.spells.spellLikes[index].name,
                                  self.data_frame.spells.spellLikes[index].school))
 
-    def spell_like_subschool_updated(self, index):
-        self.data_frame.spells.spellLikes[index].subschool = self.sender().text()
+    def spell_like_subschool_updated(self, index, text):
+        self.data_frame.spells.spellLikes[index].subschool = text
 
     def spell_like_prepared_updated(self, index):
         self.data_frame.spells.spellLikes[index].prepared = self.sender().value()
@@ -676,8 +693,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
     def spell_like_notes_updated(self, index):
         self.data_frame.spells.spellLikes[index].notes = self.sender().toPlainText()
 
-    def spell_like_description_updated(self, index):
-        self.data_frame.spells.spellLikes[index].description = self.sender().toPlainText()
+    # def spell_like_description_updated(self, index):
+    #     self.data_frame.spells.spellLikes[index].description = self.sender().toPlainText()
 
     def add_spell(self, spell=None, button_clicked=False, spell_level='', grid_layout=None):
         gridLayout = grid_layout
@@ -721,25 +738,31 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.window.setWindowIcon(QtGui.QIcon(self.icon_path))
         self.window.setWindowTitle('Edit Spell')
 
-        self.ui.name.setText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name)
+        self.ui.name.setEditable(True)
+        self.ui.name.addItems(self.spell_data.spell_names)
+        self.ui.name.setCurrentText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name)
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].level = qtl.spell_levels[spell_level]
         self.ui.level.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].level)
-        self.ui.school.setText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school)
-        self.ui.subschool.setText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].subschool)
+        self.ui.school.setEditable(True)
+        self.ui.school.addItems(self.spell_data.spell_schools)
+        self.ui.school.setCurrentText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school)
+        self.ui.subschool.setEditable(True)
+        self.ui.subschool.addItems(self.spell_data.spell_subschools)
+        self.ui.subschool.setCurrentText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].subschool)
         self.ui.prepared.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared)
         self.ui.cast.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast)
         self.ui.notes.setPlainText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].notes)
-        self.ui.description.setPlainText(
+        self.ui.description.setHtml(
             getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].description)
 
-        self.ui.name.textEdited.connect(lambda: self.spell_name_updated(index, spell_level))
+        self.ui.name.currentTextChanged.connect(lambda: self.spell_name_updated(index, spell_level, self.ui.name.currentText()))
         self.ui.level.valueChanged.connect(lambda: self.spell_level_updated(index, spell_level))
-        self.ui.school.textEdited.connect(lambda: self.spell_school_updated(index, spell_level))
-        self.ui.subschool.textEdited.connect(lambda: self.spell_subschool_updated(index, spell_level))
+        self.ui.school.currentTextChanged.connect(lambda: self.spell_school_updated(index, spell_level, self.ui.name.currentText()))
+        self.ui.subschool.currentTextChanged.connect(lambda: self.spell_subschool_updated(index, spell_level, self.ui.name.currentText()))
         self.ui.prepared.valueChanged.connect(lambda: self.spell_prepared_updated(index, spell_level))
         self.ui.cast.valueChanged.connect(lambda: self.spell_cast_updated(index, spell_level))
         self.ui.notes.textChanged.connect(lambda: self.spell_notes_updated(index, spell_level))
-        self.ui.description.textChanged.connect(lambda: self.spell_description_updated(index, spell_level))
+        # self.ui.description.textChanged.connect(lambda: self.spell_description_updated(index, spell_level))
 
         self.ui.closeButton.clicked.connect(lambda: self.window.close())
         self.ui.preparedButton.clicked.connect(lambda: self.spell_increase_prepared(index, spell_level))
@@ -809,8 +832,13 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
                                                     "}")
             self.data_frame.spells.spellLikes[index].marked = True
 
-    def spell_name_updated(self, index, spell_level):
-        getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name = self.sender().text()
+    def spell_name_updated(self, index, spell_level, text):
+        data = self.spell_data.check_spell_availability(text)
+        getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name = text
+        if data:
+            self.ui.school.setCurrentText(data['school'])
+            self.ui.subschool.setCurrentText(data['subschool'])
+            self.ui.description.setHtml(data['description'])
         if getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared:
             getattr(self, spell_level + 'List')[index].setText(
                 '{} | {} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
@@ -826,8 +854,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
     def spell_level_updated(self, index, spell_level):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].level = self.sender().value()
 
-    def spell_school_updated(self, index, spell_level):
-        getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school = self.sender().text()
+    def spell_school_updated(self, index, spell_level, text):
+        getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school = text
         if getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared:
             getattr(self, spell_level + 'List')[index].setText(
                 '{} | {} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
@@ -840,8 +868,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
                 '{} | {}'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
                                  getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school))
 
-    def spell_subschool_updated(self, index, spell_level):
-        getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].subschool = self.sender().text()
+    def spell_subschool_updated(self, index, spell_level, text):
+        getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].subschool = text
 
     def spell_prepared_updated(self, index, spell_level):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared = self.sender().value()
@@ -873,8 +901,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
     def spell_notes_updated(self, index, spell_level):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].notes = self.sender().toPlainText()
 
-    def spell_description_updated(self, index, spell_level):
-        getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].description = self.sender().toPlainText()
+    # def spell_description_updated(self, index, spell_level):
+    #     getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].description = self.sender().toPlainText()
 
     def spell_increase_prepared(self, index, spell_level):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared += 1
@@ -1093,13 +1121,17 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.window.setWindowIcon(QtGui.QIcon(self.icon_path))
         self.window.setWindowTitle('Edit Feat')
 
-        self.ui.name.setText(self.data_frame.feats.list[index].name)
-        self.ui.type.setText(self.data_frame.feats.list[index].type)
-        self.ui.notes.setPlainText(self.data_frame.feats.list[index].notes)
+        self.ui.name.setEditable(True)
+        self.ui.name.addItems(self.spell_data.feat_names)
+        self.ui.name.setCurrentText(self.data_frame.feats.list[index].name)
+        self.ui.type.setEditable(True)
+        self.ui.type.addItems(self.spell_data.feat_types)
+        self.ui.type.setCurrentText(self.data_frame.feats.list[index].type)
+        self.ui.notes.setHtml(self.data_frame.feats.list[index].notes)
 
-        self.ui.name.textEdited.connect(lambda: self.feat_name_updated(index))
-        self.ui.type.textEdited.connect(lambda: self.feat_type_updated(index))
-        self.ui.notes.textChanged.connect(lambda: self.feat_notes_updated(index))
+        self.ui.name.currentTextChanged.connect(lambda: self.feat_name_updated(index, self.ui.name.currentText()))
+        self.ui.type.currentTextChanged.connect(lambda: self.feat_type_updated(index, self.ui.type.currentText()))
+        # self.ui.notes.textChanged.connect(lambda: self.feat_notes_updated(index))
         self.ui.closeButton.clicked.connect(lambda: self.window.close())
         self.ui.deleteButton.clicked.connect(lambda: self.feat_delete(index))
 
@@ -1109,18 +1141,22 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         position.setY(self.pos().y() + 370)
         self.window.move(position)
 
-    def feat_name_updated(self, index):
-        self.data_frame.feats.list[index].name = self.sender().text()
+    def feat_name_updated(self, index, text):
+        data = self.spell_data.check_feat_availability(text)
+        self.data_frame.feats.list[index].name = text
+        if data:
+            self.ui.type.setCurrentText(data['type'])
+            self.ui.notes.setHtml(data['description'])
         self.featList[index].setText(f'{self.data_frame.feats.list[index].type} | '
                                      f'{self.data_frame.feats.list[index].name}')
 
-    def feat_type_updated(self, index):
-        self.data_frame.feats.list[index].type = self.sender().text()
+    def feat_type_updated(self, index, text):
+        self.data_frame.feats.list[index].type = text
         self.featList[index].setText(f'{self.data_frame.feats.list[index].type} | '
                                      f'{self.data_frame.feats.list[index].name}')
 
-    def feat_notes_updated(self, index):
-        self.data_frame.feats.list[index].notes = self.sender().toPlainText()
+    # def feat_notes_updated(self, index):
+    #     self.data_frame.feats.list[index].notes = self.sender().toPlainText()
 
     def feat_delete(self, index, reset=False):
         grid_layot = self.gridLayout_3
@@ -1256,13 +1292,16 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.window.setWindowIcon(QtGui.QIcon(self.icon_path))
         self.window.setWindowTitle('Edit Trait')
 
-        self.ui.type.setText(self.data_frame.traits.list[index].type)
-        self.ui.name.setText(self.data_frame.traits.list[index].name)
-        self.ui.notes.setPlainText(self.data_frame.traits.list[index].notes)
+        self.ui.name.setEditable(True)
+        self.ui.name.addItems(self.spell_data.trait_names)
+        self.ui.name.setCurrentText(self.data_frame.traits.list[index].name)
+        self.ui.type.setEditable(True)
+        self.ui.type.addItems(self.spell_data.trait_types)
+        self.ui.type.setCurrentText(self.data_frame.traits.list[index].type)
+        self.ui.notes.setHtml(self.data_frame.traits.list[index].notes)
 
-        self.ui.type.textEdited.connect(lambda: self.trait_type_updated(index))
-        self.ui.name.textEdited.connect(lambda: self.trait_name_updated(index))
-        self.ui.notes.textChanged.connect(lambda: self.trait_notes_updated(index))
+        self.ui.name.currentTextChanged.connect(lambda: self.trait_name_updated(index, self.ui.name.currentText()))
+        self.ui.type.currentTextChanged.connect(lambda: self.trait_type_updated(index, self.ui.type.currentText()))
         self.ui.closeButton.clicked.connect(lambda: self.window.close())
         self.ui.deleteButton.clicked.connect(lambda: self.trait_delete(index))
 
@@ -1272,18 +1311,19 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         position.setY(self.pos().y() + 370)
         self.window.move(position)
 
-    def trait_name_updated(self, index):
-        self.data_frame.traits.list[index].name = self.sender().text()
+    def trait_name_updated(self, index, text):
+        data = self.spell_data.check_trait_availability(text)
+        self.data_frame.traits.list[index].name = text
+        if data:
+            self.ui.type.setCurrentText(data['type'])
+            self.ui.notes.setHtml(data['description'])
         self.traitList[index].setText(f'{self.data_frame.traits.list[index].type} | '
                                       f'{self.data_frame.traits.list[index].name}')
 
-    def trait_type_updated(self, index):
-        self.data_frame.traits.list[index].type = self.sender().text()
+    def trait_type_updated(self, index, text):
+        self.data_frame.traits.list[index].type = text
         self.traitList[index].setText(f'{self.data_frame.traits.list[index].type} | '
                                       f'{self.data_frame.traits.list[index].name}')
-
-    def trait_notes_updated(self, index):
-        self.data_frame.traits.list[index].notes = self.sender().toPlainText()
 
     def trait_delete(self, index, reset=False):
         grid_layot = self.gridLayout_26
