@@ -30,18 +30,14 @@
     <item>
      <widget class="QWidget" name="widget" native="true">
       <layout class="QGridLayout" name="gridLayout">
-       <item row="8" column="1">
-        <widget class="QLabel" name="label_6">
-         <property name="text">
-          <string>Used</string>
-         </property>
-        </widget>
-       </item>
        <item row="5" column="0" colspan="3">
-        <widget class="QLineEdit" name="school"/>
+        <widget class="QComboBox" name="school"/>
        </item>
        <item row="1" column="0" colspan="3">
-        <widget class="QLineEdit" name="name"/>
+        <widget class="QComboBox" name="name"/>
+       </item>
+       <item row="7" column="0" colspan="3">
+        <widget class="QComboBox" name="subschool"/>
        </item>
        <item row="9" column="2">
         <spacer name="horizontalSpacer_3">
@@ -59,53 +55,6 @@
          </property>
         </spacer>
        </item>
-       <item row="4" column="0" colspan="3">
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>School</string>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="0" colspan="3">
-        <widget class="QLineEdit" name="subschool"/>
-       </item>
-       <item row="8" column="0">
-        <widget class="QLabel" name="label_7">
-         <property name="text">
-          <string>Per Day</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="0" colspan="3">
-        <widget class="QLabel" name="label_5">
-         <property name="text">
-          <string>Subschool</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="3" rowspan="11">
-        <widget class="QPlainTextEdit" name="description">
-         <property name="minimumSize">
-          <size>
-           <width>291</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>291</width>
-           <height>16777215</height>
-          </size>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="0" colspan="3">
-        <widget class="QLabel" name="label_8">
-         <property name="text">
-          <string>Notes</string>
-         </property>
-        </widget>
-       </item>
        <item row="11" column="0" colspan="3">
         <widget class="QPlainTextEdit" name="notes">
          <property name="minimumSize">
@@ -122,10 +71,17 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="0" colspan="3">
-        <widget class="QLabel" name="label">
+       <item row="4" column="0" colspan="3">
+        <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>Name</string>
+          <string>School</string>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="0" colspan="3">
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>Notes</string>
          </property>
         </widget>
        </item>
@@ -143,14 +99,45 @@
          </property>
         </widget>
        </item>
+       <item row="0" column="0" colspan="3">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Name</string>
+         </property>
+        </widget>
+       </item>
        <item row="3" column="0">
         <widget class="QSpinBox" name="level"/>
        </item>
        <item row="9" column="0">
-        <widget class="QSpinBox" name="perDay"/>
+        <widget class="QSpinBox" name="prepared"/>
        </item>
        <item row="9" column="1">
-        <widget class="QSpinBox" name="used"/>
+        <widget class="QSpinBox" name="cast"/>
+       </item>
+       <item row="8" column="0">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Prepared</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0" colspan="3">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Subschool</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1">
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Cast</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3" rowspan="12">
+        <widget class="QTextBrowser" name="description"/>
        </item>
       </layout>
      </widget>
@@ -185,23 +172,16 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="perDayButton">
+        <widget class="QPushButton" name="preparedButton">
          <property name="text">
           <string>+ Per Day</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="usedButton">
+        <widget class="QPushButton" name="castButton">
          <property name="text">
           <string>+ Used</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="atWillButton">
-         <property name="text">
-          <string>At-Will</string>
          </property>
         </widget>
        </item>
