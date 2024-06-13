@@ -671,11 +671,11 @@ class CharacterSheetData:
                 self.marked = False
                 self.description = ''
                 self.attributes = ['name', 'school', 'subschool', 'notes', 'marked',
-                                   'prepared', 'cast', 'level', 'atWill', 'marked']
+                                   'prepared', 'cast', 'level', 'atWill', 'marked', 'description']
 
             def create_from_json(self, json_spellLike_data):
                 if json_spellLike_data:
-                    attributes_str = ['name', 'school', 'subschool', 'notes', 'marked']
+                    attributes_str = ['name', 'school', 'subschool', 'notes', 'marked', 'description']
                     attributes_int = ['prepared', 'cast', 'level']
                     attributes_bool = ['atWill', 'marked']
                     for attribute in attributes_str:
@@ -741,10 +741,10 @@ class CharacterSheetData:
                     self.notes = ""
                     self.description = ""
                     self.marked = False
-                    self.attributes = ['level', 'prepared', 'cast', 'name', 'school', 'subschool', 'notes', 'marked']
+                    self.attributes = ['level', 'prepared', 'cast', 'name', 'school', 'subschool', 'notes', 'marked', 'description']
 
                 def create_from_json(self, json_slotted_data):
-                    attributes_str = ['name', 'school', 'subschool', 'notes']
+                    attributes_str = ['name', 'school', 'subschool', 'notes', 'description']
                     attributes_int = ['level', 'prepared', 'cast']
                     if json_slotted_data:
                         for attribute in attributes_str:
