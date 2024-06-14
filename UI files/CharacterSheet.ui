@@ -8707,6 +8707,8 @@
      <string>Add</string>
     </property>
     <addaction name="actionSpell"/>
+    <addaction name="actionFeat"/>
+    <addaction name="actionTrait"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuTheme"/>
@@ -8752,6 +8754,16 @@
   <action name="actionSpell">
    <property name="text">
     <string>Spell</string>
+   </property>
+  </action>
+  <action name="actionFeat">
+   <property name="text">
+    <string>Feat</string>
+   </property>
+  </action>
+  <action name="actionTrait">
+   <property name="text">
+    <string>Trait</string>
    </property>
   </action>
  </widget>

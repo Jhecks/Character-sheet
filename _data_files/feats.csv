@@ -1477,3 +1477,307 @@ Practiced Leadership,General,"<link rel=""stylesheet""href=""PF.css""><div class
 Fabulist,General,"<link rel=""stylesheet""href=""PF.css""><div class=""heading""><p class=""alignleft"">Fabulist (Grit)</p><div style=""clear: both;""></div></div><div><h5>You enjoy telling tall tales and gain confidence when others believe them.<h5><b>Prerequisites: </b>Amateur Gunslinger<sup>UC</sup> feat or grit class feature.</h5><h5><b>Benefit: </b>You gain a +1 bonus on Perform (act, comedy, oratory, and sing) skill checks, and Perform is a class skill for you. In addition, each time you make a successful Bluff check to convince someone of a far-fetched or impossible story, you regain 1 grit point. Successfully lying to a friendly or helpful creature, or a creature that has fewer Hit Dice than half your character level, doesn't restore grit.</h5></div>"
 Gun Twirling,General,"<link rel=""stylesheet""href=""PF.css""><div class=""heading""><p class=""alignleft"">Gun Twirling (Grit)</p><div style=""clear: both;""></div></div><div><h5>You can spin and juggle a small firearm, making it difficult to predict where you will shoot.<h5><b>Prerequisites: </b>Amateur Gunslinger<sup>UC</sup> feat or grit class feature, Dazzling Display, Weapon Focus.</h5><h5><b>Benefit: </b>You can spend 1 grit point to make a feint attempt using a one-handed firearm for which you have Weapon Focus (instead of a melee weapon). The target of this feint must be within 30 feet of you and be able to see you. If you have the Quick Draw feat, you can holster a onehanded firearm as a free action as long as you have at least 1 grit point.</h5></div>"
 Named Bullet,General,"<link rel=""stylesheet""href=""PF.css""><div class=""heading""><p class=""alignleft"">Named Bullet (Grit)</p><div style=""clear: both;""></div></div><div><h5>You can craft ammunition intended to kill specific foes.<h5><b>Prerequisites: </b>Amateur Gunslinger<sup>UC</sup> feat or grit class feature, Gunsmithing<sup>UC</sup>, base attack bonus +5.</h5><h5><b>Benefit: </b>Whenever you craft ammunition using Gunsmithing, you may inscribe a bullet or alchemical cartridge with the name of its intended target. The ammunition gains the <i>bane</i> weapon special ability against the chosen creature only. If the ammunition is used to attack any other target, the attack roll is instead made with a -2 penalty. Crafting a named bullet costs 1 grit point and reduces your maximum grit points by 1 until the named bullet is fired or destroyed.</h5></div>"
+Extra Investigator Talent,General,"<h1>
+ Extra Investigator Talent
+</h1>
+<div class=""content-right-videobox hidden-xs hidden-sm"">
+ <div class=""ogn-npa-container videoad"" style=""margin-left:auto;margin-right:auto;"">
+  <div class=""ogn-npa ogn-npa-video"" id=""nitropay-d20pfsrd-video"">
+  </div>
+ </div>
+ <script type=""text/javascript"">
+  ognCreateVideoAdSpot(""nitropay-d20pfsrd-video"");
+ </script>
+</div>
+<p class=""description"">
+ You learn a new way to use your training and inspiration.
+</p>
+<p>
+ <b>
+  Prerequisite(s)
+ </b>
+ :
+ <a href=""https://www.d20pfsrd.com/classes/hybrid-classes/investigator#TOC-Investigator-Talent-Ex-or-Su-"">
+  Investigator talent
+ </a>
+ class feature.
+</p>
+<p>
+ <b>
+  Benefit
+ </b>
+ : You gain one additional
+ <a href=""https://www.d20pfsrd.com/classes/hybrid-classes/investigator#TOC-Investigator-Talent-Ex-or-Su-"">
+  investigator talent
+ </a>
+ . You must meet the prerequisites for this
+ <a href=""https://www.d20pfsrd.com/classes/hybrid-classes/investigator#TOC-Investigator-Talent-Ex-or-Su-"">
+  investigator talent
+ </a>
+ .
+</p>
+<p>
+ <b>
+  Special
+ </b>
+ : You can take this feat multiple times. Each time you do, you gain another
+ <a href=""https://www.d20pfsrd.com/classes/hybrid-classes/investigator#TOC-Investigator-Talent-Ex-or-Su-"">
+  investigator talent
+ </a>
+ .
+</p>
+"
+Additional Traits,General,"<h1>
+ Additional Traits
+</h1>
+<div class=""content-right-videobox hidden-xs hidden-sm"">
+ <div class=""ogn-npa-container videoad"" style=""margin-left:auto;margin-right:auto;"">
+  <div class=""ogn-npa ogn-npa-video"" id=""nitropay-d20pfsrd-video"">
+  </div>
+ </div>
+ <script type=""text/javascript"">
+  ognCreateVideoAdSpot(""nitropay-d20pfsrd-video"");
+ </script>
+</div>
+<p>
+ You have more traits than normal.
+</p>
+<p>
+ <b>
+  Benefit
+ </b>
+ : You gain two character
+ <a href=""https://www.d20pfsrd.com/traits"">
+  traits
+ </a>
+ of your choice. These
+ <a href=""https://www.d20pfsrd.com/traits"">
+  traits
+ </a>
+ must be chosen from different lists, and cannot be chosen from lists from which you have already selected a character trait. You must meet any additional qualifications for the character traits you choose — this feat cannot enable you to select a
+ <a href=""https://www.d20pfsrd.com/bestiary/rules-for-monsters/creature-types#TOC-Dwarf"">
+  dwarf
+ </a>
+ character trait if you are an
+ <a href=""https://www.d20pfsrd.com/bestiary/rules-for-monsters/creature-types#TOC-Elf"">
+  elf
+ </a>
+ , for example.
+</p>
+"
+Fencing Grace,Combat,"<h1>
+ Fencing Grace (Combat)
+</h1>
+<div class=""content-right-videobox hidden-xs hidden-sm"">
+ <div class=""ogn-npa-container videoad"" style=""margin-left:auto;margin-right:auto;"">
+  <div class=""ogn-npa ogn-npa-video"" id=""nitropay-d20pfsrd-video"">
+  </div>
+ </div>
+ <script type=""text/javascript"">
+  ognCreateVideoAdSpot(""nitropay-d20pfsrd-video"");
+ </script>
+</div>
+<p>
+ Your dashing style and fluid rapier forms allow you to use agility rather than brute force to fell your foes.
+</p>
+<p>
+ <b>
+  Prerequisite(s)
+ </b>
+ :
+ <a href=""https://www.d20pfsrd.com/basics-ability-scores/ability-scores#TOC-Dexterity-Dex-"">
+  Dex
+ </a>
+ 13,
+ <a href=""https://www.d20pfsrd.com/feats/combat-feats/weapon-finesse-combat"">
+  Weapon Finesse
+ </a>
+ ,
+ <a href=""https://www.d20pfsrd.com/feats/combat-feats/fencing-grace-combat/weapon-focus-combat"">
+  Weapon Focus
+ </a>
+ (
+ <a href=""https://www.d20pfsrd.com/equipment/weapons/weapon-descriptions/rapier"">
+  rapier
+ </a>
+ ).
+</p>
+<p>
+ <b>
+  Benefit(s)
+ </b>
+ : When wielding a
+ <a href=""https://www.d20pfsrd.com/equipment/weapons/weapon-descriptions/rapier"">
+  rapier
+ </a>
+ one-handed, you can add your
+ <a href=""https://www.d20pfsrd.com/basics-ability-scores/ability-scores#TOC-Dexterity-Dex-"">
+  Dexterity
+ </a>
+ modifier instead of your
+ <a href=""https://www.d20pfsrd.com/basics-ability-scores/ability-scores#TOC-Strength-Str-"">
+  Strength
+ </a>
+ modifier to that weapon’s damage. The
+ <a href=""https://www.d20pfsrd.com/equipment/weapons/weapon-descriptions/rapier"">
+  rapier
+ </a>
+ must be one appropriate for your size. You do not gain this benefit while fighting with two weapons or using
+ <a href=""https://www.d20pfsrd.com/classes/core-classes/monk#TOC-Flurry-of-Blows-Ex-"">
+  flurry of blows
+ </a>
+ , or anytime another hand is otherwise occupied.
+</p>
+<p>
+ In addition, if you have the panache class feature, you gain a +2 bonus to your
+ <a href=""https://www.d20pfsrd.com/gamemastering/combat#TOC-Combat-Maneuver-Defense"">
+  CMD
+ </a>
+ against attempts to
+ <a href=""https://www.d20pfsrd.com/gamemastering/combat#TOC-Disarm"">
+  disarm
+ </a>
+ you of your
+ <a href=""https://www.d20pfsrd.com/equipment/weapons/weapon-descriptions/rapier"">
+  rapier
+ </a>
+ while you have at least 1 panache point.
+</p>
+"
+Focused Inspiration,General,"<h1>
+ Focused Inspiration
+</h1>
+<div class=""content-right-videobox hidden-xs hidden-sm"">
+ <div class=""ogn-npa-container videoad"" style=""margin-left:auto;margin-right:auto;"">
+  <div class=""ogn-npa ogn-npa-video"" id=""nitropay-d20pfsrd-video"">
+  </div>
+ </div>
+ <script type=""text/javascript"">
+  ognCreateVideoAdSpot(""nitropay-d20pfsrd-video"");
+ </script>
+</div>
+<p>
+ <i>
+  Two of your skills gain a bit more from your inspiration than others.
+ </i>
+</p>
+<p>
+ <b>
+  Prerequisite(s)
+ </b>
+ :
+ <a href=""https://www.d20pfsrd.com/classes/hybrid-classes/investigator#TOC-Inspiration-Ex-"">
+  Inspiration
+ </a>
+ class feature,
+ <a href=""https://www.d20pfsrd.com/classes/hybrid-classes/investigator#TOC-Keen-Recollection"">
+  keen recollection
+ </a>
+ class feature.
+</p>
+<p>
+ <b>
+  Benefit
+ </b>
+ : Choose two skills that you either are trained in or can otherwise use untrained. You must be able to use
+ <a href=""https://www.d20pfsrd.com/classes/hybrid-classes/investigator#TOC-Inspiration-Ex-"">
+  inspiration
+ </a>
+ on these skills. When you use
+ <a href=""https://www.d20pfsrd.com/classes/hybrid-classes/investigator#TOC-Inspiration-Ex-"">
+  inspiration
+ </a>
+ with those skills, roll a d8 instead of a d6, or a d10 if you would normally roll a d8. If you have the true inspiration class feature, you roll twice as many such
+ <a href=""https://www.d20pfsrd.com/equipment/goods-and-services/toys-games-puzzles#TOC-Dice"">
+  dice
+ </a>
+ (2d8 or 2d10) as normal.
+</p>
+"
+Butterfly’S Sting,General,"<h1>
+ Butterfly’s Sting (Critical)
+</h1>
+<div class=""content-right-videobox hidden-xs hidden-sm"">
+ <div class=""ogn-npa-container videoad"" style=""margin-left:auto;margin-right:auto;"">
+  <div class=""ogn-npa ogn-npa-video"" id=""nitropay-d20pfsrd-video"">
+  </div>
+ </div>
+ <script type=""text/javascript"">
+  ognCreateVideoAdSpot(""nitropay-d20pfsrd-video"");
+ </script>
+</div>
+<p class=""description"">
+ You can forgo a critical hit in order to pass it on to an ally.
+</p>
+<p>
+ <b>
+  Prerequisite
+ </b>
+ :
+ <a href=""https://www.d20pfsrd.com/feats/combat-feats/combat-expertise-combat"">
+  Combat Expertise
+ </a>
+ , worship of the associated deity.
+</p>
+<p>
+ <b>
+  Benefit
+ </b>
+ : When you confirm a
+ <a href=""https://www.d20pfsrd.com/gamemastering/combat#TOC-Critical-Hits"">
+  critical hit
+ </a>
+ against a creature, you can choose to forgo the effect of the
+ <a href=""https://www.d20pfsrd.com/gamemastering/combat#TOC-Critical-Hits"">
+  critical hit
+ </a>
+ and grant a
+ <a href=""https://www.d20pfsrd.com/gamemastering/combat#TOC-Critical-Hits"">
+  critical hit
+ </a>
+ to the next ally who hits the creature with a melee attack before the start of your next turn. Your attack only deals normal damage, and the next ally automatically confirms the hit as a critical.
+</p>
+<p class=""header"">
+ Combat Trick
+</p>
+<p class=""source"">
+ <b>
+  Source
+ </b>
+ <a href=""http://www.amazon.com/gp/product/1601257961/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&amp;camp=1789&amp;creative=9325&amp;creativeASIN=1601257961&amp;linkCode=as2&amp;tag=httpwwwd20pfs-20&amp;linkId=UYF3PIQRYLZFHLPE"" rel=""noopener"" target=""_blank"">
+  PPC:WMH
+ </a>
+</p>
+<p>
+ <b>
+  Note
+ </b>
+ If using the optional
+ <a href=""https://www.d20pfsrd.com/gamemastering/other-rules/stamina-and-combat-tricks-optional-rules#TOC-Stamina-Pool"">
+  Stamina Pool rules
+ </a>
+ , the following trick may be used with this feat.
+</p>
+<p>
+ <b>
+  Combat Trick
+ </b>
+ : When you confirm a
+ <a href=""https://www.d20pfsrd.com/gamemastering/combat#TOC-Critical-Hits"">
+  critical hit
+ </a>
+ , you can spend 10 stamina points to use Butterfly’s Sting without forgoing your own
+ <a href=""https://www.d20pfsrd.com/gamemastering/combat#TOC-Critical-Hits"">
+  critical hit
+ </a>
+ .
+</p>
+<h3>
+ Check out some other options for this feat!
+</h3>
+<p>
+ <a href=""http://articles.opengamingnetwork.com/2018/04/saturday-potpourri-butterflys-sting-feats/"">
+  Saturday Potpourri: Butterfly’s Sting Feats
+ </a>
+</p>
+"

@@ -28,11 +28,19 @@ class DataFromCSV:
         self.feat_names_lower = [x.lower() for x in self.feat_names]
         self.feat_types = self.feat_df.get('type').tolist()
         self.feat_types = [x.title() for x in set(self.feat_types)]
+        self.feat_names.sort()
+        self.feat_names.insert(0, '')
+        self.feat_types.sort()
+        self.feat_types.insert(0, '')
 
         self.trait_names = self.trait_df.get('name').tolist()
         self.trait_names_lower = [x.lower() for x in self.trait_names]
         self.trait_types = self.trait_df.get('type').tolist()
         self.trait_types = [x.title() for x in set(self.trait_types)]
+        self.trait_names.sort()
+        self.trait_names.insert(0, '')
+        self.trait_types.sort()
+        self.trait_types.insert(0, '')
 
     def check_spell_availability(self, text):
         if text.lower() in self.spell_names_lower:
@@ -104,13 +112,40 @@ class DataFromCSV:
         })
 
     def update_spell_data(self, dict_of_data):
+        if dict_of_data['name'].lower() in self.spell_names_lower:
+            return
         dict_of_data['name'] = dict_of_data['name'].title()
         input_data = pd.DataFrame(dict_of_data, index=[0])
         self.spell_df = self.spell_df._append(input_data, ignore_index=True)
         self.spell_names.append(dict_of_data['name'])
+        self.spell_names.sort()
         self.spell_names_lower.append(dict_of_data['name'].lower())
         self.rename_file(self.spell_data_path, self.spell_data_path + '.bak')
         self.spell_df.to_csv(self.spell_data_path, index=False)
+
+    def update_feat_data(self, dict_of_data):
+        if dict_of_data['name'].lower() in self.feat_names_lower:
+            return
+        dict_of_data['name'] = dict_of_data['name'].title()
+        input_data = pd.DataFrame(dict_of_data, index=[0])
+        self.feat_df = self.feat_df._append(input_data, ignore_index=True)
+        self.feat_names.append(dict_of_data['name'])
+        self.feat_names.sort()
+        self.feat_names_lower.append(dict_of_data['name'].lower())
+        self.rename_file(self.feat_data_path, self.feat_data_path + '.bak')
+        self.feat_df.to_csv(self.feat_data_path, index=False)
+
+    def update_trait_data(self, dict_of_data):
+        if dict_of_data['name'].lower() in self.trait_names_lower:
+            return
+        dict_of_data['name'] = dict_of_data['name'].title()
+        input_data = pd.DataFrame(dict_of_data, index=[0])
+        self.trait_df = self.trait_df._append(input_data, ignore_index=True)
+        self.trait_names.append(dict_of_data['name'])
+        self.trait_names.sort()
+        self.trait_names_lower.append(dict_of_data['name'].lower())
+        self.rename_file(self.trait_data_path, self.trait_data_path + '.bak')
+        self.trait_df.to_csv(self.trait_data_path, index=False)
 
     def rename_file(self, old_name, new_name):
         try:

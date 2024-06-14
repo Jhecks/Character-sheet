@@ -8,7 +8,6 @@ from tkinter import filedialog
 
 import qdarktheme
 from PyQt5 import QtWidgets, QtCore, QtGui
-from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QShortcut
 
@@ -17,27 +16,24 @@ import dataFrame
 import qtTranslateLayer as qtl
 import jsonParser
 from AbilityEdit import Ui_AbilityEdit
-from AddData import Ui_AddData
+from AddTraitOrFeat import Ui_AddTraitOrFeatData
 from FeatEdit import Ui_FeatEdit
 from GearEdit import Ui_GearEdit
 from SpellEdit import Ui_SpellEdit
 from SpellLikeEdit import Ui_SpellLikeEdit
 from TraitEdit import Ui_TraitEdit
-from DescriptionsFromCSV import DataFromCSV
-
-import sys
 
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5 import QtGui
-from PyQt5.QtWidgets import QMessageBox
 
-from AddData import Ui_AddData
+from AddSpell import Ui_AddData
 
 import requests
 from bs4 import BeautifulSoup
 from DescriptionsFromCSV import DataFromCSV
 from PyQt5.QtWidgets import QMessageBox, QPushButton
+
 
 class Themes(Enum):
     dark = 0
@@ -83,6 +79,9 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.saveAs.activated.connect(self.saveFileAs)
 
         self.actionSpell.triggered.connect(self.addOrEditSpell)
+        self.actionFeat.triggered.connect(self.addOrEditFeat)
+        self.actionTrait.triggered.connect(self.addOrEditTrait)
+
 
         # General data update
         self.name.textEdited.connect(lambda: self.general_changed('name'))
@@ -2133,7 +2132,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ui.subschool.addItems(self.spell_data.spell_subschools)
         self.ui.subschool.setCurrentText('')
 
-        self.ui.save.clicked.connect(self.addOrEdit_save)
+        self.ui.save.clicked.connect(self.addOrEditSpell_save)
 
         self.window.show()
 
@@ -2170,15 +2169,15 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
     def addOrEdit_changeHtml(self):
         self.ui.displayData.setHtml(self.ui.inputHTML.toPlainText())
 
-    def addOrEdit_save(self):
+    def addOrEditSpell_save(self):
         if self.ui.displayData.toPlainText() == '':
             self.window.close()
             return
         if self.ui.name.text() == '' or self.ui.school.currentText() == '':
-            self.addOrEdit_show_warning()
+            self.addOrEditSpell_show_warning()
             return
         if self.ui.subschool.currentText() == '':
-            if self.addOrEdit_show_warning_subschool() == 'Edit':
+            if self.addOrEditSpell_show_warning_subschool() == 'Edit':
                 return
 
         keys = ['name', 'school', 'subschool', 'full_text']
@@ -2188,14 +2187,14 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.spell_data.update_spell_data(input_data_dict)
         self.window.close()
 
-    def addOrEdit_show_warning(self):
+    def addOrEditSpell_show_warning(self):
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Warning)
         msg.setText("Please add/or name and school of the spell")
         msg.setWindowTitle("Warning")
         msg.exec_()
 
-    def addOrEdit_show_warning_subschool(self):
+    def addOrEditSpell_show_warning_subschool(self):
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Warning)
         msg.setText("Please check if this spell doesn't have a subschool\n"
@@ -2220,6 +2219,90 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         msg.setIcon(QMessageBox.Critical)
         msg.setText("404 Page Not Found\nTry another link or check the link you've entered")
         msg.setWindowTitle("Error")
+        msg.exec_()
+
+    def addOrEditFeat(self):
+        self.window = QtWidgets.QMainWindow()
+        self.ui = Ui_AddTraitOrFeatData()
+        self.ui.setupUi(self.window)
+        self.window.setWindowModality(Qt.ApplicationModal)
+        self.window.setWindowIcon(QtGui.QIcon(self.icon_path))
+        self.window.setWindowTitle('Add Feat')
+        self.ui.inputHTML.textChanged.connect(self.addOrEdit_changeHtml)
+        self.ui.displayData.anchorClicked.connect(QtGui.QDesktopServices.openUrl)
+        self.ui.displayData.setOpenLinks(False)
+
+        self.ui.search.clicked.connect(self.addOrEdit_search)
+
+        self.ui.type.addItems(self.spell_data.feat_types)
+        self.ui.type.setCurrentText('')
+
+        self.ui.save.clicked.connect(self.addOrEditFeat_save)
+
+        self.window.show()
+
+    def addOrEditFeat_save(self):
+        if self.ui.displayData.toPlainText() == '':
+            self.window.close()
+            return
+        if self.ui.name.text() == '' or self.ui.type.currentText() == '':
+            self.addOrEditFeat_show_warning()
+            return
+
+        keys = ['name', 'type', 'full_text']
+        input_data = [self.ui.name.text(), self.ui.type.currentText(),
+                      self.new_soap.prettify()]
+        input_data_dict = dict(zip(keys, input_data))
+        self.spell_data.update_feat_data(input_data_dict)
+        self.window.close()
+
+    def addOrEditFeat_show_warning(self):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setText("Please add/or name and type of the feat")
+        msg.setWindowTitle("Warning")
+        msg.exec_()
+
+    def addOrEditTrait(self):
+        self.window = QtWidgets.QMainWindow()
+        self.ui = Ui_AddTraitOrFeatData()
+        self.ui.setupUi(self.window)
+        self.window.setWindowModality(Qt.ApplicationModal)
+        self.window.setWindowIcon(QtGui.QIcon(self.icon_path))
+        self.window.setWindowTitle('Add Trait')
+        self.ui.inputHTML.textChanged.connect(self.addOrEdit_changeHtml)
+        self.ui.displayData.anchorClicked.connect(QtGui.QDesktopServices.openUrl)
+        self.ui.displayData.setOpenLinks(False)
+
+        self.ui.search.clicked.connect(self.addOrEdit_search)
+
+        self.ui.type.addItems(self.spell_data.trait_types)
+        self.ui.type.setCurrentText('')
+
+        self.ui.save.clicked.connect(self.addOrEditTrait_save)
+
+        self.window.show()
+
+    def addOrEditTrait_save(self):
+        if self.ui.displayData.toPlainText() == '':
+            self.window.close()
+            return
+        if self.ui.name.text() == '' or self.ui.type.currentText() == '':
+            self.addOrEditTrait_show_warning()
+            return
+
+        keys = ['name', 'type', 'full_text']
+        input_data = [self.ui.name.text(), self.ui.type.currentText(),
+                      str(self.new_soap).replace('\n', '')]
+        input_data_dict = dict(zip(keys, input_data))
+        self.spell_data.update_trait_data(input_data_dict)
+        self.window.close()
+
+    def addOrEditTrait_show_warning(self):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setText("Please add/or name and type of the trait")
+        msg.setWindowTitle("Warning")
         msg.exec_()
 
     def update_window(self):
