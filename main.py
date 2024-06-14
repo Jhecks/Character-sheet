@@ -17,6 +17,7 @@ import dataFrame
 import qtTranslateLayer as qtl
 import jsonParser
 from AbilityEdit import Ui_AbilityEdit
+from AddData import Ui_AddData
 from FeatEdit import Ui_FeatEdit
 from GearEdit import Ui_GearEdit
 from SpellEdit import Ui_SpellEdit
@@ -24,6 +25,19 @@ from SpellLikeEdit import Ui_SpellLikeEdit
 from TraitEdit import Ui_TraitEdit
 from DescriptionsFromCSV import DataFromCSV
 
+import sys
+
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import Qt
+from PyQt5 import QtGui
+from PyQt5.QtWidgets import QMessageBox
+
+from AddData import Ui_AddData
+
+import requests
+from bs4 import BeautifulSoup
+from DescriptionsFromCSV import DataFromCSV
+from PyQt5.QtWidgets import QMessageBox, QPushButton
 
 class Themes(Enum):
     dark = 0
@@ -67,6 +81,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.actionSave_As.triggered.connect(self.saveFileAs)
         self.saveAs = QShortcut(QKeySequence('Ctrl+Shift+S'), self)
         self.saveAs.activated.connect(self.saveFileAs)
+
+        self.actionSpell.triggered.connect(self.addOrEditSpell)
 
         # General data update
         self.name.textEdited.connect(lambda: self.general_changed('name'))
@@ -531,6 +547,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.window.setWindowModality(Qt.ApplicationModal)
         self.window.setWindowIcon(QtGui.QIcon(self.icon_path))
         self.window.setWindowTitle('Edit Spell-Like')
+        self.ui.description.anchorClicked.connect(QtGui.QDesktopServices.openUrl)
+        self.ui.description.setOpenLinks(False)
 
         self.ui.name.setEditable(True)
         self.ui.name.addItems(self.spell_data.spell_names)
@@ -736,6 +754,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.window.setWindowModality(Qt.ApplicationModal)
         self.window.setWindowIcon(QtGui.QIcon(self.icon_path))
         self.window.setWindowTitle('Edit Spell')
+        self.ui.description.anchorClicked.connect(QtGui.QDesktopServices.openUrl)
+        self.ui.description.setOpenLinks(False)
 
         self.ui.name.setEditable(True)
         self.ui.name.addItems(self.spell_data.spell_names)
@@ -1118,6 +1138,9 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.window.setWindowModality(Qt.ApplicationModal)
         self.window.setWindowIcon(QtGui.QIcon(self.icon_path))
         self.window.setWindowTitle('Edit Feat')
+
+        self.ui.notes.anchorClicked.connect(QtGui.QDesktopServices.openUrl)
+        self.ui.notes.setOpenLinks(False)
 
         self.ui.name.setEditable(True)
         self.ui.name.addItems(self.spell_data.feat_names)
@@ -2091,6 +2114,113 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         if self.file_path == '':
             return
         jsonParser.character_sheet_to_xml(self.file_path, self.data_frame.create_json())
+
+    def addOrEditSpell(self):
+        self.window = QtWidgets.QMainWindow()
+        self.ui = Ui_AddData()
+        self.ui.setupUi(self.window)
+        self.window.setWindowModality(Qt.ApplicationModal)
+        self.window.setWindowIcon(QtGui.QIcon(self.icon_path))
+        self.window.setWindowTitle('Add Spell')
+        self.ui.inputHTML.textChanged.connect(self.addOrEdit_changeHtml)
+        self.ui.displayData.anchorClicked.connect(QtGui.QDesktopServices.openUrl)
+        self.ui.displayData.setOpenLinks(False)
+
+        self.ui.search.clicked.connect(self.addOrEdit_search)
+
+        self.ui.school.addItems(self.spell_data.spell_schools)
+        self.ui.school.setCurrentText('')
+        self.ui.subschool.addItems(self.spell_data.spell_subschools)
+        self.ui.subschool.setCurrentText('')
+
+        self.ui.save.clicked.connect(self.addOrEdit_save)
+
+        self.window.show()
+
+    def check_web_site(self, url):
+        if 'www.d20pfsrd.com' in url:
+            response = requests.get(url)
+            if response.status_code == 404:
+                return '404'
+
+            soup = BeautifulSoup(response.content, 'html.parser')
+            div = soup.find('div', class_='page-center')
+
+            soup_string = str(div)
+            soup_string = soup_string[soup_string.find('<h1>'):]
+            soup_string = soup_string[:soup_string.find('<div class="section15">')]
+
+            new_soap = BeautifulSoup(soup_string, 'html.parser')
+            return new_soap
+
+        elif 'www.aonprd.com' in url:
+            return 'aon'
+        else:
+            return 'other'
+
+    def addOrEdit_search(self):
+        url = self.ui.url.text()
+        self.new_soap = self.check_web_site(url)
+        if self.new_soap == '404':
+            self.addOrEdit_show_error()
+            return
+        self.ui.inputHTML.setPlainText(self.new_soap.prettify())
+        self.ui.displayData.setHtml(self.new_soap.prettify())
+
+    def addOrEdit_changeHtml(self):
+        self.ui.displayData.setHtml(self.ui.inputHTML.toPlainText())
+
+    def addOrEdit_save(self):
+        if self.ui.displayData.toPlainText() == '':
+            self.window.close()
+            return
+        if self.ui.name.text() == '' or self.ui.school.currentText() == '':
+            self.addOrEdit_show_warning()
+            return
+        if self.ui.subschool.currentText() == '':
+            if self.addOrEdit_show_warning_subschool() == 'Edit':
+                return
+
+        keys = ['name', 'school', 'subschool', 'full_text']
+        input_data = [self.ui.name.text(), self.ui.school.currentText(),
+                      self.ui.subschool.currentText(), self.new_soap.prettify()]
+        input_data_dict = dict(zip(keys, input_data))
+        self.spell_data.update_spell_data(input_data_dict)
+        self.window.close()
+
+    def addOrEdit_show_warning(self):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setText("Please add/or name and school of the spell")
+        msg.setWindowTitle("Warning")
+        msg.exec_()
+
+    def addOrEdit_show_warning_subschool(self):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setText("Please check if this spell doesn't have a subschool\n"
+                    "Usually it is indicated in parentheses after the name of the school")
+        msg.setWindowTitle("Warning")
+
+        sure_button = QPushButton('I am sure')
+        edit_button = QPushButton('Edit spell')
+
+        msg.addButton(sure_button, QMessageBox.AcceptRole)
+        msg.addButton(edit_button, QMessageBox.RejectRole)
+        msg.setWindowModality(Qt.ApplicationModal)
+        result = msg.exec_()
+
+        if result == QMessageBox.AcceptRole:
+            return 'Approve'
+        elif result == QMessageBox.RejectRole:
+            return 'Edit'
+
+    def addOrEdit_show_error(self):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Critical)
+        msg.setText("404 Page Not Found\nTry another link or check the link you've entered")
+        msg.setWindowTitle("Error")
+        msg.exec_()
 
     def update_window(self):
         # Write data to general block in gui
