@@ -112,6 +112,8 @@ class DataFromCSV:
         })
 
     def update_spell_data(self, dict_of_data):
+        if dict_of_data['name'].lower() in self.spell_names_lower:
+            return
         dict_of_data['name'] = dict_of_data['name'].title()
         input_data = pd.DataFrame(dict_of_data, index=[0])
         self.spell_df = self.spell_df._append(input_data, ignore_index=True)
@@ -122,6 +124,8 @@ class DataFromCSV:
         self.spell_df.to_csv(self.spell_data_path, index=False)
 
     def update_feat_data(self, dict_of_data):
+        if dict_of_data['name'].lower() in self.feat_names_lower:
+            return
         dict_of_data['name'] = dict_of_data['name'].title()
         input_data = pd.DataFrame(dict_of_data, index=[0])
         self.feat_df = self.feat_df._append(input_data, ignore_index=True)
@@ -132,6 +136,8 @@ class DataFromCSV:
         self.feat_df.to_csv(self.feat_data_path, index=False)
 
     def update_trait_data(self, dict_of_data):
+        if dict_of_data['name'].lower() in self.trait_names_lower:
+            return
         dict_of_data['name'] = dict_of_data['name'].title()
         input_data = pd.DataFrame(dict_of_data, index=[0])
         self.trait_df = self.trait_df._append(input_data, ignore_index=True)
