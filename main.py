@@ -2,19 +2,19 @@ import copy
 import operator
 import os
 import sys
+import time
 import tkinter
-from enum import Enum
-from tkinter import filedialog
-
 import qdarktheme
-from PyQt5 import QtWidgets, QtCore, QtGui
-from PyQt5.QtGui import QKeySequence
-from PyQt5.QtWidgets import QShortcut
-
 import CharacterSheet
 import dataFrame
 import qtTranslateLayer as qtl
 import jsonParser
+from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5.QtGui import QKeySequence
+from PyQt5.QtWidgets import QShortcut, QMessageBox, QPushButton
+from PyQt5.QtCore import Qt
+from enum import Enum
+from tkinter import filedialog
 from AbilityEdit import Ui_AbilityEdit
 from AddTraitOrFeat import Ui_AddTraitOrFeatData
 from FeatEdit import Ui_FeatEdit
@@ -22,17 +22,10 @@ from GearEdit import Ui_GearEdit
 from SpellEdit import Ui_SpellEdit
 from SpellLikeEdit import Ui_SpellLikeEdit
 from TraitEdit import Ui_TraitEdit
-
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt
-from PyQt5 import QtGui
-
 from AddSpell import Ui_AddData
-
 import requests
 from bs4 import BeautifulSoup
 from DescriptionsFromCSV import DataFromCSV
-from PyQt5.QtWidgets import QMessageBox, QPushButton
 
 
 class Themes(Enum):
@@ -81,7 +74,6 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.actionSpell.triggered.connect(self.addOrEditSpell)
         self.actionFeat.triggered.connect(self.addOrEditFeat)
         self.actionTrait.triggered.connect(self.addOrEditTrait)
-
 
         # General data update
         self.name.textEdited.connect(lambda: self.general_changed('name'))
@@ -569,8 +561,10 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
 
         self.ui.name.currentTextChanged.connect(lambda: self.spell_like_name_updated(index, self.ui.name.currentText()))
         self.ui.level.valueChanged.connect(lambda: self.spell_like_level_updated(index))
-        self.ui.school.currentTextChanged.connect(lambda: self.spell_like_school_updated(index, self.ui.school.currentText()))
-        self.ui.subschool.currentTextChanged.connect(lambda: self.spell_like_subschool_updated(index, self.ui.subschool.currentText()))
+        self.ui.school.currentTextChanged.connect(
+            lambda: self.spell_like_school_updated(index, self.ui.school.currentText()))
+        self.ui.subschool.currentTextChanged.connect(
+            lambda: self.spell_like_subschool_updated(index, self.ui.subschool.currentText()))
         self.ui.perDay.valueChanged.connect(lambda: self.spell_like_prepared_updated(index))
         self.ui.used.valueChanged.connect(lambda: self.spell_like_cast_updated(index))
         self.ui.notes.textChanged.connect(lambda: self.spell_like_notes_updated(index))
@@ -766,17 +760,21 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ui.school.setCurrentText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school)
         self.ui.subschool.setEditable(True)
         self.ui.subschool.addItems(self.spell_data.spell_subschools)
-        self.ui.subschool.setCurrentText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].subschool)
+        self.ui.subschool.setCurrentText(
+            getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].subschool)
         self.ui.prepared.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared)
         self.ui.cast.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast)
         self.ui.notes.setPlainText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].notes)
         self.ui.description.setHtml(
             getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].description)
 
-        self.ui.name.currentTextChanged.connect(lambda: self.spell_name_updated(index, spell_level, self.ui.name.currentText()))
+        self.ui.name.currentTextChanged.connect(
+            lambda: self.spell_name_updated(index, spell_level, self.ui.name.currentText()))
         self.ui.level.valueChanged.connect(lambda: self.spell_level_updated(index, spell_level))
-        self.ui.school.currentTextChanged.connect(lambda: self.spell_school_updated(index, spell_level, self.ui.school.currentText()))
-        self.ui.subschool.currentTextChanged.connect(lambda: self.spell_subschool_updated(index, spell_level, self.ui.subschool.currentText()))
+        self.ui.school.currentTextChanged.connect(
+            lambda: self.spell_school_updated(index, spell_level, self.ui.school.currentText()))
+        self.ui.subschool.currentTextChanged.connect(
+            lambda: self.spell_subschool_updated(index, spell_level, self.ui.subschool.currentText()))
         self.ui.prepared.valueChanged.connect(lambda: self.spell_prepared_updated(index, spell_level))
         self.ui.cast.valueChanged.connect(lambda: self.spell_cast_updated(index, spell_level))
         self.ui.notes.textChanged.connect(lambda: self.spell_notes_updated(index, spell_level))
@@ -2189,6 +2187,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
 
     def addOrEditSpell_show_warning(self):
         msg = QMessageBox()
+        msg.setWindowIcon(QtGui.QIcon(self.icon_path))
         msg.setIcon(QMessageBox.Warning)
         msg.setText("Please add/or name and school of the spell")
         msg.setWindowTitle("Warning")
@@ -2196,6 +2195,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
 
     def addOrEditSpell_show_warning_subschool(self):
         msg = QMessageBox()
+        msg.setWindowIcon(QtGui.QIcon(self.icon_path))
         msg.setIcon(QMessageBox.Warning)
         msg.setText("Please check if this spell doesn't have a subschool\n"
                     "Usually it is indicated in parentheses after the name of the school")
@@ -2216,6 +2216,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
 
     def addOrEdit_show_error(self):
         msg = QMessageBox()
+        msg.setWindowIcon(QtGui.QIcon(self.icon_path))
         msg.setIcon(QMessageBox.Critical)
         msg.setText("404 Page Not Found\nTry another link or check the link you've entered")
         msg.setWindowTitle("Error")
@@ -2258,6 +2259,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
 
     def addOrEditFeat_show_warning(self):
         msg = QMessageBox()
+        msg.setWindowIcon(QtGui.QIcon(self.icon_path))
         msg.setIcon(QMessageBox.Warning)
         msg.setText("Please add/or name and type of the feat")
         msg.setWindowTitle("Warning")
@@ -2300,6 +2302,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
 
     def addOrEditTrait_show_warning(self):
         msg = QMessageBox()
+        msg.setWindowIcon(QtGui.QIcon(self.icon_path))
         msg.setIcon(QMessageBox.Warning)
         msg.setText("Please add/or name and type of the trait")
         msg.setWindowTitle("Warning")
@@ -2557,7 +2560,9 @@ def main():
     try:
         qdarktheme.enable_hi_dpi()
         app = QtWidgets.QApplication(sys.argv)
+        start_time = time.time()
         window = MainWindow()
+        print("--- main window init ---", time.time() - start_time)
         window.show()
         app.exec()
 

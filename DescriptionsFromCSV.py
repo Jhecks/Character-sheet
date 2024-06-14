@@ -1,17 +1,36 @@
 import os
 import pandas as pd
+import time
 
 
 # This class is used to get data from the CSV files that contain the spell and feat data
 class DataFromCSV:
     def __init__(self):
-        self.spell_data_path = os.getcwd() + '\\_data_files\\spells.csv'
-        self.feat_data_path = os.getcwd() + '\\_data_files\\feats.csv'
-        self.trait_data_path = os.getcwd() + '\\_data_files\\traits.csv'
+        start_time = time.time()
+        self.spell_data_path = os.getcwd() + '\\_internal\\_data_files\\spells.csv'
+        self.feat_data_path = os.getcwd() + '\\_internal\\_data_files\\feats.csv'
+        self.trait_data_path = os.getcwd() + '\\_internal\\_data_files\\traits.csv'
 
-        self.spell_df = pd.read_csv(self.spell_data_path)
-        self.feat_df = pd.read_csv(self.feat_data_path)
-        self.trait_df = pd.read_csv(self.trait_data_path)
+        try:
+            self.spell_df = pd.read_csv(self.spell_data_path)
+        except FileNotFoundError:
+            print(f"File {self.spell_data_path} not found.")
+        except pd.errors.ParserError:
+            print(f"Error parsing the file {self.spell_data_path}.")
+
+        try:
+            self.feat_df = pd.read_csv(self.feat_data_path)
+        except FileNotFoundError:
+            print(f"File {self.feat_data_path} not found.")
+        except pd.errors.ParserError:
+            print(f"Error parsing the file {self.feat_data_path}.")
+
+        try:
+            self.trait_df = pd.read_csv(self.trait_data_path)
+        except FileNotFoundError:
+            print(f"File {self.trait_data_path} not found.")
+        except pd.errors.ParserError:
+            print(f"Error parsing the file {self.trait_data_path}.")
 
         self.spell_names = self.spell_df.get('name').tolist()
         self.spell_names_lower = [x.lower() for x in self.spell_names]
@@ -41,6 +60,7 @@ class DataFromCSV:
         self.trait_names.insert(0, '')
         self.trait_types.sort()
         self.trait_types.insert(0, '')
+        print('Data loaded in', time.time() - start_time, 'seconds.')
 
     def check_spell_availability(self, text):
         if text.lower() in self.spell_names_lower:
