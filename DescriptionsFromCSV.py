@@ -86,8 +86,6 @@ class DataFromCSV:
         else:
             subschool = subschool.title()
 
-        # print(self.spell_df.iloc[self.spell_names.index(self.spell_names[index_of_spell_name])]['linktext'])
-
         return ({
             'name': self.spell_names[index_of_spell_name],
             'school': school,

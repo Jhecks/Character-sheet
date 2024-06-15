@@ -178,6 +178,7 @@ class CharacterSheetData:
             gear_data = {}
             for gear_data_data in gear.attributes:
                 gear_data[gear_data_data] = getattr(gear, gear_data_data)
+            gear_data['name'] = getattr(gear, 'item')
             output_json['gear'].append(gear_data)
 
         output_json['spellLikes'] = []
@@ -1097,7 +1098,7 @@ class CharacterSheetData:
                 self.quantity = quantity
                 self.weight = weight
                 self.notes = notes
-                self.attributes = ['type', 'item', 'location', 'quantity', 'weight', 'notes']
+                self.attributes = ['type', 'location', 'quantity', 'weight', 'notes']
 
             def create_from_json(self, json_data):
                 if json_data:

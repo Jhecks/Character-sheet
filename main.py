@@ -9,8 +9,10 @@ import CharacterSheet
 import dataFrame
 import qtTranslateLayer as qtl
 import jsonParser
+import shutil
+from datetime import datetime
 from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtGui import QKeySequence
+from PyQt5.QtGui import QKeySequence, QFontMetrics
 from PyQt5.QtWidgets import QShortcut, QMessageBox, QPushButton
 from PyQt5.QtCore import Qt
 from enum import Enum
@@ -509,16 +511,26 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         button.setObjectName(name)
         if spell:
             if spell.prepared:
-                button.setText(f"{spell.name} | {spell.school} ({spell.cast}/{spell.prepared})")
+                button_text = f"{spell.name} ({spell.cast}/{spell.prepared})"
             else:
-                button.setText(f"{spell.name} | {spell.school}")
+                button_text = f"{spell.name}"
             if spell.marked:
                 button.setStyleSheet("QPushButton"
                                      "{"
                                      "background-color : grey;"
                                      "}")
         else:
-            button.setText('Click me')
+            button_text = 'Click me'
+
+        font_metrics = QFontMetrics(button.font())
+        text_width = font_metrics.width(button_text)
+        button_width = button.width()
+
+        if text_width > button_width:
+            button.setStyleSheet(button.styleSheet() + " " + "QPushButton { text-align: left; } "
+                                                             "QToolTip { color: #ffffff; background-color: #000000; border: 1px solid white; }")
+            button.setToolTip(button_text)
+        button.setText(button_text)
         gridLayout.addWidget(button, new_position[0], new_position[1])
         button.clicked.connect(self.clicked_spell_like_button)
         self.spellLikeList.append(button)
@@ -648,31 +660,28 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
             self.ui.description.setHtml(data['description'])
             self.data_frame.spells.spellLikes[index].description = data['description']
         if self.data_frame.spells.spellLikes[index].prepared:
-            self.spellLikeList[index].setText(
-                '{} | {} ({}/{})'.format(self.data_frame.spells.spellLikes[index].name,
-                                         self.data_frame.spells.spellLikes[index].school,
-                                         self.data_frame.spells.spellLikes[index].cast,
-                                         self.data_frame.spells.spellLikes[index].prepared))
+            button_text = '{} ({}/{})'.format(self.data_frame.spells.spellLikes[index].name,
+                                              self.data_frame.spells.spellLikes[index].cast,
+                                              self.data_frame.spells.spellLikes[index].prepared)
         else:
-            self.spellLikeList[index].setText(
-                '{} | {}'.format(self.data_frame.spells.spellLikes[index].name,
-                                 self.data_frame.spells.spellLikes[index].school))
+            button_text = '{}'.format(self.data_frame.spells.spellLikes[index].name)
+
+        font_metrics = QFontMetrics(self.spellLikeList[index].font())
+        text_width = font_metrics.width(button_text)
+        button_width = self.spellLikeList[index].width()
+
+        if text_width > button_width:
+            self.spellLikeList[index].setStyleSheet(
+                self.spellLikeList[index].styleSheet() + " " + "QPushButton { text-align: left; } "
+                                                               "QToolTip { color: #ffffff; background-color: #000000; border: 1px solid white; }")
+            self.spellLikeList[index].setToolTip(button_text)
+        self.spellLikeList[index].setText(button_text)
 
     def spell_like_level_updated(self, index):
         self.data_frame.spells.spellLikes[index].level = self.sender().value()
 
     def spell_like_school_updated(self, index, text):
         self.data_frame.spells.spellLikes[index].school = text
-        if self.data_frame.spells.spellLikes[index].prepared:
-            self.spellLikeList[index].setText(
-                '{} | {} ({}/{})'.format(self.data_frame.spells.spellLikes[index].name,
-                                         self.data_frame.spells.spellLikes[index].school,
-                                         self.data_frame.spells.spellLikes[index].cast,
-                                         self.data_frame.spells.spellLikes[index].prepared))
-        else:
-            self.spellLikeList[index].setText(
-                '{} | {}'.format(self.data_frame.spells.spellLikes[index].name,
-                                 self.data_frame.spells.spellLikes[index].school))
 
     def spell_like_subschool_updated(self, index, text):
         self.data_frame.spells.spellLikes[index].subschool = text
@@ -681,27 +690,23 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.data_frame.spells.spellLikes[index].prepared = self.sender().value()
         if self.data_frame.spells.spellLikes[index].prepared:
             self.spellLikeList[index].setText(
-                '{} | {} ({}/{})'.format(self.data_frame.spells.spellLikes[index].name,
-                                         self.data_frame.spells.spellLikes[index].school,
-                                         self.data_frame.spells.spellLikes[index].cast,
-                                         self.data_frame.spells.spellLikes[index].prepared))
+                '{} ({}/{})'.format(self.data_frame.spells.spellLikes[index].name,
+                                    self.data_frame.spells.spellLikes[index].cast,
+                                    self.data_frame.spells.spellLikes[index].prepared))
         else:
             self.spellLikeList[index].setText(
-                '{} | {}'.format(self.data_frame.spells.spellLikes[index].name,
-                                 self.data_frame.spells.spellLikes[index].school))
+                '{}'.format(self.data_frame.spells.spellLikes[index].name))
 
     def spell_like_cast_updated(self, index):
         self.data_frame.spells.spellLikes[index].cast = self.sender().value()
         if self.data_frame.spells.spellLikes[index].prepared:
             self.spellLikeList[index].setText(
-                '{} | {} ({}/{})'.format(self.data_frame.spells.spellLikes[index].name,
-                                         self.data_frame.spells.spellLikes[index].school,
-                                         self.data_frame.spells.spellLikes[index].cast,
-                                         self.data_frame.spells.spellLikes[index].prepared))
+                '{} ({}/{})'.format(self.data_frame.spells.spellLikes[index].name,
+                                    self.data_frame.spells.spellLikes[index].cast,
+                                    self.data_frame.spells.spellLikes[index].prepared))
         else:
             self.spellLikeList[index].setText(
-                '{} | {}'.format(self.data_frame.spells.spellLikes[index].name,
-                                 self.data_frame.spells.spellLikes[index].school))
+                '{}'.format(self.data_frame.spells.spellLikes[index].name))
 
     def spell_like_notes_updated(self, index):
         self.data_frame.spells.spellLikes[index].notes = self.sender().toPlainText()
@@ -714,20 +719,29 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
             ((getattr(self, spell_level + 'Count') - 1) // 7) + 1, ((getattr(self, spell_level + 'Count') - 1) % 7) + 1)
         name = 'button № {}'.format(getattr(self, spell_level + 'Index'))
         button = QtWidgets.QPushButton(self.groupBox_14)
-        button.setObjectName(name)
+        button_text = ''
         if spell:
             if spell.prepared:
-                button.setText(f'{spell.name} | {spell.school} ({spell.cast}/{spell.prepared})')
+                button_text = f'{spell.name} ({spell.cast}/{spell.prepared})'
             else:
                 if spell.name or spell.school:
-                    button.setText(f'{spell.name} | {spell.school}')
+                    button_text = f'{spell.name}'
             if spell.marked:
                 button.setStyleSheet("QPushButton"
                                      "{"
                                      "background-color : grey;"
                                      "}")
         else:
-            button.setText('Click me')
+            button_text = 'Click me'
+        font_metrics = QFontMetrics(button.font())
+        text_width = font_metrics.width(button_text)
+        button_width = button.width()
+
+        if text_width > button_width:
+            button.setStyleSheet(button.styleSheet() + " " + "QPushButton { text-align: left; } "
+                                                             "QToolTip { color: #ffffff; background-color: #000000; border: 1px solid white; }")
+            button.setToolTip(button_text)
+        button.setText(button_text)
         gridLayout.addWidget(button, new_position[0], new_position[1])
         button.clicked.connect(lambda: self.clicked_spell_button(spell_level, grid_layout))
         getattr(self, spell_level + 'List').append(button)
@@ -799,28 +813,24 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ui.perDay.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared)
         if self.data_frame.spells.spellLikes[index].prepared:
             self.spellLikeList[index].setText(
-                '{} | {} ({}/{})'.format(self.data_frame.spells.spellLikes[index].name,
-                                         self.data_frame.spells.spellLikes[index].school,
-                                         self.data_frame.spells.spellLikes[index].cast,
-                                         self.data_frame.spells.spellLikes[index].prepared))
+                '{} ({}/{})'.format(self.data_frame.spells.spellLikes[index].name,
+                                    self.data_frame.spells.spellLikes[index].cast,
+                                    self.data_frame.spells.spellLikes[index].prepared))
         else:
             self.spellLikeList[index].setText(
-                '{} | {}'.format(self.data_frame.spells.spellLikes[index].name,
-                                 self.data_frame.spells.spellLikes[index].school))
+                '{} '.format(self.data_frame.spells.spellLikes[index].name))
 
     def increase_cast(self, index):
         self.data_frame.spells.spellLikes[index].used += 1
         self.ui.perDay.setValue(self.data_frame.spells.spellLikes[index].used)
         if self.data_frame.spells.spellLikes[index].prepared:
             self.spellLikeList[index].setText(
-                '{} | {} ({}/{})'.format(self.data_frame.spells.spellLikes[index].name,
-                                         self.data_frame.spells.spellLikes[index].school,
-                                         self.data_frame.spells.spellLikes[index].cast,
-                                         self.data_frame.spells.spellLikes[index].prepared))
+                '{} ({}/{})'.format(self.data_frame.spells.spellLikes[index].name,
+                                    self.data_frame.spells.spellLikes[index].cast,
+                                    self.data_frame.spells.spellLikes[index].prepared))
         else:
             self.spellLikeList[index].setText(
-                '{} | {}'.format(self.data_frame.spells.spellLikes[index].name,
-                                 self.data_frame.spells.spellLikes[index].school))
+                '{}'.format(self.data_frame.spells.spellLikes[index].name))
 
     def clear_spell_counter_data(self, index):
         self.data_frame.spells.spellLikes[index].prepared = 0
@@ -829,14 +839,12 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ui.perDay.setValue(self.data_frame.spells.spellLikes[index].used)
         if self.data_frame.spells.spellLikes[index].prepared:
             self.spellLikeList[index].setText(
-                '{} | {} ({}/{})'.format(self.data_frame.spells.spellLikes[index].name,
-                                         self.data_frame.spells.spellLikes[index].school,
-                                         self.data_frame.spells.spellLikes[index].cast,
-                                         self.data_frame.spells.spellLikes[index].prepared))
+                '{} ({}/{})'.format(self.data_frame.spells.spellLikes[index].name,
+                                    self.data_frame.spells.spellLikes[index].cast,
+                                    self.data_frame.spells.spellLikes[index].prepared))
         else:
             self.spellLikeList[index].setText(
-                '{} | {}'.format(self.data_frame.spells.spellLikes[index].name,
-                                 self.data_frame.spells.spellLikes[index].school))
+                '{}'.format(self.data_frame.spells.spellLikes[index].name))
 
     def marked_spell(self, index):
         if self.data_frame.spells.spellLikes[index].marked:
@@ -858,33 +866,36 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
             self.ui.description.setHtml(data['description'])
             getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].description = data['description']
         if getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared:
-            getattr(self, spell_level + 'List')[index].setText(
-                '{} | {} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
-                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school,
-                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast,
-                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[
-                                             index].prepared))
+            button_text = '{} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
+                                    getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast,
+                                    getattr(self.data_frame.spells, spell_level + 'Level').slotted[
+                                        index].prepared)
         else:
-            getattr(self, spell_level + 'List')[index].setText(
-                '{} | {}'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
-                                 getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school))
+            button_text = '{}'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name)
+        font_metrics = QFontMetrics(getattr(self, spell_level + 'List')[index].font())
+        text_width = font_metrics.width(button_text)
+        button_width = getattr(self, spell_level + 'List')[index].width()
+
+        if text_width > button_width:
+            getattr(self, spell_level + 'List')[index].setStyleSheet(getattr(self, spell_level + 'List')[index].styleSheet() + " " + "QPushButton { text-align: left; } "
+                                                             "QToolTip { color: #ffffff; background-color: #000000; border: 1px solid white; }")
+            getattr(self, spell_level + 'List')[index].setToolTip(button_text)
+        getattr(self, spell_level + 'List')[index].setText(button_text)
 
     def spell_level_updated(self, index, spell_level):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].level = self.sender().value()
 
     def spell_school_updated(self, index, spell_level, text):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school = text
-        if getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared:
-            getattr(self, spell_level + 'List')[index].setText(
-                '{} | {} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
-                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school,
-                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast,
-                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[
-                                             index].prepared))
-        else:
-            getattr(self, spell_level + 'List')[index].setText(
-                '{} | {}'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
-                                 getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school))
+        # if getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared:
+        #     getattr(self, spell_level + 'List')[index].setText(
+        #         '{} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
+        #                             getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast,
+        #                             getattr(self.data_frame.spells, spell_level + 'Level').slotted[
+        #                                 index].prepared))
+        # else:
+        #     getattr(self, spell_level + 'List')[index].setText(
+        #         '{}'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name))
 
     def spell_subschool_updated(self, index, spell_level, text):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].subschool = text
@@ -893,11 +904,10 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared = self.sender().value()
         if getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared:
             getattr(self, spell_level + 'List')[index].setText(
-                '{} | {} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
-                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school,
-                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast,
-                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[
-                                             index].prepared))
+                '{} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
+                                    getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast,
+                                    getattr(self.data_frame.spells, spell_level + 'Level').slotted[
+                                        index].prepared))
         else:
             getattr(self, spell_level + 'List')[index].setText(
                 getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name)
@@ -906,15 +916,13 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast = self.sender().value()
         if getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared:
             getattr(self, spell_level + 'List')[index].setText(
-                '{} | {} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
-                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school,
-                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast,
-                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[
-                                             index].prepared))
+                '{} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
+                                    getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast,
+                                    getattr(self.data_frame.spells, spell_level + 'Level').slotted[
+                                        index].prepared))
         else:
             getattr(self, spell_level + 'List')[index].setText(
-                '{} | {}'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
-                                 getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school))
+                '{}'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name))
 
     def spell_notes_updated(self, index, spell_level):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].notes = self.sender().toPlainText()
@@ -924,30 +932,26 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ui.prepared.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared)
         if getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared:
             getattr(self, spell_level + 'List')[index].setText(
-                '{} | {} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
-                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school,
-                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast,
-                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[
-                                             index].prepared))
+                '{} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
+                                    getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast,
+                                    getattr(self.data_frame.spells, spell_level + 'Level').slotted[
+                                        index].prepared))
         else:
             getattr(self, spell_level + 'List')[index].setText(
-                '{} | {}'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
-                                 getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school))
+                '{}'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name))
 
     def spell_increase_cast(self, index, spell_level):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast += 1
         self.ui.cast.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast)
         if getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared:
             getattr(self, spell_level + 'List')[index].setText(
-                '{} | {} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
-                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school,
-                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast,
-                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[
-                                             index].prepared))
+                '{} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
+                                    getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast,
+                                    getattr(self.data_frame.spells, spell_level + 'Level').slotted[
+                                        index].prepared))
         else:
             getattr(self, spell_level + 'List')[index].setText(
-                '{} | {}'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
-                                 getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school))
+                '{}'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name))
 
     def spell_clear_data(self, index, spell_level):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared = 0
@@ -956,15 +960,13 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.ui.cast.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast)
         if getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared:
             getattr(self, spell_level + 'List')[index].setText(
-                '{} | {} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
-                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school,
-                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast,
-                                         getattr(self.data_frame.spells, spell_level + 'Level').slotted[
-                                             index].prepared))
+                '{} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
+                                    getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast,
+                                    getattr(self.data_frame.spells, spell_level + 'Level').slotted[
+                                        index].prepared))
         else:
             getattr(self, spell_level + 'List')[index].setText(
-                '{} | {}'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
-                                 getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school))
+                '{}'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name))
 
     def spell_mark(self, index, spell_level):
         if getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].marked:
@@ -1004,9 +1006,19 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         button = QtWidgets.QPushButton(self.groupBox_11)
         button.setObjectName(name)
         if gear:
-            button.setText(f'{gear.type} | {gear.item} ({gear.quantity}) {gear.location}')
+            button_text = f'{gear.item} ({gear.quantity})'
         else:
-            button.setText('Click me')
+            button_text = 'Click me'
+
+        font_metrics = QFontMetrics(button.font())
+        text_width = font_metrics.width(button_text)
+        button_width = button.width()
+
+        if text_width > button_width:
+            button.setStyleSheet("QPushButton { text-align: left; } "
+                                 "QToolTip { color: #ffffff; background-color: #000000; border: 1px solid white; }")
+            button.setToolTip(button_text)
+        button.setText(button_text)
         gridLayout.addWidget(button, new_position[0], new_position[1])
         button.clicked.connect(self.clicked_gear_button)
         self.gearList.append(button)
@@ -1051,31 +1063,19 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
 
     def gear_type_updated(self, index):
         self.data_frame.gears.list[index].type = self.sender().text()
-        self.gearList[index].setText(f'{self.data_frame.gears.list[index].type} | '
-                                     f'{self.data_frame.gears.list[index].item} '
-                                     f'({self.data_frame.gears.list[index].quantity}) '
-                                     f'{self.data_frame.gears.list[index].location}')
 
     def gear_item_updated(self, index):
         self.data_frame.gears.list[index].item = self.sender().text()
-        self.gearList[index].setText(f'{self.data_frame.gears.list[index].type} | '
-                                     f'{self.data_frame.gears.list[index].item} '
-                                     f'({self.data_frame.gears.list[index].quantity}) '
-                                     f'{self.data_frame.gears.list[index].location}')
+        self.gearList[index].setText(f'{self.data_frame.gears.list[index].item} '
+                                     f'({self.data_frame.gears.list[index].quantity})')
 
     def gear_location_updated(self, index):
         self.data_frame.gears.list[index].location = self.sender().text()
-        self.gearList[index].setText(f'{self.data_frame.gears.list[index].type} | '
-                                     f'{self.data_frame.gears.list[index].item} '
-                                     f'({self.data_frame.gears.list[index].quantity}) '
-                                     f'{self.data_frame.gears.list[index].location}')
 
     def gear_quantity_updated(self, index):
         self.data_frame.gears.list[index].quantity = self.sender().text()
-        self.gearList[index].setText(f'{self.data_frame.gears.list[index].type} | '
-                                     f'{self.data_frame.gears.list[index].item} '
-                                     f'({self.data_frame.gears.list[index].quantity}) '
-                                     f'{self.data_frame.gears.list[index].location}')
+        self.gearList[index].setText(f'{self.data_frame.gears.list[index].item} '
+                                     f'({self.data_frame.gears.list[index].quantity})')
 
     def gear_weight_updated(self, index):
         self.data_frame.gears.list[index].weight = self.sender().text()
@@ -1111,11 +1111,21 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         name = f'button №{self.featIndex}'
         button = QtWidgets.QPushButton(self.widget_25)
         button.setObjectName(name)
+        button_text = ''
         if feat:
-            if feat.name or feat.type:
-                button.setText(f"{feat.type} | {feat.name}")
+            if feat.name:
+                button_text = f"{feat.name}"
         else:
-            button.setText('Click me')
+            button_text = 'Click me'
+        font_metrics = QFontMetrics(button.font())
+        text_width = font_metrics.width(button_text)
+        button_width = button.width()
+
+        if text_width > button_width:
+            button.setStyleSheet("QPushButton { text-align: left; } "
+                                 "QToolTip { color: #ffffff; background-color: #000000; border: 1px solid white; }")
+            button.setToolTip(button_text)
+        button.setText(button_text)
         gridLayout.addWidget(button, new_position[0], new_position[1])
         button.clicked.connect(self.clicked_feat_button)
         self.featList.append(button)
@@ -1165,13 +1175,20 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
             self.ui.type.setCurrentText(data['type'])
             self.ui.notes.setHtml(data['description'])
             self.data_frame.feats.list[index].notes = data['description']
-        self.featList[index].setText(f'{self.data_frame.feats.list[index].type} | '
-                                     f'{self.data_frame.feats.list[index].name}')
+        font_metrics = QFontMetrics(self.featList[index].font())
+        text_width = font_metrics.width(self.data_frame.feats.list[index].name)
+        button_width = self.featList[index].width()
+
+        if text_width > button_width:
+            self.featList[index].setStyleSheet(
+                self.featList[index].styleSheet() + " " + "QPushButton { text-align: left; } "
+                                                          "QToolTip { color: #ffffff; background-color: #000000; border: 1px solid white; }")
+            self.featList[index].setToolTip(self.data_frame.feats.list[index].name)
+        self.featList[index].setText(f'{self.data_frame.feats.list[index].name}')
 
     def feat_type_updated(self, index, text):
         self.data_frame.feats.list[index].type = text
-        self.featList[index].setText(f'{self.data_frame.feats.list[index].type} | '
-                                     f'{self.data_frame.feats.list[index].name}')
+        self.featList[index].setText(f'{self.data_frame.feats.list[index].name}')
 
     def feat_delete(self, index, reset=False):
         grid_layot = self.gridLayout_3
@@ -1201,11 +1218,21 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         name = f'button №{self.abilityIndex}'
         button = QtWidgets.QPushButton(self.widget)
         button.setObjectName(name)
+        button_text = ''
         if ability:
             if ability.name or ability.type:
-                button.setText(f"{ability.name} ({ability.type})")
+                button_text = f"{ability.name}"
         else:
-            button.setText('Click me')
+            button_text = 'Click me'
+        font_metrics = QFontMetrics(button.font())
+        text_width = font_metrics.width(button_text)
+        button_width = button.width()
+
+        if text_width > button_width:
+            button.setStyleSheet("QPushButton { text-align: left; } "
+                                 "QToolTip { color: #ffffff; background-color: #000000; border: 1px solid white; }")
+            button.setToolTip(button_text)
+        button.setText(button_text)
         gridLayout.addWidget(button, new_position[0], new_position[1])
         button.clicked.connect(self.clicked_ability_button)
         self.abilityList.append(button)
@@ -1244,13 +1271,19 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
 
     def ability_name_updated(self, index):
         self.data_frame.specialAbilities.list[index].name = self.sender().text()
-        self.abilityList[index].setText(f'{self.data_frame.specialAbilities.list[index].name} '
-                                        f'({self.data_frame.specialAbilities.list[index].type})')
+        font_metrics = QFontMetrics(self.abilityList[index].font())
+        text_width = font_metrics.width(self.data_frame.specialAbilities.list[index].name)
+        button_width = self.abilityList[index].width()
+
+        if text_width > button_width:
+            self.abilityList[index].setStyleSheet(
+                self.abilityList[index].styleSheet() + " " + "QPushButton { text-align: left; } "
+                                                             "QToolTip { color: #ffffff; background-color: #000000; border: 1px solid white; }")
+            self.abilityList[index].setToolTip(self.data_frame.specialAbilities.list[index].name)
+        self.abilityList[index].setText(f'{self.data_frame.specialAbilities.list[index].name}')
 
     def ability_type_updated(self, index):
         self.data_frame.specialAbilities.list[index].type = self.sender().text()
-        self.abilityList[index].setText(f'{self.data_frame.specialAbilities.list[index].name} '
-                                        f'({self.data_frame.specialAbilities.list[index].type})')
 
     def ability_notes_updated(self, index):
         self.data_frame.specialAbilities.list[index].notes = self.sender().toPlainText()
@@ -1284,9 +1317,19 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         button = QtWidgets.QPushButton(self.widget_2)
         button.setObjectName(name)
         if trait:
-            button.setText(f"{trait.type} | {trait.name}")
+            button_text = f"{trait.name}"
         else:
-            button.setText('Click me')
+            button_text = 'Click me'
+
+        font_metrics = QFontMetrics(button.font())
+        text_width = font_metrics.width(button_text)
+        button_width = button.width()
+
+        if text_width > button_width:
+            button.setStyleSheet("QPushButton { text-align: left; } "
+                                 "QToolTip { color: #ffffff; background-color: #000000; border: 1px solid white; }")
+            button.setToolTip(button_text)
+        button.setText(button_text)
         gridLayout.addWidget(button, new_position[0], new_position[1])
         button.clicked.connect(self.clicked_trait_button)
         self.traitList.append(button)
@@ -1335,13 +1378,20 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
             self.ui.type.setCurrentText(data['type'])
             self.ui.notes.setHtml(data['description'])
             self.data_frame.traits.list[index].notes = data['description']
-        self.traitList[index].setText(f'{self.data_frame.traits.list[index].type} | '
-                                      f'{self.data_frame.traits.list[index].name}')
+        font_metrics = QFontMetrics(self.traitList[index].font())
+        text_width = font_metrics.width(self.data_frame.traits.list[index].name)
+        button_width = self.traitList[index].width()
+
+        if text_width > button_width:
+            self.traitList[index].setStyleSheet(
+                self.traitList[index].styleSheet() + " " + "QPushButton { text-align: left; } "
+                                                           "QToolTip { color: #ffffff; background-color: #000000; border: 1px solid white; }")
+            self.traitList[index].setToolTip(self.data_frame.traits.list[index].name)
+        self.traitList[index].setText(f'{self.data_frame.traits.list[index].name}')
 
     def trait_type_updated(self, index, text):
         self.data_frame.traits.list[index].type = text
-        self.traitList[index].setText(f'{self.data_frame.traits.list[index].type} | '
-                                      f'{self.data_frame.traits.list[index].name}')
+        # self.traitList[index].setText(f'{self.data_frame.traits.list[index].name}')
 
     def trait_delete(self, index, reset=False):
         grid_layot = self.gridLayout_26
@@ -2103,7 +2153,30 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
     def saveFile(self):
         if not self.file_path:
             self.saveFileAs()
+        self.backup_character_json()
         jsonParser.character_sheet_to_xml(self.file_path, self.data_frame.create_json())
+
+    def backup_character_json(self):
+        folder_path = os.getcwd() + '\\_internal\\_backup'
+        file_to_copy = self.file_path
+        files = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
+
+        # If there are more than 5 files, delete the oldest
+        if len(files) > 50:
+            full_paths = [os.path.join(folder_path, f) for f in files]
+            oldest_file = min(full_paths, key=os.path.getctime)
+            os.remove(oldest_file)
+
+        # Copy the file to the folder and rename it
+        current_time = datetime.now().strftime('%Y-%m-%d_%H_%M_%S')
+        base_name = os.path.basename(file_to_copy)
+        file_name, file_extension = os.path.splitext(base_name)
+        new_file_name = f"{file_name}_{current_time}{file_extension}"
+        new_file_path = os.path.join(folder_path, new_file_name)
+        try:
+            shutil.copyfile(file_to_copy, new_file_path)
+        except Exception as e:
+            print(f"Error while copying file: {e}")
 
     def saveFileAs(self):
         tkinter.Tk().withdraw()
@@ -2179,8 +2252,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
                 return
 
         keys = ['name', 'school', 'subschool', 'full_text']
-        input_data = [self.ui.name.text(), self.ui.school.currentText(),
-                      self.ui.subschool.currentText(), self.new_soap.prettify()]
+        input_data = [self.ui.name.text().rstrip(), self.ui.school.currentText(),
+                      self.ui.subschool.currentText(), str(self.ui.inputHTML.toPlainText()).replace('\n', '')]
         input_data_dict = dict(zip(keys, input_data))
         self.spell_data.update_spell_data(input_data_dict)
         self.window.close()
@@ -2251,8 +2324,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
             return
 
         keys = ['name', 'type', 'full_text']
-        input_data = [self.ui.name.text(), self.ui.type.currentText(),
-                      self.new_soap.prettify()]
+        input_data = [self.ui.name.text().rstrip(), self.ui.type.currentText(),
+                      str(self.ui.inputHTML.toPlainText()).replace('\n', '')]
         input_data_dict = dict(zip(keys, input_data))
         self.spell_data.update_feat_data(input_data_dict)
         self.window.close()
@@ -2294,8 +2367,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
             return
 
         keys = ['name', 'type', 'full_text']
-        input_data = [self.ui.name.text(), self.ui.type.currentText(),
-                      str(self.new_soap).replace('\n', '')]
+        input_data = [self.ui.name.text().rstrip(), self.ui.type.currentText(),
+                      str(self.ui.inputHTML.toPlainText()).replace('\n', '')]
         input_data_dict = dict(zip(keys, input_data))
         self.spell_data.update_trait_data(input_data_dict)
         self.window.close()
