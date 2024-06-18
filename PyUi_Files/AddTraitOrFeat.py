@@ -12,10 +12,10 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class Ui_AddTraitOrFeatData(object):
-    def setupUi(self, AddData):
-        AddData.setObjectName("AddData")
-        AddData.resize(558, 487)
-        self.centralwidget = QtWidgets.QWidget(AddData)
+    def setupUi(self, AddTraitOrFeatData):
+        AddTraitOrFeatData.setObjectName("AddTraitOrFeatData")
+        AddTraitOrFeatData.resize(558, 487)
+        self.centralwidget = QtWidgets.QWidget(AddTraitOrFeatData)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -57,25 +57,31 @@ class Ui_AddTraitOrFeatData(object):
         self.gridLayout.addWidget(self.label, 4, 0, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout.addItem(spacerItem, 6, 1, 1, 1)
-        AddData.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(AddData)
+        AddTraitOrFeatData.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(AddTraitOrFeatData)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 558, 21))
         self.menubar.setObjectName("menubar")
-        AddData.setMenuBar(self.menubar)
-        self.statusBar = QtWidgets.QStatusBar(AddData)
+        AddTraitOrFeatData.setMenuBar(self.menubar)
+        self.statusBar = QtWidgets.QStatusBar(AddTraitOrFeatData)
         self.statusBar.setObjectName("statusBar")
-        AddData.setStatusBar(self.statusBar)
+        AddTraitOrFeatData.setStatusBar(self.statusBar)
 
-        self.retranslateUi(AddData)
-        QtCore.QMetaObject.connectSlotsByName(AddData)
+        self.retranslateUi(AddTraitOrFeatData)
+        QtCore.QMetaObject.connectSlotsByName(AddTraitOrFeatData)
+        AddTraitOrFeatData.setTabOrder(self.url, self.search)
+        AddTraitOrFeatData.setTabOrder(self.search, self.name)
+        AddTraitOrFeatData.setTabOrder(self.name, self.type)
+        AddTraitOrFeatData.setTabOrder(self.type, self.inputHTML)
+        AddTraitOrFeatData.setTabOrder(self.inputHTML, self.displayData)
+        AddTraitOrFeatData.setTabOrder(self.displayData, self.save)
 
-    def retranslateUi(self, AddData):
+    def retranslateUi(self, AddTraitOrFeatData):
         _translate = QtCore.QCoreApplication.translate
-        AddData.setWindowTitle(_translate("AddData", "MainWindow"))
-        self.label_4.setText(_translate("AddData", "Input type"))
-        self.search.setText(_translate("AddData", "Search"))
-        self.save.setText(_translate("AddData", "Save"))
-        self.label_6.setText(_translate("AddData", "Input name"))
-        self.label_2.setText(_translate("AddData", "Displayed data"))
-        self.label_3.setText(_translate("AddData", "Input URL"))
-        self.label.setText(_translate("AddData", "HTML data"))
+        AddTraitOrFeatData.setWindowTitle(_translate("AddTraitOrFeatData", "MainWindow"))
+        self.label_4.setText(_translate("AddTraitOrFeatData", "Input type"))
+        self.search.setText(_translate("AddTraitOrFeatData", "Search"))
+        self.save.setText(_translate("AddTraitOrFeatData", "Save"))
+        self.label_6.setText(_translate("AddTraitOrFeatData", "Input name"))
+        self.label_2.setText(_translate("AddTraitOrFeatData", "Displayed data"))
+        self.label_3.setText(_translate("AddTraitOrFeatData", "Input URL"))
+        self.label.setText(_translate("AddTraitOrFeatData", "HTML data"))

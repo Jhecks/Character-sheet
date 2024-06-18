@@ -5,7 +5,6 @@ import sys
 import time
 import tkinter
 import qdarktheme
-import CharacterSheet
 import dataFrame
 import qtTranslateLayer as qtl
 import jsonParser
@@ -13,18 +12,20 @@ import shutil
 from datetime import datetime
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtGui import QKeySequence, QFontMetrics
-from PyQt5.QtWidgets import QShortcut, QMessageBox, QPushButton
+from PyQt5.QtWidgets import QShortcut, QMessageBox, QPushButton, QGridLayout
 from PyQt5.QtCore import Qt
 from enum import Enum
 from tkinter import filedialog
-from AbilityEdit import Ui_AbilityEdit
-from AddTraitOrFeat import Ui_AddTraitOrFeatData
-from FeatEdit import Ui_FeatEdit
-from GearEdit import Ui_GearEdit
-from SpellEdit import Ui_SpellEdit
-from SpellLikeEdit import Ui_SpellLikeEdit
-from TraitEdit import Ui_TraitEdit
-from AddSpell import Ui_AddData
+
+from PyUi_Files import CharacterSheet
+from PyUi_Files.AbilityEdit import Ui_AbilityEdit
+from PyUi_Files.AddTraitOrFeat import Ui_AddTraitOrFeatData
+from PyUi_Files.FeatEdit import Ui_FeatEdit
+from PyUi_Files.GearEdit import Ui_GearEdit
+from PyUi_Files.SpellEdit import Ui_SpellEdit
+from PyUi_Files.SpellLikeEdit import Ui_SpellLikeEdit
+from PyUi_Files.TraitEdit import Ui_TraitEdit
+from PyUi_Files.AddSpell import Ui_AddData
 import requests
 from bs4 import BeautifulSoup
 from DescriptionsFromCSV import DataFromCSV
@@ -78,20 +79,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.actionTrait.triggered.connect(self.addOrEditTrait)
 
         # General data update
-        self.name.textEdited.connect(lambda: self.general_changed('name'))
-        self.alignment.textEdited.connect(lambda: self.general_changed('alignment'))
-        self.playerName.textEdited.connect(lambda: self.general_changed('playerName'))
-        self.level.textEdited.connect(lambda: self.general_changed('level'))
-        self.deity.textEdited.connect(lambda: self.general_changed('deity'))
-        self.homeland.textEdited.connect(lambda: self.general_changed('homeland'))
-        self.race.textEdited.connect(lambda: self.general_changed('race'))
-        self.size.textEdited.connect(lambda: self.general_changed('size'))
-        self.gender.textEdited.connect(lambda: self.general_changed('gender'))
-        self.age.textEdited.connect(lambda: self.general_changed('age'))
-        self.height.textEdited.connect(lambda: self.general_changed('height'))
-        self.weight.textEdited.connect(lambda: self.general_changed('weight'))
-        self.hair.textEdited.connect(lambda: self.general_changed('hair'))
-        self.eyes.textEdited.connect(lambda: self.general_changed('eyes'))
+        for attr in qtl.general_attributes:
+            getattr(self, attr).textEdited.connect(lambda: self.general_changed())
 
         # Ability data update
         self.str.textEdited.connect(lambda: self.abilities_changed('str'))
@@ -393,6 +382,12 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.cp.textEdited.connect(lambda: self.money_changed('cp'))
         self.gems.textEdited.connect(lambda: self.money_changed('gems'))
         self.other.textEdited.connect(lambda: self.money_changed('other'))
+
+        for data_frame_path, gui_path in qtl.spells_data.items():
+            getattr(self, gui_path).textEdited.connect(lambda: self.general_spell_data_changed())
+
+        self.spellsConditionalModifiers.textEdited.connect(lambda: self.spells_conditional_modifiers_changed())
+        self.spellsSpeciality.textEdited.connect(lambda: self.spells_speciality_changed())
 
         # Notes change
         self.notes.textChanged.connect(self.notes_changed)
@@ -887,15 +882,6 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
 
     def spell_school_updated(self, index, spell_level, text):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school = text
-        # if getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared:
-        #     getattr(self, spell_level + 'List')[index].setText(
-        #         '{} ({}/{})'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name,
-        #                             getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast,
-        #                             getattr(self.data_frame.spells, spell_level + 'Level').slotted[
-        #                                 index].prepared))
-        # else:
-        #     getattr(self, spell_level + 'List')[index].setText(
-        #         '{}'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name))
 
     def spell_subschool_updated(self, index, spell_level, text):
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].subschool = text
@@ -1006,7 +992,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         button = QtWidgets.QPushButton(self.groupBox_11)
         button.setObjectName(name)
         if gear:
-            button_text = f'{gear.item} ({gear.quantity})'
+            button_text = f'{gear.name} ({gear.quantity})'
         else:
             button_text = 'Click me'
 
@@ -1040,7 +1026,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.window.setWindowTitle('Edit Gear')
 
         self.ui.type.setText(self.data_frame.gears.list[index].type)
-        self.ui.item.setText(self.data_frame.gears.list[index].item)
+        self.ui.item.setText(self.data_frame.gears.list[index].name)
         self.ui.location.setText(self.data_frame.gears.list[index].location)
         self.ui.quantity.setText(self.data_frame.gears.list[index].quantity)
         self.ui.weight.setText(self.data_frame.gears.list[index].weight)
@@ -1065,8 +1051,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.data_frame.gears.list[index].type = self.sender().text()
 
     def gear_item_updated(self, index):
-        self.data_frame.gears.list[index].item = self.sender().text()
-        self.gearList[index].setText(f'{self.data_frame.gears.list[index].item} '
+        self.data_frame.gears.list[index].name = self.sender().text()
+        self.gearList[index].setText(f'{self.data_frame.gears.list[index].name} '
                                      f'({self.data_frame.gears.list[index].quantity})')
 
     def gear_location_updated(self, index):
@@ -1074,7 +1060,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
 
     def gear_quantity_updated(self, index):
         self.data_frame.gears.list[index].quantity = self.sender().text()
-        self.gearList[index].setText(f'{self.data_frame.gears.list[index].item} '
+        self.gearList[index].setText(f'{self.data_frame.gears.list[index].name} '
                                      f'({self.data_frame.gears.list[index].quantity})')
 
     def gear_weight_updated(self, index):
@@ -1191,11 +1177,11 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.featList[index].setText(f'{self.data_frame.feats.list[index].name}')
 
     def feat_delete(self, index, reset=False):
-        grid_layot = self.gridLayout_3
+        grid_layout: QGridLayout = self.gridLayout_3
         self.data_frame.feats.delete_feat([index])
         if not reset:
             self.window.close()
-        grid_layot.removeWidget(self.featList[index])
+        grid_layout.removeWidget(self.featList[index])
         self.featList[index].deleteLater()
         del self.featList[index]
         self.reset_feats_positions()
@@ -1289,11 +1275,11 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.data_frame.specialAbilities.list[index].notes = self.sender().toPlainText()
 
     def ability_delete(self, index, reset=False):
-        grid_layot = self.gridLayout_11
+        grid_layout = self.gridLayout_11
         self.data_frame.specialAbilities.delete_special_ability([index])
         if not reset:
             self.window.close()
-        grid_layot.removeWidget(self.abilityList[index])
+        grid_layout.removeWidget(self.abilityList[index])
         self.abilityList[index].deleteLater()
         del self.abilityList[index]
         self.reset_abilities_positions()
@@ -1391,14 +1377,13 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
 
     def trait_type_updated(self, index, text):
         self.data_frame.traits.list[index].type = text
-        # self.traitList[index].setText(f'{self.data_frame.traits.list[index].name}')
 
     def trait_delete(self, index, reset=False):
-        grid_layot = self.gridLayout_26
+        grid_layout = self.gridLayout_26
         self.data_frame.traits.delete_traits([index])
         if not reset:
             self.window.close()
-        grid_layot.removeWidget(self.traitList[index])
+        grid_layout.removeWidget(self.traitList[index])
         self.traitList[index].deleteLater()
         del self.traitList[index]
         self.reset_traits_positions()
@@ -1823,9 +1808,9 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
             self.data_frame.attacks.ranged[index].ammunition = self.rangedAttacksList[index].notes.text()
 
     # General change
-    def general_changed(self, general_item):
-        setattr(self.data_frame.general, general_item, getattr(self, general_item).text())
-        if general_item == 'name':
+    def general_changed(self):
+        setattr(self.data_frame.general, self.sender().objectName(), getattr(self, self.sender().objectName()).text())
+        if self.sender().objectName() == 'name':
             self.setWindowTitle(self.data_frame.general.name)
 
     # Abilities change function
@@ -1996,6 +1981,15 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
 
     def money_changed(self, item):
         setattr(self.data_frame.money, item, getattr(self, item).text())
+
+    def general_spell_data_changed(self):
+        self.data_frame.spells.set_attr(qtl.inverse_spell_data[self.sender().objectName()], self.sender().text())
+
+    def spells_conditional_modifiers_changed(self):
+        self.data_frame.spells.spellsConditionalModifiers = self.sender().text()
+
+    def spells_speciality_changed(self):
+        self.data_frame.spells.spellsSpeciality = self.sender().text()
 
     def notes_changed(self):
         self.data_frame.notes = self.notes.toPlainText()

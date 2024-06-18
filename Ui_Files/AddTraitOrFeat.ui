@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AddData</class>
- <widget class="QMainWindow" name="AddData">
+ <class>AddTraitOrFeatData</class>
+ <widget class="QMainWindow" name="AddTraitOrFeatData">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -106,6 +106,15 @@
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
+ <tabstops>
+  <tabstop>url</tabstop>
+  <tabstop>search</tabstop>
+  <tabstop>name</tabstop>
+  <tabstop>type</tabstop>
+  <tabstop>inputHTML</tabstop>
+  <tabstop>displayData</tabstop>
+  <tabstop>save</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

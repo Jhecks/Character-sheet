@@ -230,6 +230,23 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <tabstops>
+  <tabstop>name</tabstop>
+  <tabstop>level</tabstop>
+  <tabstop>school</tabstop>
+  <tabstop>subschool</tabstop>
+  <tabstop>perDay</tabstop>
+  <tabstop>used</tabstop>
+  <tabstop>notes</tabstop>
+  <tabstop>description</tabstop>
+  <tabstop>closeButton</tabstop>
+  <tabstop>perDayButton</tabstop>
+  <tabstop>usedButton</tabstop>
+  <tabstop>atWillButton</tabstop>
+  <tabstop>clearButton</tabstop>
+  <tabstop>markButton</tabstop>
+  <tabstop>deleteButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

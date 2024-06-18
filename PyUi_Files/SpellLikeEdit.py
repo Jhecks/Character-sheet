@@ -118,6 +118,20 @@ class Ui_SpellLikeEdit(object):
 
         self.retranslateUi(SpellLikeEdit)
         QtCore.QMetaObject.connectSlotsByName(SpellLikeEdit)
+        SpellLikeEdit.setTabOrder(self.name, self.level)
+        SpellLikeEdit.setTabOrder(self.level, self.school)
+        SpellLikeEdit.setTabOrder(self.school, self.subschool)
+        SpellLikeEdit.setTabOrder(self.subschool, self.perDay)
+        SpellLikeEdit.setTabOrder(self.perDay, self.used)
+        SpellLikeEdit.setTabOrder(self.used, self.notes)
+        SpellLikeEdit.setTabOrder(self.notes, self.description)
+        SpellLikeEdit.setTabOrder(self.description, self.closeButton)
+        SpellLikeEdit.setTabOrder(self.closeButton, self.perDayButton)
+        SpellLikeEdit.setTabOrder(self.perDayButton, self.usedButton)
+        SpellLikeEdit.setTabOrder(self.usedButton, self.atWillButton)
+        SpellLikeEdit.setTabOrder(self.atWillButton, self.clearButton)
+        SpellLikeEdit.setTabOrder(self.clearButton, self.markButton)
+        SpellLikeEdit.setTabOrder(self.markButton, self.deleteButton)
 
     def retranslateUi(self, SpellLikeEdit):
         _translate = QtCore.QCoreApplication.translate

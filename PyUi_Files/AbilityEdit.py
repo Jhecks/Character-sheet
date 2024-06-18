@@ -54,6 +54,10 @@ class Ui_AbilityEdit(object):
 
         self.retranslateUi(AbilityEdit)
         QtCore.QMetaObject.connectSlotsByName(AbilityEdit)
+        AbilityEdit.setTabOrder(self.name, self.type)
+        AbilityEdit.setTabOrder(self.type, self.notes)
+        AbilityEdit.setTabOrder(self.notes, self.closeButton)
+        AbilityEdit.setTabOrder(self.closeButton, self.deleteButton)
 
     def retranslateUi(self, AbilityEdit):
         _translate = QtCore.QCoreApplication.translate
@@ -63,13 +67,3 @@ class Ui_AbilityEdit(object):
         self.label_3.setText(_translate("AbilityEdit", "Notes"))
         self.label_2.setText(_translate("AbilityEdit", "Type (Ex, Sp, Su, ...)"))
         self.label.setText(_translate("AbilityEdit", "Name"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    AbilityEdit = QtWidgets.QMainWindow()
-    ui = Ui_AbilityEdit()
-    ui.setupUi(AbilityEdit)
-    AbilityEdit.show()
-    sys.exit(app.exec_())

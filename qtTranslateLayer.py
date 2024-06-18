@@ -1,34 +1,35 @@
 general_attributes = [
-            'name', 'alignment', 'playerName', 'level', 'deity', 'homeland', 'race',
-            'size', 'gender', 'age', 'height', 'weight', 'hair', 'eyes'
-        ]
+    'name', 'alignment', 'playerName', 'level', 'deity', 'homeland', 'race',
+    'size', 'gender', 'age', 'height', 'weight', 'hair', 'eyes'
+]
+
 
 ability_attributes = [
-            'str',
-            'strModifier',
-            'tempStr',
-            'tempStrModifier',
-            # 'int',
-            'intModifier',
-            'tempInt',
-            'tempIntModifier',
-            'dex',
-            'dexModifier',
-            'tempDex',
-            'tempDexModifier',
-            'wis',
-            'wisModifier',
-            'tempWis',
-            'tempWisModifier',
-            'con',
-            'conModifier',
-            'tempCon',
-            'tempConModifier',
-            'cha',
-            'chaModifier',
-            'tempCha',
-            'tempChaModifier'
-        ]
+    'str',
+    'strModifier',
+    'tempStr',
+    'tempStrModifier',
+    # 'int',
+    'intModifier',
+    'tempInt',
+    'tempIntModifier',
+    'dex',
+    'dexModifier',
+    'tempDex',
+    'tempDexModifier',
+    'wis',
+    'wisModifier',
+    'tempWis',
+    'tempWisModifier',
+    'con',
+    'conModifier',
+    'tempCon',
+    'tempConModifier',
+    'cha',
+    'chaModifier',
+    'tempCha',
+    'tempChaModifier'
+]
 
 skill_attributes = {
     'acrobatics': 'dex',
@@ -280,6 +281,48 @@ spells_data = {
     'ninthLevel.dc': 'ninthLevelDC',
     'ninthLevel.totalPerDay': 'ninthLevelTotalPerDay',
     'ninthLevel.bonusSpells': 'ninthLevelBonusSpells',
+}
+
+inverse_spell_data = {
+    'zeroLevelTotalKnown': ['zeroLevel', 'totalKnown'],
+    'zeroLevelDC': ['zeroLevel', 'dc'],
+    'zeroLevelTotalPerDay': ['zeroLevel', 'totalPerDay'],
+    'firstLevelTotalKnown': ['firstLevel', 'totalKnown'],
+    'firstLevelDC': ['firstLevel', 'dc'],
+    'firstLevelTotalPerDay': ['firstLevel', 'totalPerDay'],
+    'firstLevelBonusSpells': ['firstLevel', 'bonusSpells'],
+    'secondLevelTotalKnown': ['secondLevel', 'totalKnown'],
+    'secondLevelDC': ['secondLevel', 'dc'],
+    'secondLevelTotalPerDay': ['secondLevel', 'totalPerDay'],
+    'secondLevelBonusSpells': ['secondLevel', 'bonusSpells'],
+    'thirdLevelTotalKnown': ['thirdLevel', 'totalKnown'],
+    'thirdLevelDC': ['thirdLevel', 'dc'],
+    'thirdLevelTotalPerDay': ['thirdLevel', 'totalPerDay'],
+    'thirdLevelBonusSpells': ['thirdLevel', 'bonusSpells'],
+    'fourthLevelTotalKnown': ['fourthLevel', 'totalKnown'],
+    'fourthLevelDC': ['fourthLevel', 'dc'],
+    'fourthLevelTotalPerDay': ['fourthLevel', 'totalPerDay'],
+    'fourthLevelBonusSpells': ['fourthLevel', 'bonusSpells'],
+    'fifthLevelTotalKnown': ['fifthLevel', 'totalKnown'],
+    'fifthLevelDC': ['fifthLevel', 'dc'],
+    'fifthLevelTotalPerDay': ['fifthLevel', 'totalPerDay'],
+    'fifthLevelBonusSpells': ['fifthLevel', 'bonusSpells'],
+    'sixthLevelTotalKnown': ['sixthLevel', 'totalKnown'],
+    'sixthLevelDC': ['sixthLevel', 'dc'],
+    'sixthLevelTotalPerDay': ['sixthLevel', 'totalPerDay'],
+    'sixthLevelBonusSpells': ['sixthLevel', 'bonusSpells'],
+    'seventhLevelTotalKnown': ['seventhLevel', 'totalKnown'],
+    'seventhLevelDC': ['seventhLevel', 'dc'],
+    'seventhLevelTotalPerDay': ['seventhLevel', 'totalPerDay'],
+    'seventhLevelBonusSpells': ['seventhLevel', 'bonusSpells'],
+    'eighthLevelTotalKnown': ['eighthLevel', 'totalKnown'],
+    'eighthLevelDC': ['eighthLevel', 'dc'],
+    'eighthLevelTotalPerDay': ['eighthLevel', 'totalPerDay'],
+    'eighthLevelBonusSpells': ['eighthLevel', 'bonusSpells'],
+    'ninthLevelTotalKnown': ['ninthLevel', 'totalKnown'],
+    'ninthLevelDC': ['ninthLevel', 'dc'],
+    'ninthLevelTotalPerDay': ['ninthLevel', 'totalPerDay'],
+    'ninthLevelBonusSpells': ['ninthLevel', 'bonusSpells'],
 }
 
 defense_data = {

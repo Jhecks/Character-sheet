@@ -124,6 +124,16 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <tabstops>
+  <tabstop>type</tabstop>
+  <tabstop>item</tabstop>
+  <tabstop>location</tabstop>
+  <tabstop>quantity</tabstop>
+  <tabstop>weight</tabstop>
+  <tabstop>notes</tabstop>
+  <tabstop>closeButton</tabstop>
+  <tabstop>deleteButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

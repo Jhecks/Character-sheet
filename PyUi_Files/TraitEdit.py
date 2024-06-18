@@ -54,6 +54,10 @@ class Ui_TraitEdit(object):
 
         self.retranslateUi(TraitEdit)
         QtCore.QMetaObject.connectSlotsByName(TraitEdit)
+        TraitEdit.setTabOrder(self.name, self.type)
+        TraitEdit.setTabOrder(self.type, self.notes)
+        TraitEdit.setTabOrder(self.notes, self.closeButton)
+        TraitEdit.setTabOrder(self.closeButton, self.deleteButton)
 
     def retranslateUi(self, TraitEdit):
         _translate = QtCore.QCoreApplication.translate

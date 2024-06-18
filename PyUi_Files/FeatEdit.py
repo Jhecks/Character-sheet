@@ -54,6 +54,10 @@ class Ui_FeatEdit(object):
 
         self.retranslateUi(FeatEdit)
         QtCore.QMetaObject.connectSlotsByName(FeatEdit)
+        FeatEdit.setTabOrder(self.name, self.type)
+        FeatEdit.setTabOrder(self.type, self.notes)
+        FeatEdit.setTabOrder(self.notes, self.closeButton)
+        FeatEdit.setTabOrder(self.closeButton, self.deleteButton)
 
     def retranslateUi(self, FeatEdit):
         _translate = QtCore.QCoreApplication.translate

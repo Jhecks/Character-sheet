@@ -94,9 +94,6 @@ class Ui_SpellEdit(object):
         self.castButton = QtWidgets.QPushButton(self.widget_2)
         self.castButton.setObjectName("castButton")
         self.horizontalLayout.addWidget(self.castButton)
-        self.atWillButton = QtWidgets.QPushButton(self.widget_2)
-        self.atWillButton.setObjectName("atWillButton")
-        self.horizontalLayout.addWidget(self.atWillButton)
         self.clearButton = QtWidgets.QPushButton(self.widget_2)
         self.clearButton.setObjectName("clearButton")
         self.horizontalLayout.addWidget(self.clearButton)
@@ -118,6 +115,19 @@ class Ui_SpellEdit(object):
 
         self.retranslateUi(SpellEdit)
         QtCore.QMetaObject.connectSlotsByName(SpellEdit)
+        SpellEdit.setTabOrder(self.name, self.level)
+        SpellEdit.setTabOrder(self.level, self.school)
+        SpellEdit.setTabOrder(self.school, self.subschool)
+        SpellEdit.setTabOrder(self.subschool, self.prepared)
+        SpellEdit.setTabOrder(self.prepared, self.cast)
+        SpellEdit.setTabOrder(self.cast, self.notes)
+        SpellEdit.setTabOrder(self.notes, self.description)
+        SpellEdit.setTabOrder(self.description, self.closeButton)
+        SpellEdit.setTabOrder(self.closeButton, self.preparedButton)
+        SpellEdit.setTabOrder(self.preparedButton, self.castButton)
+        SpellEdit.setTabOrder(self.castButton, self.clearButton)
+        SpellEdit.setTabOrder(self.clearButton, self.markButton)
+        SpellEdit.setTabOrder(self.markButton, self.deleteButton)
 
     def retranslateUi(self, SpellEdit):
         _translate = QtCore.QCoreApplication.translate
@@ -133,7 +143,6 @@ class Ui_SpellEdit(object):
         self.closeButton.setText(_translate("SpellEdit", "Close"))
         self.preparedButton.setText(_translate("SpellEdit", "+ Per Day"))
         self.castButton.setText(_translate("SpellEdit", "+ Used"))
-        self.atWillButton.setText(_translate("SpellEdit", "At-Will"))
         self.clearButton.setText(_translate("SpellEdit", "Clear Counts"))
         self.markButton.setText(_translate("SpellEdit", "Mark"))
         self.deleteButton.setText(_translate("SpellEdit", "Delete"))

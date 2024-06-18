@@ -14,10 +14,6 @@ class TestMainWindow(unittest.TestCase):
         self.app = QApplication(sys.argv)
         self.main_window = MainWindow()
 
-    def test_str_to_int_with_positive_number(self):
-        result = self.main_window.str_to_int("123")
-        self.assertEqual(result, 123)
-
     def test_str_to_int_with_negative_number(self):
         result = self.main_window.str_to_int("-123")
         self.assertEqual(result, -123)

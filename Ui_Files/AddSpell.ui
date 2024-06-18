@@ -116,6 +116,16 @@
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
+ <tabstops>
+  <tabstop>url</tabstop>
+  <tabstop>search</tabstop>
+  <tabstop>name</tabstop>
+  <tabstop>school</tabstop>
+  <tabstop>subschool</tabstop>
+  <tabstop>inputHTML</tabstop>
+  <tabstop>displayData</tabstop>
+  <tabstop>save</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

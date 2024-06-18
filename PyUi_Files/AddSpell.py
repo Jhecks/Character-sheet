@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'AddData.ui'
+# Form implementation generated from reading ui file 'AddSpell.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.10
 #
@@ -74,6 +74,13 @@ class Ui_AddData(object):
 
         self.retranslateUi(AddData)
         QtCore.QMetaObject.connectSlotsByName(AddData)
+        AddData.setTabOrder(self.url, self.search)
+        AddData.setTabOrder(self.search, self.name)
+        AddData.setTabOrder(self.name, self.school)
+        AddData.setTabOrder(self.school, self.subschool)
+        AddData.setTabOrder(self.subschool, self.inputHTML)
+        AddData.setTabOrder(self.inputHTML, self.displayData)
+        AddData.setTabOrder(self.displayData, self.save)
 
     def retranslateUi(self, AddData):
         _translate = QtCore.QCoreApplication.translate
