@@ -1,4 +1,14 @@
 from main import *
+import qtTranslateLayer as qtl
+
+
+def str_to_int(string):
+    if string == '' or string == '0':
+        return 0
+    elif string[0] == '-':
+        return 0 - int(string[1:])
+    else:
+        return int(string[1:])
 
 
 class CharacterSheetData:
@@ -698,7 +708,8 @@ class CharacterSheetData:
                     self.notes = ""
                     self.description = ""
                     self.marked = False
-                    self.attributes = ['level', 'prepared', 'cast', 'name', 'school', 'subschool', 'notes', 'marked', 'description']
+                    self.attributes = ['level', 'prepared', 'cast', 'name', 'school', 'subschool', 'notes', 'marked',
+                                       'description']
 
                 def create_from_json(self, json_slotted_data):
                     attributes_str = ['name', 'school', 'subschool', 'notes', 'description']
