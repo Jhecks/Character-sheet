@@ -76,6 +76,7 @@ def clicked_spell_like_button(self):
     self.ui.notes.setPlainText(self.data_frame.spells.spellLikes[index].notes)
     self.ui.description.setHtml(self.data_frame.spells.spellLikes[index].description)
 
+    self.ui.name.currentIndexChanged.connect(lambda: print(f'Current spell name index: {self.ui.name.currentIndex()}'))
     self.ui.name.currentTextChanged.connect(lambda: self.spell_like_name_updated(index, self.ui.name.currentText()))
     self.ui.level.valueChanged.connect(lambda: self.spell_like_level_updated(index))
     self.ui.school.currentTextChanged.connect(
