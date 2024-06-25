@@ -50,15 +50,15 @@ def clicked_trait_button(self):
     self.ui.name.setEditable(True)
     self.ui.name.addItems(self.spell_data.trait_names)
     self.ui.name.setCurrentText(self.data_frame.traits.list[index].name)
-    self.ui.type.setEditable(True)
-    self.ui.type.addItems(self.spell_data.trait_types)
-    self.ui.type.setCurrentText(self.data_frame.traits.list[index].type)
+    self.ui.type.setReadOnly(True)
+    self.ui.type.setText(self.data_frame.traits.list[index].type)
+    self.ui.source.setReadOnly(True)
+    self.ui.source.setText(self.data_frame.traits.list[index].source)
     self.ui.notes.anchorClicked.connect(QtGui.QDesktopServices.openUrl)
     self.ui.notes.setOpenLinks(False)
     self.ui.notes.setHtml(self.data_frame.traits.list[index].notes)
 
     self.ui.name.currentIndexChanged.connect(lambda: self.trait_name_updated(self.ui.name.currentIndex(), index, self.ui.name.currentText()))
-    self.ui.type.currentTextChanged.connect(lambda: self.trait_type_updated(index, self.ui.type.currentText()))
     self.ui.closeButton.clicked.connect(lambda: self.window.close())
     self.ui.deleteButton.clicked.connect(lambda: self.trait_delete(index))
 
@@ -73,7 +73,8 @@ def trait_name_updated(self, trait_name_index, index, text):
     data = self.spell_data.get_trait_data_from_index(trait_name_index)
     self.data_frame.traits.list[index].name = text
     if data:
-        self.ui.type.setCurrentText(data['type'])
+        self.ui.type.setText(data['type'])
+        self.ui.source.setText(data['source'])
         self.ui.notes.setHtml(data['description'])
         self.data_frame.traits.list[index].notes = data['description']
     font_metrics = QFontMetrics(self.traitList[index].font())

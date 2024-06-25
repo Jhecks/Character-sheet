@@ -57,16 +57,14 @@ def clicked_feat_button(self):
     self.ui.name.addItems(self.spell_data.feat_names)
     self.ui.name.setCurrentText(self.data_frame.feats.list[index].name)
     self.ui.additionalNotes.setText(self.data_frame.feats.list[index].additionalNotes)
-    self.ui.type.setEditable(True)
-    self.ui.type.addItems(self.spell_data.feat_types)
-    self.ui.type.setCurrentText(self.data_frame.feats.list[index].type)
-    self.ui.source.addItems(self.spell_data.feat_sources)
-    self.ui.source.setCurrentText(self.data_frame.feats.list[index].source)
+    self.ui.type.setReadOnly(True)
+    self.ui.type.setText(self.data_frame.feats.list[index].type)
+    self.ui.source.setReadOnly(True)
+    self.ui.source.setText(self.data_frame.feats.list[index].source)
     self.ui.notes.setHtml(self.data_frame.feats.list[index].notes)
 
     self.ui.name.currentIndexChanged.connect(lambda: self.feat_name_updated(self.ui.name.currentIndex(), index, self.ui.name.currentText()))
     self.ui.additionalNotes.textChanged.connect(lambda: self.feat_additional_notes_updated(index, self.ui.additionalNotes.text()))
-    self.ui.type.currentTextChanged.connect(lambda: self.feat_type_updated(index, self.ui.type.currentText()))
     self.ui.closeButton.clicked.connect(lambda: self.window.close())
     self.ui.deleteButton.clicked.connect(lambda: self.feat_delete(index))
 
@@ -81,8 +79,8 @@ def feat_name_updated(self, feat_name_index, index, text):
     data = self.spell_data.get_feat_data_from_index(feat_name_index)
     self.data_frame.feats.list[index].name = text
     if data:
-        self.ui.type.setCurrentText(data['type'])
-        self.ui.source.setCurrentText(data['source'])
+        self.ui.type.setText(data['type'])
+        self.ui.source.setText(data['source'])
         self.ui.notes.setHtml(data['description'])
         self.data_frame.feats.list[index].notes = data['description']
     font_metrics = QFontMetrics(self.featList[index].font())

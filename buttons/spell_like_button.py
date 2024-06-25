@@ -64,26 +64,18 @@ def clicked_spell_like_button(self):
 
     self.ui.level.setValue(self.data_frame.spells.spellLikes[index].level)
 
-    # self.ui.school.setEditable(True)
     self.ui.school.setReadOnly(True)
-    # self.ui.school.addItems(self.spell_data.spell_schools)
     self.ui.school.setText(self.data_frame.spells.spellLikes[index].school)
-    self.ui.subschool.setEditable(True)
-    self.ui.subschool.addItems(self.spell_data.spell_subschools)
-    self.ui.subschool.setCurrentText(self.data_frame.spells.spellLikes[index].subschool)
+    self.ui.subschool.setReadOnly(True)
+    self.ui.subschool.setText(self.data_frame.spells.spellLikes[index].subschool)
 
     self.ui.perDay.setValue(self.data_frame.spells.spellLikes[index].prepared)
     self.ui.used.setValue(self.data_frame.spells.spellLikes[index].cast)
     self.ui.notes.setPlainText(self.data_frame.spells.spellLikes[index].notes)
     self.ui.description.setHtml(self.data_frame.spells.spellLikes[index].description)
 
-    # self.ui.name.currentIndexChanged.connect(lambda: print(f'Current spell name index: {self.ui.name.currentIndex()}'))
     self.ui.name.currentIndexChanged.connect(lambda: self.spell_like_name_updated(index, self.ui.name.currentText()))
     self.ui.level.valueChanged.connect(lambda: self.spell_like_level_updated(index))
-    # self.ui.school.currentTextChanged.connect(
-    #     lambda: self.spell_like_school_updated(index, self.ui.school.currentText()))
-    self.ui.subschool.currentTextChanged.connect(
-        lambda: self.spell_like_subschool_updated(index, self.ui.subschool.currentText()))
     self.ui.perDay.valueChanged.connect(lambda: self.spell_like_prepared_updated(index))
     self.ui.used.valueChanged.connect(lambda: self.spell_like_cast_updated(index))
     self.ui.notes.textChanged.connect(lambda: self.spell_like_notes_updated(index))
@@ -169,7 +161,7 @@ def reset_spell_like_position(self):
 def spell_like_name_updated(self, index, text):
     self.data_frame.spells.spellLikes[index].update_data_by_name(text)
     self.ui.school.setText(self.data_frame.spells.spellLikes[index].school)
-    self.ui.subschool.setCurrentText(self.data_frame.spells.spellLikes[index].subschool)
+    self.ui.subschool.setText(self.data_frame.spells.spellLikes[index].subschool)
     self.ui.description.setHtml(self.data_frame.spells.spellLikes[index].description)
     if self.data_frame.spells.spellLikes[index].prepared:
         button_text = '{} ({}/{})'.format(self.data_frame.spells.spellLikes[index].name,

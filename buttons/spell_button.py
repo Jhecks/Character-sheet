@@ -61,16 +61,13 @@ def clicked_spell_button(self, spell_level, grid_layout):
     self.ui.description.setOpenLinks(False)
 
     self.ui.name.setEditable(True)
-    self.ui.name.addItems(self.spell_data.spell_names)
     self.ui.name.setCurrentText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name)
     getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].level = qtl.spell_levels[spell_level]
     self.ui.level.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].level)
-    self.ui.school.setEditable(True)
-    self.ui.school.addItems(self.spell_data.spell_schools)
-    self.ui.school.setCurrentText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school)
-    self.ui.subschool.setEditable(True)
-    self.ui.subschool.addItems(self.spell_data.spell_subschools)
-    self.ui.subschool.setCurrentText(
+    self.ui.school.setReadOnly(True)
+    self.ui.school.setText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school)
+    self.ui.subschool.setReadOnly(True)
+    self.ui.subschool.setText(
         getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].subschool)
     self.ui.prepared.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared)
     self.ui.cast.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].cast)
@@ -81,10 +78,6 @@ def clicked_spell_button(self, spell_level, grid_layout):
     self.ui.name.currentIndexChanged.connect(
         lambda: self.spell_name_updated(index, spell_level, self.ui.name.currentText()))
     self.ui.level.valueChanged.connect(lambda: self.spell_level_updated(index, spell_level))
-    self.ui.school.currentTextChanged.connect(
-        lambda: self.spell_school_updated(index, spell_level, self.ui.school.currentText()))
-    self.ui.subschool.currentTextChanged.connect(
-        lambda: self.spell_subschool_updated(index, spell_level, self.ui.subschool.currentText()))
     self.ui.prepared.valueChanged.connect(lambda: self.spell_prepared_updated(index, spell_level))
     self.ui.cast.valueChanged.connect(lambda: self.spell_cast_updated(index, spell_level))
     self.ui.notes.textChanged.connect(lambda: self.spell_notes_updated(index, spell_level))
@@ -159,16 +152,9 @@ def marked_spell(self, index):
 
 
 def spell_name_updated(self, index, spell_level, text):
-    # data = self.spell_data.get_spell_data_from_index(spell_name_index)
-    # getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name = text
-    # if data:
-    #     self.ui.school.setCurrentText(data['school'])
-    #     self.ui.subschool.setCurrentText(data['subschool'])
-    #     self.ui.description.setHtml(data['description'])
-    #     getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].description = data['description']
     getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].update_data_by_name(text)
-    self.ui.school.setCurrentText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school)
-    self.ui.subschool.setCurrentText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].subschool)
+    self.ui.school.setText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school)
+    self.ui.subschool.setText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].subschool)
     self.ui.description.setHtml(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].description)
     if getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].prepared:
         button_text = '{} ({}/{})'.format(
