@@ -1,34 +1,129 @@
 general_attributes = [
-            'name', 'alignment', 'playerName', 'level', 'deity', 'homeland', 'race',
-            'size', 'gender', 'age', 'height', 'weight', 'hair', 'eyes'
-        ]
+    'name', 'alignment', 'playerName', 'level', 'deity', 'homeland', 'race',
+    'size', 'gender', 'age', 'height', 'weight', 'hair', 'eyes'
+]
+
+ability_editable_attributes = [
+    'str',
+    'tempStr',
+    'int',
+    'tempInt',
+    'dex',
+    'tempDex',
+    'wis',
+    'tempWis',
+    'con',
+    'tempCon',
+    'cha',
+    'tempCha'
+]
+
+defence_ac_editable_attributes = [
+    'ac_armorBonus',
+    'ac_shieldBonus',
+    'ac_sizeModifier',
+    'ac_naturalArmor',
+    'ac_DeflectionModifier',
+    'ac_miscModifier',
+    'ac_touch',
+    'ac_flatFooted',
+    'ac_otherModifiers'
+]
+
+defence_hp_editable_attributes = [
+    'hp_total',
+    'hp_wounds',
+    'hp_nonLethal',
+]
+
+defence_fort_editable_attributes = [
+    'fort_base',
+    'fort_magicModifier',
+    'fort_miscModifier',
+    'fort_tempModifier',
+    'fort_otherModifiers',
+]
+
+defence_reflex_editable_attributes = [
+    'reflex_base',
+    'reflex_magicModifier',
+    'reflex_miscModifier',
+    'reflex_tempModifier',
+    'reflex_otherModifiers',
+]
+
+defence_will_editable_attributes = [
+    'will_base',
+    'will_magicModifier',
+    'will_miscModifier',
+    'will_tempModifier',
+    'will_otherModifiers',
+]
+
+defence_cmd_editable_attributes = [
+    'cmd_sizeModifier',
+    'cmd_miscModifiers',
+    'cmd_tempModifiers'
+]
+
+defence_editable_attributes = [
+    'resistances',
+    'immunities',
+    'damageReduction',
+    'spellResistance',
+]
+
+skills_editable_attributes = [
+    'acrobatics',
+    'appraise', 'bluff', 'climb', 'craft1', 'craft2', 'craft3', 'diplomacy', 'disableDevice', 'disguise',
+    'escapeArtist', 'fly', 'handleAnimal', 'heal', 'intimidate', 'knowledgeArcana', 'knowledgeDungeoneering',
+    'knowledgeEngineering', 'knowledgeGeography', 'knowledgeHistory', 'knowledgeLocal', 'knowledgeNature',
+    'knowledgeNobility', 'knowledgePlanes', 'knowledgeReligion', 'linguistics', 'perception', 'perform1', 'perform2',
+    'profession1', 'profession2', 'senseMotive', 'sleightOfHand', 'spellcraft', 'stealth', 'useMagicDevice', 'survival',
+    'swim', 'ride']
 
 ability_attributes = [
-            'str',
-            'strModifier',
-            'tempStr',
-            'tempStrModifier',
-            # 'int',
-            'intModifier',
-            'tempInt',
-            'tempIntModifier',
-            'dex',
-            'dexModifier',
-            'tempDex',
-            'tempDexModifier',
-            'wis',
-            'wisModifier',
-            'tempWis',
-            'tempWisModifier',
-            'con',
-            'conModifier',
-            'tempCon',
-            'tempConModifier',
-            'cha',
-            'chaModifier',
-            'tempCha',
-            'tempChaModifier'
-        ]
+    'str',
+    'strModifier',
+    'tempStr',
+    'tempStrModifier',
+    # 'int',
+    'intModifier',
+    'tempInt',
+    'tempIntModifier',
+    'dex',
+    'dexModifier',
+    'tempDex',
+    'tempDexModifier',
+    'wis',
+    'wisModifier',
+    'tempWis',
+    'tempWisModifier',
+    'con',
+    'conModifier',
+    'tempCon',
+    'tempConModifier',
+    'cha',
+    'chaModifier',
+    'tempCha',
+    'tempChaModifier'
+]
+
+offence_attributes = [
+    'initiative_miscModifier',
+    'bab',
+    'conditionalOffenseModifiers',
+    'speed_base',
+    'speed_withArmor',
+    'speed_fly',
+    'speed_swim',
+    'speed_climb',
+    'speed_burrow',
+    'speed_tempModifiers',
+    'cmb_sizeModifier',
+    'cmb_miscModifiers',
+    'cmb_tempModifiers'
+]
 
 skill_attributes = {
     'acrobatics': 'dex',
@@ -71,6 +166,25 @@ skill_attributes = {
     'swim': 'str',
     'useMagicDevice': 'cha'
 }
+
+skill_craft_perform_prof_attributes = [
+    'craft10',
+    'craft20',
+    'craft30',
+    'perform10',
+    'perform20',
+    'profession10',
+    'profession20'
+]
+
+money_attributes = [
+    'pp',
+    'gp',
+    'sp',
+    'cp',
+    'gems',
+    'other'
+]
 
 skill_ranks = {
     'acrobatics': 'acrobatics3',
@@ -280,6 +394,48 @@ spells_data = {
     'ninthLevel.dc': 'ninthLevelDC',
     'ninthLevel.totalPerDay': 'ninthLevelTotalPerDay',
     'ninthLevel.bonusSpells': 'ninthLevelBonusSpells',
+}
+
+inverse_spell_data = {
+    'zeroLevelTotalKnown': ['zeroLevel', 'totalKnown'],
+    'zeroLevelDC': ['zeroLevel', 'dc'],
+    'zeroLevelTotalPerDay': ['zeroLevel', 'totalPerDay'],
+    'firstLevelTotalKnown': ['firstLevel', 'totalKnown'],
+    'firstLevelDC': ['firstLevel', 'dc'],
+    'firstLevelTotalPerDay': ['firstLevel', 'totalPerDay'],
+    'firstLevelBonusSpells': ['firstLevel', 'bonusSpells'],
+    'secondLevelTotalKnown': ['secondLevel', 'totalKnown'],
+    'secondLevelDC': ['secondLevel', 'dc'],
+    'secondLevelTotalPerDay': ['secondLevel', 'totalPerDay'],
+    'secondLevelBonusSpells': ['secondLevel', 'bonusSpells'],
+    'thirdLevelTotalKnown': ['thirdLevel', 'totalKnown'],
+    'thirdLevelDC': ['thirdLevel', 'dc'],
+    'thirdLevelTotalPerDay': ['thirdLevel', 'totalPerDay'],
+    'thirdLevelBonusSpells': ['thirdLevel', 'bonusSpells'],
+    'fourthLevelTotalKnown': ['fourthLevel', 'totalKnown'],
+    'fourthLevelDC': ['fourthLevel', 'dc'],
+    'fourthLevelTotalPerDay': ['fourthLevel', 'totalPerDay'],
+    'fourthLevelBonusSpells': ['fourthLevel', 'bonusSpells'],
+    'fifthLevelTotalKnown': ['fifthLevel', 'totalKnown'],
+    'fifthLevelDC': ['fifthLevel', 'dc'],
+    'fifthLevelTotalPerDay': ['fifthLevel', 'totalPerDay'],
+    'fifthLevelBonusSpells': ['fifthLevel', 'bonusSpells'],
+    'sixthLevelTotalKnown': ['sixthLevel', 'totalKnown'],
+    'sixthLevelDC': ['sixthLevel', 'dc'],
+    'sixthLevelTotalPerDay': ['sixthLevel', 'totalPerDay'],
+    'sixthLevelBonusSpells': ['sixthLevel', 'bonusSpells'],
+    'seventhLevelTotalKnown': ['seventhLevel', 'totalKnown'],
+    'seventhLevelDC': ['seventhLevel', 'dc'],
+    'seventhLevelTotalPerDay': ['seventhLevel', 'totalPerDay'],
+    'seventhLevelBonusSpells': ['seventhLevel', 'bonusSpells'],
+    'eighthLevelTotalKnown': ['eighthLevel', 'totalKnown'],
+    'eighthLevelDC': ['eighthLevel', 'dc'],
+    'eighthLevelTotalPerDay': ['eighthLevel', 'totalPerDay'],
+    'eighthLevelBonusSpells': ['eighthLevel', 'bonusSpells'],
+    'ninthLevelTotalKnown': ['ninthLevel', 'totalKnown'],
+    'ninthLevelDC': ['ninthLevel', 'dc'],
+    'ninthLevelTotalPerDay': ['ninthLevel', 'totalPerDay'],
+    'ninthLevelBonusSpells': ['ninthLevel', 'bonusSpells'],
 }
 
 defense_data = {
