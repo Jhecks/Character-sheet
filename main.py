@@ -5,8 +5,6 @@ import time
 import tkinter
 import qdarktheme
 
-import dataFrame
-import qtTranslateLayer as qTL
 import shutil
 from datetime import datetime
 from PyQt5 import QtWidgets, QtGui
@@ -17,9 +15,10 @@ from tkinter import filedialog
 
 from PyUi_Files import CharacterSheet
 
-from auxiliary import data_base_handler as dBH, jsonParser, data_from_db
+from auxiliary import data_base_handler as dbh, jsonParser, data_frame, data_from_db, qt_translate_layer as qtl
 from buttons import (spell_like_button, spell_button, gear_button,
-                     feat_button, ability_button, trait_button, ac_data, attack_data, update_window, add_or_edit_data)
+                     feat_button, ability_button, trait_button, ac_data,
+                     attack_data, update_window, add_or_edit_data)
 
 
 class Themes(Enum):
@@ -36,6 +35,7 @@ def str_to_int(string):
         return int(string[1:])
 
 
+# noinspection PyUnresolvedReferences
 class ButtonListWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -47,7 +47,7 @@ class ButtonListWindow(QMainWindow):
         # Create a QVBoxLayout
         layout = QVBoxLayout()
 
-        names = dBH.get_character_sheet_names()
+        names = dbh.get_character_sheet_names()
 
         # Create a button for each name
         for name in names:
@@ -66,6 +66,7 @@ class ButtonListWindow(QMainWindow):
 
     def import_character(self):
         # Code to import a character goes here
+        # TODO: Implement this
         pass
 
     def open_main_window(self, name):
@@ -75,18 +76,18 @@ class ButtonListWindow(QMainWindow):
         self.close()
 
 
+# noinspection PyUnresolvedReferences
 class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)
-        self.data_frame = dataFrame.CharacterSheetData()
-        self.previous_frame = dataFrame.CharacterSheetData()
+        self.data_frame = data_frame.CharacterSheetData()
+        self.previous_frame = data_frame.CharacterSheetData()
         self.actualTheme = None
         self.setupUi(self)
         self.set_dark_theme()
         self.icon_path = os.getcwd() + '\\_internal\\icon.ico'
         self.setWindowIcon(QtGui.QIcon(self.icon_path))
         self.setWindowTitle('Pathfinder Character Sheet')
-
 
         self.file_path = ''
 
@@ -114,48 +115,48 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         # self.menuEditTrait.triggered.connect(self.editTraitData)
 
         # General data update
-        for attr in qTL.general_attributes:
+        for attr in qtl.general_attributes:
             getattr(self, attr).textEdited.connect(self.general_changed)
 
         # Ability data update
-        for attr in qTL.ability_editable_attributes:
+        for attr in qtl.ability_editable_attributes:
             getattr(self, attr).textEdited.connect(self.abilities_changed)
 
         # Defence data update
-        for attr in qTL.defence_ac_editable_attributes:
+        for attr in qtl.defence_ac_editable_attributes:
             getattr(self, attr).textEdited.connect(self.defense_ac_changed)
 
-        for attr in qTL.defence_hp_editable_attributes:
+        for attr in qtl.defence_hp_editable_attributes:
             getattr(self, attr).textEdited.connect(self.defense_hp_changed)
 
-        for attr in qTL.defence_fort_editable_attributes:
+        for attr in qtl.defence_fort_editable_attributes:
             getattr(self, attr).textEdited.connect(self.defense_fort_changed)
 
-        for attr in qTL.defence_reflex_editable_attributes:
+        for attr in qtl.defence_reflex_editable_attributes:
             getattr(self, attr).textEdited.connect(self.defense_reflex_changed)
 
-        for attr in qTL.defence_will_editable_attributes:
+        for attr in qtl.defence_will_editable_attributes:
             getattr(self, attr).textEdited.connect(self.defense_will_changed)
 
-        for attr in qTL.defence_editable_attributes:
+        for attr in qtl.defence_editable_attributes:
             getattr(self, attr).textEdited.connect(self.defense_changed)
 
-        for attr in qTL.defence_cmd_editable_attributes:
+        for attr in qtl.defence_cmd_editable_attributes:
             getattr(self, attr).textEdited.connect(self.defense_cmd_changed)
 
         # Offense data update
-        for attr in qTL.offence_attributes:
+        for attr in qtl.offence_attributes:
             getattr(self, attr).textEdited.connect(getattr(self, attr + '_changed'))
 
         # skills logic
-        for attr in qTL.skills_editable_attributes:
+        for attr in qtl.skills_editable_attributes:
             getattr(self, attr).toggled.connect(self.checked_skill)
             getattr(self, attr + '3').textEdited.connect(self.ranks_changed)
             getattr(self, attr + '5').textEdited.connect(self.racial_changed)
             getattr(self, attr + '6').textEdited.connect(self.trait_changed)
             getattr(self, attr + '7').textEdited.connect(self.misc_changed)
 
-        for attr in qTL.skill_craft_perform_prof_attributes:
+        for attr in qtl.skill_craft_perform_prof_attributes:
             getattr(self, attr).textEdited.connect(self.skill_name_changed)
 
         self.conditionalModifiers.textEdited.connect(self.conditionalModifiers_changed)
@@ -164,10 +165,10 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.levelNext.textEdited.connect(self.level_next_changed)
 
         # Money change
-        for attr in qTL.money_attributes:
+        for attr in qtl.money_attributes:
             getattr(self, attr).textEdited.connect(self.money_changed)
 
-        for data_frame_path, gui_path in qTL.spells_data.items():
+        for data_frame_path, gui_path in qtl.spells_data.items():
             getattr(self, gui_path).textEdited.connect(lambda: self.general_spell_data_changed())
 
         self.spellsConditionalModifiers.textEdited.connect(lambda: self.spells_conditional_modifiers_changed())
@@ -391,43 +392,43 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
 
     # Defence data update
     def defense_ac_changed(self):
-        setattr(self.data_frame.defense.ac, qTL.inverse_ac_defense_data.get(self.sender().objectName()),
+        setattr(self.data_frame.defense.ac, qtl.inverse_ac_defense_data.get(self.sender().objectName()),
                 getattr(self, self.sender().objectName()).text())
         self.data_frame.update_data()
         self.update_window()
 
     def defense_hp_changed(self):
-        setattr(self.data_frame.defense.hp, qTL.inverse_hp_defense_data.get(self.sender().objectName()),
+        setattr(self.data_frame.defense.hp, qtl.inverse_hp_defense_data.get(self.sender().objectName()),
                 getattr(self, self.sender().objectName()).text())
         self.data_frame.update_data()
         self.update_window()
 
     def defense_fort_changed(self):
-        setattr(self.data_frame.defense.fort, qTL.inverse_fort_defense_data.get(self.sender().objectName()),
+        setattr(self.data_frame.defense.fort, qtl.inverse_fort_defense_data.get(self.sender().objectName()),
                 getattr(self, self.sender().objectName()).text())
         self.data_frame.update_data()
         self.update_window()
 
     def defense_reflex_changed(self):
-        setattr(self.data_frame.defense.reflex, qTL.inverse_reflex_defense_data.get(self.sender().objectName()),
+        setattr(self.data_frame.defense.reflex, qtl.inverse_reflex_defense_data.get(self.sender().objectName()),
                 getattr(self, self.sender().objectName()).text())
         self.data_frame.update_data()
         self.update_window()
 
     def defense_will_changed(self):
-        setattr(self.data_frame.defense.will, qTL.inverse_will_defense_data.get(self.sender().objectName()),
+        setattr(self.data_frame.defense.will, qtl.inverse_will_defense_data.get(self.sender().objectName()),
                 getattr(self, self.sender().objectName()).text())
         self.data_frame.update_data()
         self.update_window()
 
     def defense_cmd_changed(self):
-        setattr(self.data_frame.defense.cmd, qTL.inverse_cmd_defense_data.get(self.sender().objectName()),
+        setattr(self.data_frame.defense.cmd, qtl.inverse_cmd_defense_data.get(self.sender().objectName()),
                 getattr(self, self.sender().objectName()).text())
         self.data_frame.update_data()
         self.update_window()
 
     def defense_changed(self):
-        setattr(self.data_frame.defense, qTL.inverse_defense_data.get(self.sender().objectName()),
+        setattr(self.data_frame.defense, qtl.inverse_defense_data.get(self.sender().objectName()),
                 getattr(self, self.sender().objectName()).text())
         self.data_frame.update_data()
         self.update_window()
@@ -518,7 +519,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
 
     def skill_name_changed(self):
         getattr(self.data_frame.skills,
-                self.sender().objectName()[:-1]).name = self.sender().text()  # getattr(self, skill + '0').text()
+                self.sender().objectName()[:-1]).name = self.sender().text()
         self.data_frame.update_data()
         self.update_window()
 
@@ -561,7 +562,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         setattr(self.data_frame.money, self.sender().objectName(), getattr(self, self.sender().objectName()).text())
 
     def general_spell_data_changed(self):
-        self.data_frame.spells.set_attr(qTL.inverse_spell_data[self.sender().objectName()], self.sender().text())
+        self.data_frame.spells.set_attr(qtl.inverse_spell_data[self.sender().objectName()], self.sender().text())
 
     def spells_conditional_modifiers_changed(self):
         self.data_frame.spells.spellsConditionalModifiers = self.sender().text()
@@ -682,7 +683,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
 
     def selectFile(self, name=None):
         if name:
-            self.data_frame = jsonParser.json_from_db_to_character_sheet(dBH.get_character_sheet(name))
+            self.data_frame = jsonParser.json_from_db_to_character_sheet(dbh.get_character_sheet(name))
         else:
             if self.data_frame != self.previous_frame:
                 self.saveFile()
@@ -738,7 +739,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
             return
         self.backup_character_json()
         jsonParser.character_sheet_to_json(self.file_path, self.data_frame.create_json())
-        dBH.save_character_sheet(self.data_frame.general.name, self.data_frame.create_json())
+        dbh.save_character_sheet(self.data_frame.general.name, self.data_frame.create_json())
 
     def backup_character_json(self):
         folder_path = os.getcwd() + '\\_internal\\_backup'
@@ -768,7 +769,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         if self.file_path == '':
             return
         jsonParser.character_sheet_to_json(self.file_path, self.data_frame.create_json())
-        dBH.save_character_sheet(self.data_frame.general.name, self.data_frame.create_json())
+        dbh.save_character_sheet(self.data_frame.general.name, self.data_frame.create_json())
 
     # adding or editing data in database
     addOrEditSpell = add_or_edit_data.addOrEditSpell

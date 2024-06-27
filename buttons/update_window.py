@@ -1,6 +1,6 @@
 import operator
 
-import qtTranslateLayer as qtl
+from auxiliary import qt_translate_layer as qtl
 
 
 def update_window(self):

@@ -173,7 +173,7 @@ def copy_data_from_feats_temp_to_feats():
     # Copy data
     cursor.execute("""
         INSERT INTO traits (name, type, source, full_text, url)
-        SELECT name, type, source, full_text, url FROM traits_temp
+        SELECT name, type, source, full_text, url FROM traits
     """)
 
     conn.commit()
@@ -184,20 +184,21 @@ def copy_data_from_feats_temp_to_feats():
 
 
 def print_non_unique_combinations():
-    conn = sqlite3.connect(os.getcwd() + '\\_internal\\_data_files\\data_base.db')
+    path = r'S:\Programs\Own Projects\Character Sheet\Character-sheet\_internal\_data_files\data_base.db'
+    conn = sqlite3.connect(path)
     cursor = conn.cursor()
 
     # Query for non-unique combinations
     cursor.execute("""
-        SELECT name, type, COUNT(*)
-        FROM feats_csv
-        GROUP BY name, type, source
+        SELECT name, type, source, COUNT(*)
+        FROM feats
+        GROUP BY name, type
         HAVING COUNT(*) > 1
     """)
 
     # Print the non-unique combinations
     for row in cursor.fetchall():
-        print(f"Name: {row[0]}, Type: {row[1]}, Count: {row[2]}")
+        print(f"Name: {row[0]}, Type: {row[1]}, Source: {row[2]}, Count: {row[3]}")
 
     conn.close()
 

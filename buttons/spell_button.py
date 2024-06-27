@@ -1,4 +1,4 @@
-import qtTranslateLayer as qtl
+from auxiliary import qt_translate_layer as qtl
 from PyUi_Files.SpellEdit import Ui_SpellEdit
 from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtCore import Qt

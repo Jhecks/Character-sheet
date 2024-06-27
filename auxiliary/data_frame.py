@@ -1,8 +1,7 @@
 import re
 
 from main import *
-import qtTranslateLayer as qtl
-from auxiliary import data_from_db
+from auxiliary import data_from_db, qt_translate_layer as qtl
 import html2text
 
 

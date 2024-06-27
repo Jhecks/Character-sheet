@@ -1,12 +1,12 @@
 import json
-import dataFrame
+from auxiliary import data_frame as df
 
 
 def json_to_character_sheet(path):
     try:
         with (open(path, 'r', encoding='utf-8') as input_file):
             data = json.load(input_file)
-            data_frame = dataFrame.CharacterSheetData()
+            data_frame = df.CharacterSheetData()
             data_frame.create_from_json(data)
             return data_frame
     except Exception as inst:
@@ -16,7 +16,7 @@ def json_to_character_sheet(path):
 
 
 def json_from_db_to_character_sheet(data):
-    data_frame = dataFrame.CharacterSheetData()
+    data_frame = df.CharacterSheetData()
     data = json.loads(data)
     data_frame.create_from_json(data)
     return data_frame

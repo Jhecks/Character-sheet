@@ -4,7 +4,7 @@ import unittest
 from PyQt5 import QtCore
 
 import main
-import qtTranslateLayer as qtl
+from auxiliary import qt_translate_layer as qtl
 
 from PyQt5.QtWidgets import QApplication
 
