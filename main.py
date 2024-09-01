@@ -10,81 +10,80 @@ from datetime import datetime
 from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QShortcut, QPushButton, QMainWindow, QVBoxLayout
-from enum import Enum
 from tkinter import filedialog
 
+import auxiliary.from_main
 from PyUi_Files import CharacterSheet
 
 from auxiliary import data_base_handler as dbh, jsonParser, data_frame, data_from_db, qt_translate_layer as qtl
+from auxiliary.from_main import Themes
+from auxiliary.from_main import input_settings
 from buttons import (spell_like_button, spell_button, gear_button,
                      feat_button, ability_button, trait_button, ac_data,
                      attack_data, update_window, add_or_edit_data)
 
 
-class Themes(Enum):
-    dark = 0
-    light = 1
-
-
-def str_to_int(string):
-    if string == '' or string == '0':
-        return 0
-    elif string[0] == '-':
-        return 0 - int(string[1:])
-    else:
-        return int(string[1:])
-
-
 # noinspection PyUnresolvedReferences
-class ButtonListWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
+# class ButtonListWindow(QMainWindow):
+#     def __init__(self):
+#         super().__init__()
+#
+#         # Set up window
+#         self.setWindowTitle("Button List")
+#         self.setGeometry(100, 100, 200, 200)
+#
+#         # Create a QVBoxLayout
+#         layout = QVBoxLayout()
+#
+#         names = dbh.get_character_sheet_names()
+#
+#         # Create a button for each name
+#         for name in names:
+#             button = QPushButton(name)
+#             button.clicked.connect(lambda checked, n=name: self.open_main_window(n))
+#             layout.addWidget(button)
+#
+#         import_button = QPushButton("Import Character")
+#         import_button.clicked.connect(self.import_character)
+#         layout.addWidget(import_button)
+#
+#         # Create a QWidget and set the layout
+#         widget = QtWidgets.QWidget()
+#         widget.setLayout(layout)
+#         self.setCentralWidget(widget)
+#
+#     def import_character(self):
+#         # Code to import a character goes here
+#         # TODO: Implement this
+#         pass
+#
+#     def open_main_window(self, name):
+#         self.main_window = MainWindow()
+#         self.main_window.show()
+#         self.main_window.selectFile(name)
+#         self.close()
 
-        # Set up window
-        self.setWindowTitle("Button List")
-        self.setGeometry(100, 100, 200, 200)
 
-        # Create a QVBoxLayout
-        layout = QVBoxLayout()
-
-        names = dbh.get_character_sheet_names()
-
-        # Create a button for each name
-        for name in names:
-            button = QPushButton(name)
-            button.clicked.connect(lambda checked, n=name: self.open_main_window(n))
-            layout.addWidget(button)
-
-        import_button = QPushButton("Import Character")
-        import_button.clicked.connect(self.import_character)
-        layout.addWidget(import_button)
-
-        # Create a QWidget and set the layout
-        widget = QtWidgets.QWidget()
-        widget.setLayout(layout)
-        self.setCentralWidget(widget)
-
-    def import_character(self):
-        # Code to import a character goes here
-        # TODO: Implement this
-        pass
-
-    def open_main_window(self, name):
-        self.main_window = MainWindow()
-        self.main_window.show()
-        self.main_window.selectFile(name)
-        self.close()
-
-
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyArgumentList
 class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)
         self.data_frame = data_frame.CharacterSheetData()
         self.previous_frame = data_frame.CharacterSheetData()
-        self.actualTheme = None
+
+        settings = input_settings()
+        self.actualTheme = Themes(settings['theme'])
         self.setupUi(self)
-        self.set_dark_theme()
+        if self.actualTheme == Themes.dark:
+            self.set_dark_theme()
+        else:
+            self.set_light_theme()
+        position = self.pos()
+        position.setX(settings['window_position'][0])
+        position.setY(settings['window_position'][1])
+        self.move(position)
+        self.resize(int(settings['window_size'][0]), int(settings['window_size'][1]))
+
         self.icon_path = os.getcwd() + '\\_internal\\icon.ico'
         self.setWindowIcon(QtGui.QIcon(self.icon_path))
         self.setWindowTitle('Pathfinder Character Sheet')
@@ -278,6 +277,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
         self.spell_data = data_from_db.spell_data
 
     def closeEvent(self, event):
+        auxiliary.from_main.export_settings(self.actualTheme.value, (self.pos().x(), self.pos().y()),
+                                            (self.frameGeometry().width(), self.frameGeometry().height()))
         if self.data_frame != self.previous_frame:
             self.saveFile()
 
@@ -336,7 +337,8 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
     add_feat = feat_button.add_feat
     clicked_feat_button = feat_button.clicked_feat_button
     feat_name_updated = feat_button.feat_name_updated
-    feat_type_updated = feat_button.feat_type_updated
+    # feat_type_updated = feat_button.feat_type_updated
+    feat_source_updated = feat_button.feat_source_updated
     feat_delete = feat_button.feat_delete
     reset_feats_positions = feat_button.reset_feats_positions
 
@@ -353,7 +355,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
     add_trait = trait_button.add_trait
     clicked_trait_button = trait_button.clicked_trait_button
     trait_name_updated = trait_button.trait_name_updated
-    trait_type_updated = trait_button.trait_type_updated
+    trait_source_updated = trait_button.trait_source_updated
     trait_delete = trait_button.trait_delete
     reset_traits_positions = trait_button.reset_traits_positions
 
@@ -790,6 +792,7 @@ class MainWindow(QtWidgets.QMainWindow, CharacterSheet.Ui_MainWindow):
     editSpellData = add_or_edit_data.editSpellData
     editSpellData_name_updated = add_or_edit_data.editSpellData_name_updated
     editSpellData_save = add_or_edit_data.editSpellData_save
+    editSpellData_delete = add_or_edit_data.editSpellData_delete
 
     # TODO: find correct place
     feat_additional_notes_updated = feat_button.feat_additional_notes_updated

@@ -90,6 +90,12 @@
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuChange_source">
+    <property name="title">
+     <string>Change source</string>
+    </property>
+   </widget>
+   <addaction name="menuChange_source"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>

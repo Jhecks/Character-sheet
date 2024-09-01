@@ -90,11 +90,11 @@ def clicked_spell_like_button(self):
     self.ui.atWillButton.clicked.connect(lambda: self.at_will(index))
     self.ui.deleteButton.clicked.connect(lambda: self.spell_like_delete(index))
 
-    self.window.show()
     position = self.pos()
     position.setX(self.pos().x() + 120)
     position.setY(self.pos().y() + 250)
     self.window.move(position)
+    self.window.show()
 
 
 def increase_per_day(self, index):

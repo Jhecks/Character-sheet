@@ -65,24 +65,49 @@ def clicked_feat_button(self):
 
     self.ui.name.currentIndexChanged.connect(lambda: self.feat_name_updated(self.ui.name.currentIndex(), index, self.ui.name.currentText()))
     self.ui.additionalNotes.textChanged.connect(lambda: self.feat_additional_notes_updated(index, self.ui.additionalNotes.text()))
+    self.ui.source.textChanged.connect(lambda: self.feat_source_updated(self.ui.name.currentIndex(), index, self.ui.source.text()))
     self.ui.closeButton.clicked.connect(lambda: self.window.close())
     self.ui.deleteButton.clicked.connect(lambda: self.feat_delete(index))
 
-    self.window.show()
     position = self.pos()
     position.setX(self.pos().x() + 280)
     position.setY(self.pos().y() + 370)
     self.window.move(position)
+    self.window.show()
 
 
 def feat_name_updated(self, feat_name_index, index, text):
     data = self.spell_data.get_feat_data_from_index(feat_name_index)
     self.data_frame.feats.list[index].name = text
+    # TODO: fix opened file option to select other source
+    actions = self.ui.menuChange_source.actions()
+    for action in actions:
+        self.ui.menuChange_source.removeAction(action)
     if data:
-        self.ui.type.setText(data['type'])
-        self.ui.source.setText(data['source'])
-        self.ui.notes.setHtml(data['description'])
-        self.data_frame.feats.list[index].notes = data['description']
+        if type(data['source']) is list:
+            i = 0
+            if self.ui.source.text() in data['source']:
+                i = data['source'].index(self.ui.source.text())
+            self.ui.type.setText(data['type'][i])
+            self.ui.source.setText(data['source'][i])
+            self.ui.notes.setHtml(data['description'][i])
+            self.data_frame.feats.list[index].type = data['type'][i]
+            self.data_frame.feats.list[index].source = data['source'][i]
+            self.data_frame.feats.list[index].notes = data['description'][i]
+
+            for source_data in data['source']:
+                action = QtWidgets.QAction(source_data, self)
+                self.ui.menuChange_source.addAction(action)
+                action.triggered.connect(lambda checked, text=source_data: self.ui.source.setText(text))
+
+        else:
+            self.ui.type.setText(data['type'])
+            self.ui.source.setText(data['source'])
+            self.ui.notes.setHtml(data['description'])
+            self.data_frame.feats.list[index].type = data['type']
+            self.data_frame.feats.list[index].source = data['source']
+            self.data_frame.feats.list[index].notes = data['description']
+
     font_metrics = QFontMetrics(self.featList[index].font())
     text_width = font_metrics.width(self.data_frame.feats.list[index].name)
     button_width = self.featList[index].width()
@@ -95,15 +120,21 @@ def feat_name_updated(self, feat_name_index, index, text):
                                                       "200; }")
         self.featList[index].setToolTip(self.data_frame.feats.list[index].name)
     self.featList[index].setText(f'{self.data_frame.feats.list[index].name}')
+    print(self.ui.notes.toHtml())
 
 
 def feat_additional_notes_updated(self, index, text):
     self.data_frame.feats.list[index].additional_notes = text
 
 
-def feat_type_updated(self, index, text):
-    self.data_frame.feats.list[index].type = text
-    self.featList[index].setText(f'{self.data_frame.feats.list[index].name}')
+def feat_source_updated(self, feat_name_index, index, text):
+    data = self.spell_data.get_feat_data_from_index(feat_name_index)
+    for i in range(len(data['source'])):
+        if data['source'][i] == text:
+            self.ui.type.setText(data['type'][i])
+            self.ui.notes.setHtml(data['description'][i])
+    self.data_frame.feats.list[index].source = text
+    self.data_frame.feats.list[index].description = self.ui.notes.toHtml()
 
 
 def feat_delete(self, index, reset=False):

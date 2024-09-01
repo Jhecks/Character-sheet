@@ -283,3 +283,10 @@ def editSpellData_save(self):
     input_data_dict = dict(zip(keys, input_data))
     self.spell_data.update_spell_data(input_data_dict, update=True)
     self.window.close()
+
+
+def editSpellData_delete(self):
+    if self.ui.name.currentText() == '':
+        return
+    self.spell_data.delete_spell_data(self.ui.name.currentText())
+    self.window.close()

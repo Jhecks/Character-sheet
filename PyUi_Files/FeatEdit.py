@@ -59,10 +59,13 @@ class Ui_FeatEdit(object):
         self.menubar = QtWidgets.QMenuBar(FeatEdit)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 420, 21))
         self.menubar.setObjectName("menubar")
+        self.menuChange_source = QtWidgets.QMenu(self.menubar)
+        self.menuChange_source.setObjectName("menuChange_source")
         FeatEdit.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(FeatEdit)
         self.statusbar.setObjectName("statusbar")
         FeatEdit.setStatusBar(self.statusbar)
+        self.menubar.addAction(self.menuChange_source.menuAction())
 
         self.retranslateUi(FeatEdit)
         QtCore.QMetaObject.connectSlotsByName(FeatEdit)
@@ -83,3 +86,4 @@ class Ui_FeatEdit(object):
         self.label_3.setText(_translate("FeatEdit", "Description"))
         self.label_4.setText(_translate("FeatEdit", "Source"))
         self.label_5.setText(_translate("FeatEdit", "Notes (Specialisation, Proficiency, ...)"))
+        self.menuChange_source.setTitle(_translate("FeatEdit", "Change source"))

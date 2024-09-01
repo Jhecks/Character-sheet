@@ -1,6 +1,6 @@
 import re
 
-from main import *
+from auxiliary.from_main import str_to_int
 from auxiliary import data_from_db, qt_translate_layer as qtl
 import html2text
 
@@ -1201,23 +1201,35 @@ class CharacterSheetData:
                 self.name = name
                 self.notes = notes
                 self.source = source
+                self.unresolved = False
                 self.attributes = ['type', 'name', 'notes']
 
             def create_from_json(self, json_data):
                 self.name = json_data.get('name', '')
+                self.source = json_data.get('source', '')
                 data = dataFromDB.get_trait_data_from_name(self.name)
                 if data:
-                    self.name = data['name']
-                    self.type = data['type']
-                    self.source = data['source']
-                    self.notes = data['description']
+                    if type(data['type']) is list:
+                        i = 0
+                        if self.source in data['source']:
+                            i = data['source'].index(self.source)
+                        self.name = data['name'][i]
+                        self.type = data['type'][i]
+                        self.source = data['source'][i]
+                        self.notes = data['description'][i]
+                        self.unresolved = True
+                    else:
+                        self.name = data['name']
+                        self.type = data['type']
+                        self.source = data['source']
+                        self.notes = data['description']
                 else:
                     attributes = ['type', 'name', 'notes']
                     for attribute in attributes:
                         setattr(self, attribute, json_data.get(attribute, ''))
 
             def create_json(self):
-                trait_data = {'name': self.name, 'type': self.type, 'notes': html2text.html2text(self.notes)}
+                trait_data = {'name': self.name, 'type': self.type, 'notes': html2text.html2text(self.notes), 'source': self.source}
                 return trait_data
 
             def __eq__(self, other):
@@ -1322,13 +1334,28 @@ class CharacterSheetData:
 
             def create_from_json(self, json_data):
                 self.name = json_data.get('name', '')
+                self.source = json_data.get('source', '')
                 data = dataFromDB.get_feat_data_from_name(self.name)
                 if data:
-                    self.name = data['name']
-                    self.type = data['type']
-                    self.source = data['source']
-                    self.notes = data['description']
-                    self.additionalNotes = json_data.get('additionalNotes', '')
+                    if type(data['type']) is list:
+                        i = 0
+                        if self.source in data['source']:
+                            i = data['source'].index(self.source)
+                        self.name = data['name'][i]
+                        self.type = data['type'][i]
+                        self.source = data['source'][i]
+                        self.notes = data['description'][i]
+                        self.unresolved = True
+                    else:
+                        self.name = data['name']
+                        self.type = data['type']
+                        self.source = data['source']
+                        self.notes = data['description']
+                    # self.name = data['name']
+                    # self.type = data['type']
+                    # self.source = data['source']
+                    # self.notes = data['description']
+                    # self.additionalNotes = json_data.get('additionalNotes', '')
                 elif self.try_to_extract_additional_notes(self.name):
                     name_data = self.try_to_extract_additional_notes(self.name)
                     if name_data:
@@ -1336,10 +1363,23 @@ class CharacterSheetData:
                         self.additionalNotes = name_data[1]
                         data = dataFromDB.get_feat_data_from_name(self.name)
                         if data:
-                            self.name = data['name']
-                            self.type = data['type']
-                            self.source = data['source']
-                            self.notes = data['description']
+                            if type(data['type']) is list:
+                                i = 0
+                                if self.source in data['source']:
+                                    i = data['source'].index(self.source)
+                                self.name = data['name'][i]
+                                self.type = data['type'][i]
+                                self.source = data['source'][i]
+                                self.notes = data['description'][i]
+                            else:
+                                self.name = data['name']
+                                self.type = data['type']
+                                self.source = data['source']
+                                self.notes = data['description']
+                            # self.name = data['name']
+                            # self.type = data['type']
+                            # self.source = data['source']
+                            # self.notes = data['description']
                 else:
                     self.type = json_data.get('type', '')
                     self.notes = json_data.get('notes', '')
@@ -1352,7 +1392,7 @@ class CharacterSheetData:
                 return [re.sub(r'\(.*?\)', '', string).strip(), result[0][1:-1].strip()]
 
             def create_json(self):
-                feat_data = {'name': self.name, 'type': self.type, 'additionalNotes': self.additionalNotes,
+                feat_data = {'name': self.name, 'type': self.type, 'source': self.source, 'additionalNotes': self.additionalNotes,
                              'notes': html2text.html2text(self.notes)}
                 return feat_data
 

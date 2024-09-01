@@ -98,17 +98,21 @@ class DataFromDB:
             })
 
         data_from_db = dbh.get_data_from_db_by_feat_name(self.feat_names[index_of_feat_name])
-        # TODO: Fix multiple entries for traits
-        data_from_db = data_from_db[0]
-        html_data = data_from_db[1]
-        html_data = html_data.replace('<link rel="stylesheet"href="PF.css">', '')
-
-        return ({
-            'name': self.feat_names[index_of_feat_name],
-            'type': data_from_db[0],
-            'source': data_from_db[2],
-            'description': html_data
-        })
+        if len(data_from_db) == 1:
+            data_from_db = data_from_db[0]
+            return ({
+                'name': self.trait_names[index_of_feat_name],
+                'type': data_from_db[1],
+                'source': data_from_db[3],
+                'description': data_from_db[2].replace('<link rel="stylesheet"href="PF.css">', '')
+            })
+        else:
+            return ({
+                'name': [x[0] for x in data_from_db],
+                'type': [x[1] for x in data_from_db],
+                'source': [x[3] for x in data_from_db],
+                'description': [x[2].replace('<link rel="stylesheet"href="PF.css">', '') for x in data_from_db]
+            })
 
     def get_trait_data_from_name(self, name):
         if name.lower() in self.trait_names_lower:
@@ -126,20 +130,31 @@ class DataFromDB:
             })
 
         data_from_db = dbh.get_data_from_db_by_trait_name(self.trait_names[index_of_trait_name])
-        # TODO: Fix multiple entries for traits
-        data_from_db = data_from_db[0]
-        return ({
-            'name': self.trait_names[index_of_trait_name],
-            'type': data_from_db[0],
-            'source': data_from_db[2],
-            'description': data_from_db[1]
-        })
+        if len(data_from_db) == 1:
+            data_from_db = data_from_db[0]
+            return ({
+                'name': self.trait_names[index_of_trait_name],
+                'type': data_from_db[1],
+                'source': data_from_db[3],
+                'description': data_from_db[2]
+            })
+        else:
+            return ({
+                'name': [x[0] for x in data_from_db],
+                'type': [x[1] for x in data_from_db],
+                'source': [x[3] for x in data_from_db],
+                'description': [x[2] for x in data_from_db]
+            })
 
     def update_spell_data(self, dict_of_data, update=False):
         if dict_of_data['name'].lower() in self.spell_names_lower and not update:
             return
         dict_of_data['name'] = dict_of_data['name'].title()
         dbh.insert_spell_data(dict_of_data)
+        self.init_spells()
+
+    def delete_spell_data(self, name):
+        dbh.delete_spell_data(name)
         self.init_spells()
 
     def update_feat_data(self, dict_of_data):
