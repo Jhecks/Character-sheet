@@ -63,11 +63,11 @@ def clicked_gear_button(self):
     self.ui.closeButton.clicked.connect(lambda: self.window.close())
     self.ui.deleteButton.clicked.connect(lambda: self.gear_delete(index))
 
-    self.window.show()
     position = self.pos()
     position.setX(self.pos().x() + 180)
     position.setY(self.pos().y() + 350)
     self.window.move(position)
+    self.window.show()
 
 
 def gear_type_updated(self, index):

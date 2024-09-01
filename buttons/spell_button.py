@@ -1,8 +1,10 @@
-import qtTranslateLayer as qtl
+from auxiliary import qt_translate_layer as qtl
 from PyUi_Files.SpellEdit import Ui_SpellEdit
 from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFontMetrics
+
+from auxiliary.from_main import Themes
 
 
 def add_spell(self, spell=None, button_clicked=False, spell_level='', grid_layout=None):
@@ -28,14 +30,13 @@ def add_spell(self, spell=None, button_clicked=False, spell_level='', grid_layou
                                  "}")
     else:
         button_text = 'Click me'
-    font_metrics = QFontMetrics(button.font())
-    text_width = font_metrics.width(button_text)
-    button_width = button.width()
+    # font_metrics = QFontMetrics(button.font())
+    # text_width = font_metrics.width(button_text)
+    # button_width = button.width()
 
-    if text_width > button_width:
-        button.setStyleSheet(button.styleSheet() + " " + "QPushButton { text-align: left; } "
-                                                         "QToolTip { color: #ffffff; background-color: #000000; border: 1px solid white; }")
-        button.setToolTip(button_text)
+    button.setStyleSheet(button.styleSheet() + " " + "QToolTip { color: #000000; background-color: #dadada;"
+                                                     "border: 1px solid grey; }")
+    button.setToolTip(button_text)
     button.setText(button_text)
     gridLayout.addWidget(button, new_position[0], new_position[1])
     button.clicked.connect(lambda: self.clicked_spell_button(spell_level, grid_layout))
@@ -61,6 +62,7 @@ def clicked_spell_button(self, spell_level, grid_layout):
     self.ui.description.setOpenLinks(False)
 
     self.ui.name.setEditable(True)
+    self.ui.name.addItems(self.spell_data.spell_names)
     self.ui.name.setCurrentText(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name)
     getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].level = qtl.spell_levels[spell_level]
     self.ui.level.setValue(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].level)
@@ -91,11 +93,11 @@ def clicked_spell_button(self, spell_level, grid_layout):
     self.ui.markButton.clicked.connect(lambda: self.spell_mark(index, spell_level))
     self.ui.deleteButton.clicked.connect(lambda: self.spell_delete(index, spell_level, grid_layout))
 
-    self.window.show()
     position = self.pos()
     position.setX(self.pos().x() + 120)
     position.setY(self.pos().y() + 250)
     self.window.move(position)
+    self.window.show()
 
 
 def increase_prepared(self, index, spell_level):
@@ -164,15 +166,16 @@ def spell_name_updated(self, index, spell_level, text):
                 index].prepared)
     else:
         button_text = '{}'.format(getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name)
-    font_metrics = QFontMetrics(getattr(self, spell_level + 'List')[index].font())
-    text_width = font_metrics.width(button_text)
-    button_width = getattr(self, spell_level + 'List')[index].width()
-
-    if text_width > button_width:
-        getattr(self, spell_level + 'List')[index].setStyleSheet(
-            getattr(self, spell_level + 'List')[index].styleSheet() + " " + "QPushButton { text-align: left; } "
-                                                                            "QToolTip { color: #ffffff; background-color: #000000; border: 1px solid white; }")
+    getattr(self, spell_level + 'List')[index].setStyleSheet(
+        getattr(self, spell_level + 'List')[
+            index].styleSheet() + " " + "QToolTip { color: #000000; background-color: #dadada;"
+                                        "border: 1px solid grey; }")
+    if getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].notes:
+        getattr(self, spell_level + 'List')[index].setToolTip(
+            button_text + '\n' + getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].notes)
+    else:
         getattr(self, spell_level + 'List')[index].setToolTip(button_text)
+    getattr(self, spell_level + 'List')[index].setToolTipDuration(50000)
     getattr(self, spell_level + 'List')[index].setText(button_text)
 
 
@@ -182,6 +185,9 @@ def spell_level_updated(self, index, spell_level):
 
 def spell_school_updated(self, index, spell_level, text):
     getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].school = text
+
+
+# def spell_notes_updated(self, index, spell_level):
 
 
 def spell_subschool_updated(self, index, spell_level, text):
@@ -216,6 +222,9 @@ def spell_cast_updated(self, index, spell_level):
 
 def spell_notes_updated(self, index, spell_level):
     getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].notes = self.sender().toPlainText()
+    getattr(self, spell_level + 'List')[index].setToolTip(
+        getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].name + '\n' +
+        getattr(self.data_frame.spells, spell_level + 'Level').slotted[index].notes)
 
 
 def spell_increase_prepared(self, index, spell_level):

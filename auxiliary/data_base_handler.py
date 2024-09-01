@@ -79,7 +79,7 @@ def get_all_types_of_feats():
 def get_data_from_db_by_feat_name(name):
     conn = sqlite3.connect(os.getcwd() + '\\_internal\\_data_files\\data_base.db')
     with conn:
-        cur = conn.execute(f'SELECT type, full_text, source FROM feats where name = "{name}"')
+        cur = conn.execute(f'SELECT name, type, full_text, source FROM feats where name = "{name}"')
         return cur.fetchall()
 
 
@@ -107,14 +107,36 @@ def get_all_types_of_traits():
 def get_data_from_db_by_trait_name(name):
     conn = sqlite3.connect(os.getcwd() + '\\_internal\\_data_files\\data_base.db')
     with conn:
-        cur = conn.execute(f'SELECT type, full_text, source FROM traits where name = "{name}"')
+        cur = conn.execute(f'SELECT name, type, full_text, source FROM traits where name = "{name}"')
         return cur.fetchall()
+
+
+def get_data_from_db_by_trait_name_source(name, source):
+    conn = sqlite3.connect(os.getcwd() + '\\_internal\\_data_files\\data_base.db')
+    with conn:
+        cur = conn.execute(f'SELECT type, full_text FROM traits where name = "{name}" and source = "{source}"')
+        return cur.fetchone()
+
+
+def get_data_from_db_by_trait_name_type(name, type):
+    conn = sqlite3.connect(os.getcwd() + '\\_internal\\_data_files\\data_base.db')
+    with conn:
+        cur = conn.execute(f'SELECT source, full_text FROM traits where name = "{name}" and type = "{type}"')
+        return cur.fetchone()
 
 
 def insert_spell_data(spell_data):
     conn = sqlite3.connect(os.getcwd() + '\\_internal\\_data_files\\data_base.db')
     with conn:
         sql = f"INSERT OR REPLACE INTO spells (name, school, subschool, full_text) VALUES ('{spell_data['name']}', '{spell_data['school']}', '{spell_data['subschool']}', '{spell_data['full_text']}')"
+        conn.execute(sql)
+        conn.commit()
+
+
+def delete_spell_data(name):
+    conn = sqlite3.connect(os.getcwd() + '\\_internal\\_data_files\\data_base.db')
+    with conn:
+        sql = f"DELETE FROM spells WHERE name = '{name}'"
         conn.execute(sql)
         conn.commit()
 
@@ -173,7 +195,7 @@ def copy_data_from_feats_temp_to_feats():
     # Copy data
     cursor.execute("""
         INSERT INTO traits (name, type, source, full_text, url)
-        SELECT name, type, source, full_text, url FROM traits_temp
+        SELECT name, type, source, full_text, url FROM traits
     """)
 
     conn.commit()
@@ -184,25 +206,116 @@ def copy_data_from_feats_temp_to_feats():
 
 
 def print_non_unique_combinations():
-    conn = sqlite3.connect(os.getcwd() + '\\_internal\\_data_files\\data_base.db')
+    # path = r'D:\Programs\Own Projects\Character Sheet\Character-sheet\_internal\_data_files\data_base.db'
+    path = r'S:\Programs\Own Projects\Character Sheet\Character-sheet\_internal\_data_files\data_base.db'
+    conn = sqlite3.connect(path)
     cursor = conn.cursor()
 
     # Query for non-unique combinations
     cursor.execute("""
-        SELECT name, type, COUNT(*)
-        FROM feats_csv
-        GROUP BY name, type, source
+        SELECT name, type, source, COUNT(*)
+        FROM traits
+        GROUP BY name, type
         HAVING COUNT(*) > 1
     """)
 
     # Print the non-unique combinations
     for row in cursor.fetchall():
-        print(f"Name: {row[0]}, Type: {row[1]}, Count: {row[2]}")
+        print(f"Name: {row[0]}, Type: {row[1]}, Source: {row[2]}, Count: {row[3]}")
 
     conn.close()
 
 
 # print_non_unique_combinations()
+
+
+def print_non_unique_name_source_combinations():
+    db_path = r'S:\Programs\Own Projects\Character Sheet\Character-sheet\_internal\_data_files\data_base.db'
+    # Connect to the SQLite database
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    # SQL query to find non-unique combinations of name and source
+    query = """
+    SELECT name, COUNT(*)
+    FROM feats
+    GROUP BY name
+    HAVING COUNT(*) > 1
+    """
+
+    try:
+        cursor.execute(query)
+        combinations = cursor.fetchall()
+        if combinations:
+            for combination in combinations:
+                # print(f"Name: {combination[0]}, Source: {combination[1]}, Count: {combination[2]}")
+                print(f"Name: {combination[0]}, Type: {combination[1]}, Count: {combination[2]}")
+                # print(f"Name: {combination[0]}, Count: {combination[1]}")
+        else:
+            print("No non-unique name and source combinations found.")
+    finally:
+        # Ensure the connection is closed even if an error occurs
+        conn.close()
+
+
+# print_non_unique_name_source_combinations()
+
+
+def print_non_unique_names():
+    path = r'D:\Programs\Own Projects\Character Sheet\Character-sheet\_internal\_data_files\data_base.db'
+    conn = sqlite3.connect(path)
+    cursor = conn.cursor()
+
+    # Query for non-unique names
+    cursor.execute("""
+        SELECT name, type, source, COUNT(*)
+        FROM traits
+        GROUP BY name
+        HAVING COUNT(*) > 1
+    """)
+
+    # Print the non-unique names
+    for row in cursor.fetchall():
+        print(f"Name: {row[0]}, Type: {row[1]}, Source: {row[2]}, Count: {row[3]}")
+
+    conn.close()
+
+
+# print_non_unique_names()
+
+
+def print_non_unique_names_with_all_data():
+    path = r'D:\Programs\Own Projects\Character Sheet\Character-sheet\_internal\_data_files\data_base.db'
+    conn = sqlite3.connect(path)
+    cursor = conn.cursor()
+
+    # Query for non-unique names
+    cursor.execute("""
+        SELECT name, COUNT(*)
+        FROM traits
+        GROUP BY name
+        HAVING COUNT(*) > 1
+    """)
+
+    # Fetch the non-unique names
+    non_unique_names = [row[0] for row in cursor.fetchall()]
+
+    # For each non-unique name, print all its data
+    for name in non_unique_names:
+        cursor.execute("""
+            SELECT name, type, source
+            FROM traits
+            WHERE name = ?
+        """, (name,))
+
+        # Print all data for the current non-unique name
+        for row in cursor.fetchall():
+            print(f"Name: {row[0]}, Type: {row[1]}, Source: {row[2]}")
+
+    conn.close()
+
+
+# print_non_unique_names_with_all_data()
 
 
 def create_feats_table():

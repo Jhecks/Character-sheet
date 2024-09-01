@@ -58,11 +58,11 @@ def clicked_ability_button(self):
     self.ui.closeButton.clicked.connect(lambda: self.window.close())
     self.ui.deleteButton.clicked.connect(lambda: self.ability_delete(index))
 
-    self.window.show()
     position = self.pos()
     position.setX(self.pos().x() + 280)
     position.setY(self.pos().y() + 370)
     self.window.move(position)
+    self.window.show()
 
 
 def ability_name_updated(self, index):
