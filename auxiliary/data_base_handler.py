@@ -140,7 +140,7 @@ def delete_spell_data(name):
         conn.execute(sql)
         conn.commit()
 
-
+# TODO: fix save feat (source doesnt exist)
 def insert_feat_data(feat_data):
     conn = sqlite3.connect(os.getcwd() + '\\_internal\\_data_files\\data_base.db')
     with conn:

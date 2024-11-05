@@ -33,6 +33,7 @@ class DataFromDB:
         self.feat_names.insert(0, '')
         self.feat_names_lower.insert(0, '')
         self.feat_types.insert(0, '')
+        # self.sort_feats()
 
     def init_traits(self):
         self.trait_names = dbh.get_all_names_of_traits()
@@ -44,6 +45,12 @@ class DataFromDB:
         self.trait_names.insert(0, '')
         self.trait_names_lower.insert(0, '')
         self.trait_types.insert(0, '')
+
+    def sort_feats(self):
+        self.feat_names = sorted(self.feat_names)
+        self.feat_names_lower = [x.lower() for x in self.feat_names]
+        self.feat_types = sorted(self.feat_types)
+        # self.feat_sources = sorted(self.feat_sources)
 
     def get_spell_data_from_name(self, name):
         if name.lower() in self.spell_names_lower:
@@ -101,7 +108,7 @@ class DataFromDB:
         if len(data_from_db) == 1:
             data_from_db = data_from_db[0]
             return ({
-                'name': self.trait_names[index_of_feat_name],
+                'name': self.feat_names[index_of_feat_name],
                 'type': data_from_db[1],
                 'source': data_from_db[3],
                 'description': data_from_db[2].replace('<link rel="stylesheet"href="PF.css">', '')

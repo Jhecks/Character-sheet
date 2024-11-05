@@ -150,7 +150,6 @@ def addOrEditFeat(self):
     self.ui.source.setEditable(True)
     self.ui.source.setCurrentText('')
 
-
     self.ui.save.clicked.connect(self.addOrEditFeat_save)
 
     self.window.show()
@@ -163,12 +162,14 @@ def addOrEditFeat_save(self):
     if self.ui.name.text() == '' or self.ui.type.currentText() == '':
         self.addOrEditFeat_show_warning()
         return
-
-    keys = ['name', 'type', 'full_text']
+    # TODO: Add a warning if the source is not selected
+    keys = ['name', 'type', 'source', 'full_text']
     input_data = [self.ui.name.text().rstrip(), self.ui.type.currentText(),
                   str(self.ui.inputHTML.toPlainText()).replace('\n', '')]
     input_data_dict = dict(zip(keys, input_data))
     self.spell_data.update_feat_data(input_data_dict)
+    self.spell_data.sort_feats()
+
     self.window.close()
 
 
